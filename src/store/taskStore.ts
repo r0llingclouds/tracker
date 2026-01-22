@@ -44,13 +44,106 @@ const PROJECT_COLORS = [
   '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899'
 ];
 
+// ============================================
+// Sample Data for Testing
+// ============================================
+
+// Project IDs (pre-generated for task references)
+const PROJECT_IDS = {
+  gamifiedTracker: 'proj_gt1',
+  platformerGame: 'proj_pg2',
+  portfolio: 'proj_pf3',
+  llmFinetune: 'proj_llm4',
+  aiImageGen: 'proj_ai5',
+  frieren: 'proj_fr6',
+  soloLeveling: 'proj_sl7',
+};
+
+const SAMPLE_PROJECTS: Project[] = [
+  // Development
+  { id: PROJECT_IDS.gamifiedTracker, name: 'Gamified Tracker', color: '#3b82f6' },
+  { id: PROJECT_IDS.platformerGame, name: '2D Platformer Game', color: '#22c55e' },
+  { id: PROJECT_IDS.portfolio, name: 'Portfolio Website', color: '#8b5cf6' },
+  // AI
+  { id: PROJECT_IDS.llmFinetune, name: 'LLM Fine-tuning Experiments', color: '#f97316' },
+  { id: PROJECT_IDS.aiImageGen, name: 'AI Image Generator', color: '#ec4899' },
+  // Anime
+  { id: PROJECT_IDS.frieren, name: 'Frieren: Beyond Journey\'s End', color: '#14b8a6' },
+  { id: PROJECT_IDS.soloLeveling, name: 'Solo Leveling', color: '#ef4444' },
+];
+
+// Helper to create tasks with staggered dates
+const daysAgo = (days: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date;
+};
+
+const SAMPLE_TASKS: Task[] = [
+  // ---- Gamified Tracker tasks ----
+  { id: 'task_gt1', title: 'Implement drag and drop for tasks', completed: false, projectId: PROJECT_IDS.gamifiedTracker, tags: ['feature', 'ui'], createdAt: daysAgo(5) },
+  { id: 'task_gt2', title: 'Add dark mode toggle', completed: false, projectId: PROJECT_IDS.gamifiedTracker, tags: ['feature', 'ui'], createdAt: daysAgo(4) },
+  { id: 'task_gt3', title: 'Create statistics dashboard', completed: false, projectId: PROJECT_IDS.gamifiedTracker, tags: ['feature'], createdAt: daysAgo(3) },
+  { id: 'task_gt4', title: 'Add recurring tasks feature', completed: false, projectId: PROJECT_IDS.gamifiedTracker, tags: ['feature'], createdAt: daysAgo(2) },
+  { id: 'task_gt5', title: 'Set up project structure', completed: true, projectId: PROJECT_IDS.gamifiedTracker, tags: ['setup'], createdAt: daysAgo(10) },
+
+  // ---- 2D Platformer Game tasks ----
+  { id: 'task_pg1', title: 'Design player sprite', completed: true, projectId: PROJECT_IDS.platformerGame, tags: ['art', 'gamedev'], createdAt: daysAgo(14) },
+  { id: 'task_pg2', title: 'Implement jump mechanics', completed: true, projectId: PROJECT_IDS.platformerGame, tags: ['gameplay', 'gamedev'], createdAt: daysAgo(12) },
+  { id: 'task_pg3', title: 'Create first level layout', completed: false, projectId: PROJECT_IDS.platformerGame, tags: ['level-design', 'gamedev'], createdAt: daysAgo(7) },
+  { id: 'task_pg4', title: 'Add enemy AI pathfinding', completed: false, projectId: PROJECT_IDS.platformerGame, tags: ['ai', 'gamedev'], createdAt: daysAgo(5) },
+  { id: 'task_pg5', title: 'Implement save system', completed: false, projectId: PROJECT_IDS.platformerGame, tags: ['feature', 'gamedev'], createdAt: daysAgo(3) },
+
+  // ---- Portfolio Website tasks ----
+  { id: 'task_pf1', title: 'Design hero section', completed: true, projectId: PROJECT_IDS.portfolio, tags: ['design', 'ui'], createdAt: daysAgo(20) },
+  { id: 'task_pf2', title: 'Add projects showcase section', completed: false, projectId: PROJECT_IDS.portfolio, tags: ['feature'], createdAt: daysAgo(8) },
+  { id: 'task_pf3', title: 'Optimize for mobile devices', completed: false, projectId: PROJECT_IDS.portfolio, tags: ['responsive', 'ui'], createdAt: daysAgo(4) },
+
+  // ---- LLM Fine-tuning tasks ----
+  { id: 'task_llm1', title: 'Prepare training dataset', completed: true, projectId: PROJECT_IDS.llmFinetune, tags: ['data', 'ml'], createdAt: daysAgo(15) },
+  { id: 'task_llm2', title: 'Set up training pipeline', completed: true, projectId: PROJECT_IDS.llmFinetune, tags: ['infra', 'ml'], createdAt: daysAgo(12) },
+  { id: 'task_llm3', title: 'Run baseline experiments', completed: false, projectId: PROJECT_IDS.llmFinetune, tags: ['experiment', 'ml'], createdAt: daysAgo(6) },
+  { id: 'task_llm4', title: 'Evaluate model performance', completed: false, projectId: PROJECT_IDS.llmFinetune, tags: ['evaluation', 'ml'], createdAt: daysAgo(2) },
+
+  // ---- AI Image Generator tasks ----
+  { id: 'task_ai1', title: 'Research diffusion models', completed: true, projectId: PROJECT_IDS.aiImageGen, tags: ['research', 'ml'], createdAt: daysAgo(18) },
+  { id: 'task_ai2', title: 'Set up GPU environment', completed: true, projectId: PROJECT_IDS.aiImageGen, tags: ['infra'], createdAt: daysAgo(16) },
+  { id: 'task_ai3', title: 'Implement basic inference pipeline', completed: false, projectId: PROJECT_IDS.aiImageGen, tags: ['feature', 'ml'], createdAt: daysAgo(9) },
+  { id: 'task_ai4', title: 'Build web UI for generation', completed: false, projectId: PROJECT_IDS.aiImageGen, tags: ['ui', 'feature'], createdAt: daysAgo(4) },
+
+  // ---- Frieren episodes ----
+  { id: 'task_fr1', title: 'Episode 1: The Journey\'s End', completed: true, projectId: PROJECT_IDS.frieren, tags: ['anime'], createdAt: daysAgo(30) },
+  { id: 'task_fr2', title: 'Episode 2: It Didn\'t Have to Be Magic', completed: true, projectId: PROJECT_IDS.frieren, tags: ['anime'], createdAt: daysAgo(28) },
+  { id: 'task_fr3', title: 'Episode 3: Killing Magic', completed: true, projectId: PROJECT_IDS.frieren, tags: ['anime'], createdAt: daysAgo(26) },
+  { id: 'task_fr4', title: 'Episode 4: The Land Where Souls Rest', completed: false, projectId: PROJECT_IDS.frieren, tags: ['anime'], createdAt: daysAgo(24) },
+  { id: 'task_fr5', title: 'Episode 5: Phantoms of the Dead', completed: false, projectId: PROJECT_IDS.frieren, tags: ['anime'], createdAt: daysAgo(22) },
+
+  // ---- Solo Leveling episodes ----
+  { id: 'task_sl1', title: 'Episode 1: I\'m Used to It', completed: true, projectId: PROJECT_IDS.soloLeveling, tags: ['anime'], createdAt: daysAgo(25) },
+  { id: 'task_sl2', title: 'Episode 2: If I Had One More Chance', completed: true, projectId: PROJECT_IDS.soloLeveling, tags: ['anime'], createdAt: daysAgo(23) },
+  { id: 'task_sl3', title: 'Episode 3: It\'s Like a Game', completed: false, projectId: PROJECT_IDS.soloLeveling, tags: ['anime'], createdAt: daysAgo(21) },
+  { id: 'task_sl4', title: 'Episode 4: I\'ve Gotta Get Stronger', completed: false, projectId: PROJECT_IDS.soloLeveling, tags: ['anime'], createdAt: daysAgo(19) },
+
+  // ---- Inbox tasks (no project) ----
+  { id: 'task_in1', title: 'Review pull request from team', completed: false, projectId: null, tags: ['code-review'], createdAt: daysAgo(1) },
+  { id: 'task_in2', title: 'Update npm packages', completed: false, projectId: null, tags: ['maintenance'], createdAt: daysAgo(2) },
+  { id: 'task_in3', title: 'Read Rust documentation', completed: false, projectId: null, tags: ['learning'], createdAt: daysAgo(3) },
+  { id: 'task_in4', title: 'Set up new monitor', completed: false, projectId: null, tags: ['hardware'], createdAt: daysAgo(5) },
+  { id: 'task_in5', title: 'Reply to emails', completed: false, projectId: null, tags: [], createdAt: daysAgo(1) },
+];
+
+// Collect all unique tags from sample tasks
+const SAMPLE_TAGS = [...new Set(SAMPLE_TASKS.flatMap(t => t.tags))];
+
+// ============================================
+
 export const useTaskStore = create<TaskStore>()(
   persist(
     (set, get) => ({
-      // Initial state
-      tasks: [],
-      projects: [],
-      tags: [],
+      // Initial state with sample data
+      tasks: SAMPLE_TASKS,
+      projects: SAMPLE_PROJECTS,
+      tags: SAMPLE_TAGS,
       currentView: 'inbox',
       currentProjectId: null,
       selectedTaskId: null,
