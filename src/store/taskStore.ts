@@ -1,0 +1,272 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { Task, Project, View } from '../types';
+
+interface TaskStore {
+  // State
+  tasks: Task[];
+  projects: Project[];
+  tags: string[];
+  currentView: View;
+  currentProjectId: string | null;
+  selectedTaskId: string | null;
+  
+  // Task actions
+  addTask: (title: string, projectId?: string | null) => void;
+  updateTask: (id: string, updates: Partial<Task>) => void;
+  deleteTask: (id: string) => void;
+  toggleTask: (id: string) => void;
+  moveTask: (id: string, projectId: string | null) => void;
+  addTagToTask: (taskId: string, tag: string) => void;
+  removeTagFromTask: (taskId: string, tag: string) => void;
+  
+  // Project actions
+  addProject: (name: string, color?: string) => void;
+  updateProject: (id: string, updates: Partial<Project>) => void;
+  deleteProject: (id: string) => void;
+  
+  // Navigation
+  setView: (view: View, projectId?: string | null) => void;
+  selectTask: (id: string | null) => void;
+  selectNextTask: () => void;
+  selectPrevTask: () => void;
+  
+  // Computed
+  getVisibleTasks: () => Task[];
+  getTaskById: (id: string) => Task | undefined;
+  getProjectById: (id: string) => Project | undefined;
+}
+
+const generateId = () => Math.random().toString(36).substring(2, 9);
+
+const PROJECT_COLORS = [
+  '#ef4444', '#f97316', '#eab308', '#22c55e', 
+  '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899'
+];
+
+export const useTaskStore = create<TaskStore>()(
+  persist(
+    (set, get) => ({
+      // Initial state
+      tasks: [],
+      projects: [],
+      tags: [],
+      currentView: 'inbox',
+      currentProjectId: null,
+      selectedTaskId: null,
+      
+      // Task actions
+      addTask: (title, projectId = null) => {
+        const newTask: Task = {
+          id: generateId(),
+          title,
+          completed: false,
+          projectId: projectId ?? (get().currentView === 'project' ? get().currentProjectId : null),
+          tags: [],
+          createdAt: new Date(),
+        };
+        set(state => ({ tasks: [...state.tasks, newTask] }));
+      },
+      
+      updateTask: (id, updates) => {
+        set(state => ({
+          tasks: state.tasks.map(task => 
+            task.id === id ? { ...task, ...updates } : task
+          ),
+        }));
+      },
+      
+      deleteTask: (id) => {
+        set(state => {
+          const visibleTasks = get().getVisibleTasks();
+          const visibleIndex = visibleTasks.findIndex(t => t.id === id);
+          
+          // Select next task if we're deleting the selected one
+          let newSelectedId = state.selectedTaskId;
+          if (state.selectedTaskId === id) {
+            if (visibleIndex < visibleTasks.length - 1) {
+              newSelectedId = visibleTasks[visibleIndex + 1]?.id ?? null;
+            } else if (visibleIndex > 0) {
+              newSelectedId = visibleTasks[visibleIndex - 1]?.id ?? null;
+            } else {
+              newSelectedId = null;
+            }
+          }
+          
+          return {
+            tasks: state.tasks.filter(task => task.id !== id),
+            selectedTaskId: newSelectedId,
+          };
+        });
+      },
+      
+      toggleTask: (id) => {
+        set(state => ({
+          tasks: state.tasks.map(task =>
+            task.id === id ? { ...task, completed: !task.completed } : task
+          ),
+        }));
+      },
+      
+      moveTask: (id, projectId) => {
+        set(state => ({
+          tasks: state.tasks.map(task =>
+            task.id === id ? { ...task, projectId } : task
+          ),
+        }));
+      },
+      
+      addTagToTask: (taskId, tag) => {
+        const normalizedTag = tag.toLowerCase().trim();
+        set(state => {
+          const newTags = state.tags.includes(normalizedTag) 
+            ? state.tags 
+            : [...state.tags, normalizedTag];
+          
+          return {
+            tags: newTags,
+            tasks: state.tasks.map(task =>
+              task.id === taskId && !task.tags.includes(normalizedTag)
+                ? { ...task, tags: [...task.tags, normalizedTag] }
+                : task
+            ),
+          };
+        });
+      },
+      
+      removeTagFromTask: (taskId, tag) => {
+        set(state => ({
+          tasks: state.tasks.map(task =>
+            task.id === taskId
+              ? { ...task, tags: task.tags.filter(t => t !== tag) }
+              : task
+          ),
+        }));
+      },
+      
+      // Project actions
+      addProject: (name, color) => {
+        const newProject: Project = {
+          id: generateId(),
+          name,
+          color: color ?? PROJECT_COLORS[get().projects.length % PROJECT_COLORS.length],
+        };
+        set(state => ({ projects: [...state.projects, newProject] }));
+      },
+      
+      updateProject: (id, updates) => {
+        set(state => ({
+          projects: state.projects.map(project =>
+            project.id === id ? { ...project, ...updates } : project
+          ),
+        }));
+      },
+      
+      deleteProject: (id) => {
+        set(state => ({
+          projects: state.projects.filter(project => project.id !== id),
+          // Move tasks from deleted project to inbox
+          tasks: state.tasks.map(task =>
+            task.projectId === id ? { ...task, projectId: null } : task
+          ),
+          // Navigate away if viewing deleted project
+          currentView: state.currentProjectId === id ? 'inbox' : state.currentView,
+          currentProjectId: state.currentProjectId === id ? null : state.currentProjectId,
+        }));
+      },
+      
+      // Navigation
+      setView: (view, projectId = null) => {
+        set({ 
+          currentView: view, 
+          currentProjectId: view === 'project' ? projectId : null,
+          selectedTaskId: null,
+        });
+      },
+      
+      selectTask: (id) => {
+        set({ selectedTaskId: id });
+      },
+      
+      selectNextTask: () => {
+        const visibleTasks = get().getVisibleTasks();
+        const currentIndex = visibleTasks.findIndex(t => t.id === get().selectedTaskId);
+        
+        if (visibleTasks.length === 0) return;
+        
+        if (currentIndex === -1 || currentIndex === visibleTasks.length - 1) {
+          set({ selectedTaskId: visibleTasks[0].id });
+        } else {
+          set({ selectedTaskId: visibleTasks[currentIndex + 1].id });
+        }
+      },
+      
+      selectPrevTask: () => {
+        const visibleTasks = get().getVisibleTasks();
+        const currentIndex = visibleTasks.findIndex(t => t.id === get().selectedTaskId);
+        
+        if (visibleTasks.length === 0) return;
+        
+        if (currentIndex === -1 || currentIndex === 0) {
+          set({ selectedTaskId: visibleTasks[visibleTasks.length - 1].id });
+        } else {
+          set({ selectedTaskId: visibleTasks[currentIndex - 1].id });
+        }
+      },
+      
+      // Computed
+      getVisibleTasks: () => {
+        const state = get();
+        let tasks = state.tasks;
+        
+        switch (state.currentView) {
+          case 'inbox':
+            tasks = tasks.filter(t => t.projectId === null);
+            break;
+          case 'today':
+            // For now, show all incomplete tasks as "today"
+            tasks = tasks.filter(t => !t.completed);
+            break;
+          case 'project':
+            tasks = tasks.filter(t => t.projectId === state.currentProjectId);
+            break;
+        }
+        
+        // Sort: incomplete first, then by creation date
+        return tasks.sort((a, b) => {
+          if (a.completed !== b.completed) return a.completed ? 1 : -1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+      },
+      
+      getTaskById: (id) => get().tasks.find(t => t.id === id),
+      
+      getProjectById: (id) => get().projects.find(p => p.id === id),
+    }),
+    {
+      name: 'gamified-tracker-storage',
+      // Handle Date serialization
+      storage: {
+        getItem: (name) => {
+          const str = localStorage.getItem(name);
+          if (!str) return null;
+          const parsed = JSON.parse(str);
+          // Convert date strings back to Date objects
+          if (parsed.state?.tasks) {
+            parsed.state.tasks = parsed.state.tasks.map((t: Task) => ({
+              ...t,
+              createdAt: new Date(t.createdAt),
+            }));
+          }
+          return parsed;
+        },
+        setItem: (name, value) => {
+          localStorage.setItem(name, JSON.stringify(value));
+        },
+        removeItem: (name) => {
+          localStorage.removeItem(name);
+        },
+      },
+    }
+  )
+);
