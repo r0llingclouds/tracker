@@ -15,6 +15,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Data file (user-specific)
+server/data.json
+
 # Environment variables
 .env
 .env.local
