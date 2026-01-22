@@ -1,11 +1,18 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TaskList } from './components/TaskList';
 import { CommandPalette } from './components/CommandPalette';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
+import { useTaskStore } from './store/taskStore';
 
 function App() {
+  const { loadData, isLoading } = useTaskStore();
   const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // Load data from API on mount
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
   const [paletteMode, setPaletteMode] = useState<'search' | 'move' | 'tag' | 'newTask'>('search');
   const [paletteInitialValue, setPaletteInitialValue] = useState('');
   const [showGHint, setShowGHint] = useState(false);
@@ -37,6 +44,14 @@ function App() {
     onSpacePressed: handleSpacePressed,
     onSpaceReleased: handleSpaceReleased,
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen bg-gray-50 items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">

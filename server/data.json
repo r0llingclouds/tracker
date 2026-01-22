@@ -1,0 +1,444 @@
+{
+  "tasks": [
+    {
+      "id": "task_gt1",
+      "title": "Implement drag and drop for tasks",
+      "completed": false,
+      "projectId": "proj_gt1",
+      "tags": [
+        "feature",
+        "ui"
+      ],
+      "createdAt": "2026-01-17T12:00:00.000Z"
+    },
+    {
+      "id": "task_gt2",
+      "title": "Add dark mode toggle",
+      "completed": false,
+      "projectId": "proj_gt1",
+      "tags": [
+        "feature",
+        "ui"
+      ],
+      "createdAt": "2026-01-18T12:00:00.000Z"
+    },
+    {
+      "id": "task_gt3",
+      "title": "Create statistics dashboard",
+      "completed": false,
+      "projectId": "proj_gt1",
+      "tags": [
+        "feature"
+      ],
+      "createdAt": "2026-01-19T12:00:00.000Z"
+    },
+    {
+      "id": "task_gt4",
+      "title": "Add recurring tasks feature",
+      "completed": false,
+      "projectId": "proj_gt1",
+      "tags": [
+        "feature"
+      ],
+      "createdAt": "2026-01-20T12:00:00.000Z"
+    },
+    {
+      "id": "task_gt5",
+      "title": "Set up project structure",
+      "completed": true,
+      "projectId": "proj_gt1",
+      "tags": [
+        "setup"
+      ],
+      "createdAt": "2026-01-12T12:00:00.000Z"
+    },
+    {
+      "id": "task_pg1",
+      "title": "Design player sprite",
+      "completed": true,
+      "projectId": "proj_pg2",
+      "tags": [
+        "art",
+        "gamedev"
+      ],
+      "createdAt": "2026-01-08T12:00:00.000Z"
+    },
+    {
+      "id": "task_pg2",
+      "title": "Implement jump mechanics",
+      "completed": true,
+      "projectId": "proj_pg2",
+      "tags": [
+        "gameplay",
+        "gamedev"
+      ],
+      "createdAt": "2026-01-10T12:00:00.000Z"
+    },
+    {
+      "id": "task_pg3",
+      "title": "Create first level layout",
+      "completed": false,
+      "projectId": "proj_pg2",
+      "tags": [
+        "level-design",
+        "gamedev"
+      ],
+      "createdAt": "2026-01-15T12:00:00.000Z"
+    },
+    {
+      "id": "task_pg4",
+      "title": "Add enemy AI pathfinding",
+      "completed": false,
+      "projectId": "proj_pg2",
+      "tags": [
+        "ai",
+        "gamedev"
+      ],
+      "createdAt": "2026-01-17T12:00:00.000Z"
+    },
+    {
+      "id": "task_pg5",
+      "title": "Implement save system",
+      "completed": false,
+      "projectId": "proj_pg2",
+      "tags": [
+        "feature",
+        "gamedev"
+      ],
+      "createdAt": "2026-01-19T12:00:00.000Z"
+    },
+    {
+      "id": "task_pf1",
+      "title": "Design hero section",
+      "completed": true,
+      "projectId": "proj_pf3",
+      "tags": [
+        "design",
+        "ui"
+      ],
+      "createdAt": "2026-01-02T12:00:00.000Z"
+    },
+    {
+      "id": "task_pf2",
+      "title": "Add projects showcase section",
+      "completed": false,
+      "projectId": "proj_pf3",
+      "tags": [
+        "feature"
+      ],
+      "createdAt": "2026-01-14T12:00:00.000Z"
+    },
+    {
+      "id": "task_pf3",
+      "title": "Optimize for mobile devices",
+      "completed": false,
+      "projectId": "proj_pf3",
+      "tags": [
+        "responsive",
+        "ui"
+      ],
+      "createdAt": "2026-01-18T12:00:00.000Z"
+    },
+    {
+      "id": "task_llm1",
+      "title": "Prepare training dataset",
+      "completed": true,
+      "projectId": "proj_llm4",
+      "tags": [
+        "data",
+        "ml"
+      ],
+      "createdAt": "2026-01-07T12:00:00.000Z"
+    },
+    {
+      "id": "task_llm2",
+      "title": "Set up training pipeline",
+      "completed": true,
+      "projectId": "proj_llm4",
+      "tags": [
+        "infra",
+        "ml"
+      ],
+      "createdAt": "2026-01-10T12:00:00.000Z"
+    },
+    {
+      "id": "task_llm3",
+      "title": "Run baseline experiments",
+      "completed": false,
+      "projectId": "proj_llm4",
+      "tags": [
+        "experiment",
+        "ml"
+      ],
+      "createdAt": "2026-01-16T12:00:00.000Z"
+    },
+    {
+      "id": "task_llm4",
+      "title": "Evaluate model performance",
+      "completed": false,
+      "projectId": "proj_llm4",
+      "tags": [
+        "evaluation",
+        "ml"
+      ],
+      "createdAt": "2026-01-20T12:00:00.000Z"
+    },
+    {
+      "id": "task_ai1",
+      "title": "Research diffusion models",
+      "completed": true,
+      "projectId": "proj_ai5",
+      "tags": [
+        "research",
+        "ml"
+      ],
+      "createdAt": "2026-01-04T12:00:00.000Z"
+    },
+    {
+      "id": "task_ai2",
+      "title": "Set up GPU environment",
+      "completed": true,
+      "projectId": "proj_ai5",
+      "tags": [
+        "infra"
+      ],
+      "createdAt": "2026-01-06T12:00:00.000Z"
+    },
+    {
+      "id": "task_ai3",
+      "title": "Implement basic inference pipeline",
+      "completed": false,
+      "projectId": "proj_ai5",
+      "tags": [
+        "feature",
+        "ml"
+      ],
+      "createdAt": "2026-01-13T12:00:00.000Z"
+    },
+    {
+      "id": "task_ai4",
+      "title": "Build web UI for generation",
+      "completed": false,
+      "projectId": "proj_ai5",
+      "tags": [
+        "ui",
+        "feature"
+      ],
+      "createdAt": "2026-01-18T12:00:00.000Z"
+    },
+    {
+      "id": "task_fr1",
+      "title": "Episode 1: The Journey's End",
+      "completed": true,
+      "projectId": "proj_fr6",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2025-12-23T12:00:00.000Z"
+    },
+    {
+      "id": "task_fr2",
+      "title": "Episode 2: It Didn't Have to Be Magic",
+      "completed": true,
+      "projectId": "proj_fr6",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2025-12-25T12:00:00.000Z"
+    },
+    {
+      "id": "task_fr3",
+      "title": "Episode 3: Killing Magic",
+      "completed": true,
+      "projectId": "proj_fr6",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2025-12-27T12:00:00.000Z"
+    },
+    {
+      "id": "task_fr4",
+      "title": "Episode 4: The Land Where Souls Rest",
+      "completed": false,
+      "projectId": "proj_fr6",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2025-12-29T12:00:00.000Z"
+    },
+    {
+      "id": "task_fr5",
+      "title": "Episode 5: Phantoms of the Dead",
+      "completed": false,
+      "projectId": "proj_fr6",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2025-12-31T12:00:00.000Z"
+    },
+    {
+      "id": "task_sl1",
+      "title": "Episode 1: I'm Used to It",
+      "completed": true,
+      "projectId": "proj_sl7",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2025-12-28T12:00:00.000Z"
+    },
+    {
+      "id": "task_sl2",
+      "title": "Episode 2: If I Had One More Chance",
+      "completed": true,
+      "projectId": "proj_sl7",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2025-12-30T12:00:00.000Z"
+    },
+    {
+      "id": "task_sl3",
+      "title": "Episode 3: It's Like a Game",
+      "completed": false,
+      "projectId": "proj_sl7",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    },
+    {
+      "id": "task_sl4",
+      "title": "Episode 4: I've Gotta Get Stronger",
+      "completed": false,
+      "projectId": "proj_sl7",
+      "tags": [
+        "anime"
+      ],
+      "createdAt": "2026-01-03T12:00:00.000Z"
+    },
+    {
+      "id": "task_in1",
+      "title": "Review pull request from team",
+      "completed": false,
+      "projectId": null,
+      "tags": [
+        "code-review"
+      ],
+      "createdAt": "2026-01-21T12:00:00.000Z"
+    },
+    {
+      "id": "task_in2",
+      "title": "Update npm packages",
+      "completed": false,
+      "projectId": null,
+      "tags": [
+        "maintenance"
+      ],
+      "createdAt": "2026-01-20T12:00:00.000Z"
+    },
+    {
+      "id": "task_in3",
+      "title": "Read Rust documentation",
+      "completed": false,
+      "projectId": null,
+      "tags": [
+        "learning"
+      ],
+      "createdAt": "2026-01-19T12:00:00.000Z"
+    },
+    {
+      "id": "task_in4",
+      "title": "Set up new monitor",
+      "completed": false,
+      "projectId": null,
+      "tags": [
+        "hardware"
+      ],
+      "createdAt": "2026-01-17T12:00:00.000Z"
+    },
+    {
+      "id": "task_in5",
+      "title": "Reply to emails",
+      "completed": false,
+      "projectId": null,
+      "tags": [],
+      "createdAt": "2026-01-21T12:00:00.000Z"
+    },
+    {
+      "id": "jxoz7no",
+      "title": "read pablo proposal for AI tools",
+      "completed": false,
+      "projectId": null,
+      "tags": [],
+      "createdAt": "2026-01-22T16:48:47.271Z"
+    },
+    {
+      "id": "by0rzov",
+      "title": "read pablo proposal for AI tools",
+      "completed": false,
+      "projectId": null,
+      "tags": [],
+      "createdAt": "2026-01-22T16:48:47.272Z"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_gt1",
+      "name": "Gamified Tracker",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "proj_pg2",
+      "name": "2D Platformer Game",
+      "color": "#22c55e"
+    },
+    {
+      "id": "proj_pf3",
+      "name": "Portfolio Website",
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "proj_llm4",
+      "name": "LLM Fine-tuning Experiments",
+      "color": "#f97316"
+    },
+    {
+      "id": "proj_ai5",
+      "name": "AI Image Generator",
+      "color": "#ec4899"
+    },
+    {
+      "id": "proj_fr6",
+      "name": "Frieren: Beyond Journey's End",
+      "color": "#14b8a6"
+    },
+    {
+      "id": "proj_sl7",
+      "name": "Solo Leveling",
+      "color": "#ef4444"
+    }
+  ],
+  "tags": [
+    "feature",
+    "ui",
+    "setup",
+    "art",
+    "gamedev",
+    "gameplay",
+    "level-design",
+    "ai",
+    "design",
+    "responsive",
+    "data",
+    "ml",
+    "infra",
+    "experiment",
+    "evaluation",
+    "research",
+    "anime",
+    "code-review",
+    "maintenance",
+    "learning",
+    "hardware"
+  ]
+}
