@@ -55,6 +55,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Handle Enter for new task creation
     if (mode === 'newTask' && e.key === 'Enter' && inputValue.trim()) {
+      e.preventDefault();
       addTask(inputValue.trim());
       onClose();
       return;
@@ -62,6 +63,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     
     // Handle Enter for new tag creation
     if (mode === 'tag' && e.key === 'Enter' && inputValue.trim() && selectedTaskId) {
+      e.preventDefault();
       addTagToTask(selectedTaskId, inputValue.trim());
       onClose();
       return;
