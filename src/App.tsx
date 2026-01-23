@@ -2,12 +2,16 @@ import { useState, useCallback, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TaskList } from './components/TaskList';
 import { CommandPalette } from './components/CommandPalette';
+import { TrackerApp } from './components/habits/TrackerApp';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
 import { useTaskStore } from './store/taskStore';
+
+export type AppMode = 'tasks' | 'habits';
 
 function App() {
   const { loadData, isLoading, theme } = useTaskStore();
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [appMode, setAppMode] = useState<AppMode>('tasks');
 
   // Load data from API on mount
   useEffect(() => {
@@ -69,14 +73,20 @@ function App() {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar />
-      <TaskList />
-      <CommandPalette 
-        open={paletteOpen} 
-        onClose={closePalette}
-        mode={paletteMode}
-        initialValue={paletteInitialValue}
-      />
+      <Sidebar appMode={appMode} setAppMode={setAppMode} />
+      {appMode === 'tasks' ? (
+        <TaskList />
+      ) : (
+        <TrackerApp />
+      )}
+      {appMode === 'tasks' && (
+        <CommandPalette 
+          open={paletteOpen} 
+          onClose={closePalette}
+          mode={paletteMode}
+          initialValue={paletteInitialValue}
+        />
+      )}
       
       {/* "Space" action mode indicator */}
       {showSpaceHint && (

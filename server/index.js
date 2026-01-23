@@ -10,6 +10,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3001;
 const DATA_FILE = path.join(__dirname, 'data.json');
+const HABITS_BASE_DIR = "/Users/tirso.lopez/Library/Mobile Documents/com~apple~CloudDocs/Documents/more";
+const HABITS_FILE = path.join(HABITS_BASE_DIR, "habit-tracker.json");
 
 // Middleware
 app.use(cors());
@@ -66,6 +68,58 @@ app.post('/api/data', (req, res) => {
     res.json({ success: true });
   } else {
     res.status(500).json({ error: 'Failed to save data' });
+  }
+});
+
+// Helper to read habits file
+const readHabits = () => {
+  try {
+    if (!fs.existsSync(HABITS_FILE)) {
+      return null;
+    }
+    const data = fs.readFileSync(HABITS_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading habits file:', error);
+    return null;
+  }
+};
+
+// Helper to write habits file
+const writeHabits = (data) => {
+  try {
+    fs.writeFileSync(HABITS_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    return true;
+  } catch (error) {
+    console.error('Error writing habits file:', error);
+    return false;
+  }
+};
+
+// GET /api/habits - Read habits data
+app.get('/api/habits', (req, res) => {
+  const data = readHabits();
+  if (data === null) {
+    res.json({ isNew: true });
+  } else {
+    res.json(data);
+  }
+});
+
+// POST /api/habits - Save habits data
+app.post('/api/habits', (req, res) => {
+  const doc = req.body;
+  
+  if (!doc || typeof doc !== 'object') {
+    return res.status(400).json({ error: 'Invalid data format' });
+  }
+  
+  const success = writeHabits(doc);
+  
+  if (success) {
+    res.json({ success: true });
+  } else {
+    res.status(500).json({ error: 'Failed to save habits data' });
   }
 });
 

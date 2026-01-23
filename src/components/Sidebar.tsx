@@ -1,5 +1,6 @@
 import { isSameDay, startOfDay } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
+import type { AppMode } from '../App';
 
 interface NavItemProps {
   label: string;
@@ -40,7 +41,12 @@ function NavItem({ label, shortcut, count, active, onClick, color, indent }: Nav
   );
 }
 
-export function Sidebar() {
+type SidebarProps = {
+  appMode: AppMode;
+  setAppMode: (mode: AppMode) => void;
+};
+
+export function Sidebar({ appMode, setAppMode }: SidebarProps) {
   const { 
     currentView, 
     currentProjectId,
@@ -95,139 +101,173 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Tasks</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Press any key to search</p>
-      </div>
-      
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        <NavItem
-          label="Inbox"
-          shortcut=""
-          count={inboxCount}
-          active={currentView === 'inbox'}
-          onClick={() => setView('inbox')}
-        />
-        <NavItem
-          label="Today"
-          shortcut=""
-          count={todayCount}
-          active={currentView === 'today'}
-          onClick={() => setView('today')}
-        />
-        <NavItem
-          label="Upcoming"
-          shortcut=""
-          count={upcomingCount}
-          active={currentView === 'upcoming'}
-          onClick={() => setView('upcoming')}
-        />
-        <NavItem
-          label="Someday"
-          shortcut=""
-          count={somedayCount}
-          active={currentView === 'someday'}
-          onClick={() => setView('someday')}
-        />
-        
-        {/* Areas with their projects */}
-        {areas.length > 0 && (
-          <div className="pt-4">
-            <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-              Areas
-            </h2>
-            {areas.map(area => {
-              const areaProjects = projectsByArea.get(area.id) || [];
-              return (
-                <div key={area.id}>
-                  <div
-                    onDoubleClick={() => {
-                      const action = prompt('Type "rename" or "delete":');
-                      if (action?.toLowerCase() === 'rename') {
-                        const newName = prompt('New name:', area.name);
-                        if (newName && newName !== area.name) {
-                          updateArea(area.id, { name: newName });
-                        }
-                      } else if (action?.toLowerCase() === 'delete') {
-                        if (confirm(`Delete area "${area.name}"?`)) {
-                          deleteArea(area.id);
-                        }
-                      }
-                    }}
-                  >
-                    <NavItem
-                      label={area.name}
-                      shortcut=""
-                      count={getAreaCount(area.id)}
-                      active={currentView === 'area' && currentAreaId === area.id}
-                      onClick={() => setView('area', null, null, area.id)}
-                    />
-                  </div>
-                  {/* Projects in this area */}
-                  {areaProjects.map(project => (
-                    <NavItem
-                      key={project.id}
-                      label={project.name}
-                      shortcut=""
-                      count={getProjectCount(project.id)}
-                      active={currentView === 'project' && currentProjectId === project.id}
-                      onClick={() => setView('project', project.id)}
-                      color={project.color}
-                      indent
-                    />
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        )}
-        
-        {/* Ungrouped projects (no area) */}
-        {ungroupedProjects.length > 0 && (
-          <div className="pt-4">
-            <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-              Projects
-            </h2>
-            {ungroupedProjects.map(project => (
-              <NavItem
-                key={project.id}
-                label={project.name}
-                shortcut=""
-                count={getProjectCount(project.id)}
-                active={currentView === 'project' && currentProjectId === project.id}
-                onClick={() => setView('project', project.id)}
-                color={project.color}
-              />
-            ))}
-          </div>
-        )}
-        
-        {tags.length > 0 && (
-          <div className="pt-4">
-            <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-              Tags
-            </h2>
-            {tags.map(tag => (
-              <NavItem
-                key={tag}
-                label={`#${tag}`}
-                shortcut=""
-                count={getTagCount(tag)}
-                active={currentView === 'tag' && currentTagId === tag}
-                onClick={() => setView('tag', null, tag)}
-              />
-            ))}
-          </div>
-        )}
-      </nav>
-      
-      <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-        <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
-          <div><kbd className="font-mono">space+n</kbd> new task</div>
-          <div><kbd className="font-mono">space</kbd> task actions</div>
-          <div><kbd className="font-mono">⌘k</kbd> command palette</div>
-          <div><kbd className="font-mono">⌘⇧L</kbd> toggle dark mode</div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setAppMode('tasks')}
+            className={`text-xl font-bold transition-colors ${
+              appMode === 'tasks'
+                ? 'text-gray-900 dark:text-gray-100'
+                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+            }`}
+          >
+            Tasks
+          </button>
+          <span className="text-gray-300 dark:text-gray-600">|</span>
+          <button
+            onClick={() => setAppMode('habits')}
+            className={`text-xl font-bold transition-colors ${
+              appMode === 'habits'
+                ? 'text-gray-900 dark:text-gray-100'
+                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+            }`}
+          >
+            Habits
+          </button>
         </div>
+        {appMode === 'tasks' && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Press any key to search</p>
+        )}
       </div>
+      
+      {appMode === 'tasks' ? (
+        <>
+          <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+            <NavItem
+              label="Inbox"
+              shortcut=""
+              count={inboxCount}
+              active={currentView === 'inbox'}
+              onClick={() => setView('inbox')}
+            />
+            <NavItem
+              label="Today"
+              shortcut=""
+              count={todayCount}
+              active={currentView === 'today'}
+              onClick={() => setView('today')}
+            />
+            <NavItem
+              label="Upcoming"
+              shortcut=""
+              count={upcomingCount}
+              active={currentView === 'upcoming'}
+              onClick={() => setView('upcoming')}
+            />
+            <NavItem
+              label="Someday"
+              shortcut=""
+              count={somedayCount}
+              active={currentView === 'someday'}
+              onClick={() => setView('someday')}
+            />
+            
+            {/* Areas with their projects */}
+            {areas.length > 0 && (
+              <div className="pt-4">
+                <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  Areas
+                </h2>
+                {areas.map(area => {
+                  const areaProjects = projectsByArea.get(area.id) || [];
+                  return (
+                    <div key={area.id}>
+                      <div
+                        onDoubleClick={() => {
+                          const action = prompt('Type "rename" or "delete":');
+                          if (action?.toLowerCase() === 'rename') {
+                            const newName = prompt('New name:', area.name);
+                            if (newName && newName !== area.name) {
+                              updateArea(area.id, { name: newName });
+                            }
+                          } else if (action?.toLowerCase() === 'delete') {
+                            if (confirm(`Delete area "${area.name}"?`)) {
+                              deleteArea(area.id);
+                            }
+                          }
+                        }}
+                      >
+                        <NavItem
+                          label={area.name}
+                          shortcut=""
+                          count={getAreaCount(area.id)}
+                          active={currentView === 'area' && currentAreaId === area.id}
+                          onClick={() => setView('area', null, null, area.id)}
+                        />
+                      </div>
+                      {/* Projects in this area */}
+                      {areaProjects.map(project => (
+                        <NavItem
+                          key={project.id}
+                          label={project.name}
+                          shortcut=""
+                          count={getProjectCount(project.id)}
+                          active={currentView === 'project' && currentProjectId === project.id}
+                          onClick={() => setView('project', project.id)}
+                          color={project.color}
+                          indent
+                        />
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            
+            {/* Ungrouped projects (no area) */}
+            {ungroupedProjects.length > 0 && (
+              <div className="pt-4">
+                <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  Projects
+                </h2>
+                {ungroupedProjects.map(project => (
+                  <NavItem
+                    key={project.id}
+                    label={project.name}
+                    shortcut=""
+                    count={getProjectCount(project.id)}
+                    active={currentView === 'project' && currentProjectId === project.id}
+                    onClick={() => setView('project', project.id)}
+                    color={project.color}
+                  />
+                ))}
+              </div>
+            )}
+            
+            {tags.length > 0 && (
+              <div className="pt-4">
+                <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  Tags
+                </h2>
+                {tags.map(tag => (
+                  <NavItem
+                    key={tag}
+                    label={`#${tag}`}
+                    shortcut=""
+                    count={getTagCount(tag)}
+                    active={currentView === 'tag' && currentTagId === tag}
+                    onClick={() => setView('tag', null, tag)}
+                  />
+                ))}
+              </div>
+            )}
+          </nav>
+          
+          <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
+              <div><kbd className="font-mono">space+n</kbd> new task</div>
+              <div><kbd className="font-mono">space</kbd> task actions</div>
+              <div><kbd className="font-mono">⌘k</kbd> command palette</div>
+              <div><kbd className="font-mono">⌘⇧L</kbd> toggle dark mode</div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="flex-1 p-3">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Track your daily habits with a GitHub-style heatmap visualization.
+          </p>
+        </div>
+      )}
     </aside>
   );
 }
