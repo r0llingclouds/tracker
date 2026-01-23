@@ -6,13 +6,31 @@ import { useKeyboardShortcuts } from './hooks/useKeyboard';
 import { useTaskStore } from './store/taskStore';
 
 function App() {
-  const { loadData, isLoading } = useTaskStore();
+  const { loadData, isLoading, theme } = useTaskStore();
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   // Load data from API on mount
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Apply theme class to document
+  useEffect(() => {
+    const applyTheme = () => {
+      const isDark = theme === 'dark' || 
+        (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.classList.toggle('dark', isDark);
+    };
+
+    applyTheme();
+
+    // Listen for system theme changes when in 'system' mode
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addEventListener('change', applyTheme);
+      return () => mediaQuery.removeEventListener('change', applyTheme);
+    }
+  }, [theme]);
   const [paletteMode, setPaletteMode] = useState<'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline'>('search');
   const [paletteInitialValue, setPaletteInitialValue] = useState('');
   const [showGHint, setShowGHint] = useState(false);
@@ -47,14 +65,14 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen bg-gray-50 items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900 items-center justify-center">
+        <div className="text-gray-500 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar />
       <TaskList />
       <CommandPalette 

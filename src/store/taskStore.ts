@@ -58,6 +58,8 @@ export interface UpcomingData {
 
 const API_URL = 'http://localhost:3001/api';
 
+type Theme = 'light' | 'dark' | 'system';
+
 interface TaskStore {
   // State
   tasks: Task[];
@@ -67,6 +69,7 @@ interface TaskStore {
   currentProjectId: string | null;
   selectedTaskId: string | null;
   isLoading: boolean;
+  theme: Theme;
   
   // Data persistence
   loadData: () => Promise<void>;
@@ -102,6 +105,10 @@ interface TaskStore {
   getUpcomingTasksWithOverdue: () => UpcomingData;
   getTaskById: (id: string) => Task | undefined;
   getProjectById: (id: string) => Project | undefined;
+  
+  // Theme
+  setTheme: (theme: Theme) => void;
+  toggleTheme: () => void;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -121,6 +128,7 @@ export const useTaskStore = create<TaskStore>()(
     currentProjectId: null,
     selectedTaskId: null,
     isLoading: true,
+    theme: (localStorage.getItem('theme') as Theme) || 'system',
     
     // Load data from API
     loadData: async () => {
@@ -554,6 +562,20 @@ export const useTaskStore = create<TaskStore>()(
     getTaskById: (id) => get().tasks.find(t => t.id === id),
     
     getProjectById: (id) => get().projects.find(p => p.id === id),
+    
+    // Theme actions
+    setTheme: (theme) => {
+      localStorage.setItem('theme', theme);
+      set({ theme });
+    },
+    
+    toggleTheme: () => {
+      const currentTheme = get().theme;
+      const newTheme: Theme = currentTheme === 'light' ? 'dark' : 
+                              currentTheme === 'dark' ? 'system' : 'light';
+      localStorage.setItem('theme', newTheme);
+      set({ theme: newTheme });
+    },
   }))
 );
 

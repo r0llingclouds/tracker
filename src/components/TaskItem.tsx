@@ -88,8 +88,8 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
       onClick={onSelect}
       className={`group flex items-center gap-3 px-4 py-3 cursor-pointer ${
         selected 
-          ? 'bg-blue-50 border-l-2 border-blue-500' 
-          : 'hover:bg-gray-50 border-l-2 border-transparent'
+          ? 'bg-gray-100 dark:bg-gray-700 border-l-2 border-gray-400 dark:border-gray-500' 
+          : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-l-2 border-transparent'
       } ${task.completed ? 'opacity-60' : ''}`}
     >
       <button
@@ -100,7 +100,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
         className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transform hover:scale-110 active:scale-95 ${
           task.completed
             ? 'bg-green-500 border-green-500 text-white'
-            : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
         }`}
       >
         {task.completed && (
@@ -111,7 +111,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
       </button>
       
       <div className="flex-1 min-w-0">
-        <p className={`truncate ${task.completed ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+        <p className={`truncate ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
           {task.title}
         </p>
         
@@ -120,7 +120,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
             <span className={`flex items-center gap-1 text-xs ${
               scheduledInfo.isOverdue && !task.completed
                 ? 'text-red-500 font-medium' 
-                : 'text-gray-500'
+                : 'text-gray-500 dark:text-gray-400'
             }`}>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -135,7 +135,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
                 ? 'text-red-600 font-semibold'
                 : deadlineInfo.isUrgent && !task.completed
                 ? 'text-orange-500 font-medium'
-                : 'text-gray-500'
+                : 'text-gray-500 dark:text-gray-400'
             }`}>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
@@ -145,7 +145,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
           )}
           
           {task.recurrence && (
-            <span className="flex items-center gap-1 text-xs text-purple-500">
+            <span className="flex items-center gap-1 text-xs text-purple-500 dark:text-purple-400">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -154,7 +154,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
           )}
           
           {project && (
-            <span className="flex items-center gap-1 text-xs text-gray-500">
+            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <span 
                 className="w-2 h-2 rounded-full" 
                 style={{ backgroundColor: project.color }}
@@ -168,7 +168,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
               {task.tags.map(tag => (
                 <span 
                   key={tag}
-                  className="px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded"
+                  className="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded"
                 >
                   #{tag}
                 </span>
@@ -178,7 +178,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
         </div>
       </div>
       
-      <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-gray-400">
+      <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-gray-400 dark:text-gray-500">
         <span className="font-mono">space+c</span> complete
       </div>
     </div>

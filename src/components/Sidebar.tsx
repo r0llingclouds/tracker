@@ -16,8 +16,8 @@ function NavItem({ label, shortcut, count, active, onClick, color }: NavItemProp
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
         active 
-          ? 'bg-blue-50 text-blue-700' 
-          : 'text-gray-700 hover:bg-gray-100'
+          ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100' 
+          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
       }`}
     >
       {color && (
@@ -28,9 +28,9 @@ function NavItem({ label, shortcut, count, active, onClick, color }: NavItemProp
       )}
       <span className="flex-1 truncate">{label}</span>
       {count !== undefined && count > 0 && (
-        <span className="text-xs text-gray-400">{count}</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500">{count}</span>
       )}
-      <span className="text-xs text-gray-400 font-mono">{shortcut}</span>
+      <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{shortcut}</span>
     </button>
   );
 }
@@ -55,10 +55,10 @@ export function Sidebar() {
     tasks.filter(t => t.projectId === projectId && !t.completed).length;
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen">
-      <div className="p-4 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-900">Tasks</h1>
-        <p className="text-xs text-gray-500 mt-1">Press any key to search</p>
+    <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Tasks</h1>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Press any key to search</p>
       </div>
       
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -93,7 +93,7 @@ export function Sidebar() {
         
         {projects.length > 0 && (
           <div className="pt-4">
-            <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
               Projects
             </h2>
             {projects.map(project => (
@@ -111,11 +111,12 @@ export function Sidebar() {
         )}
       </nav>
       
-      <div className="p-3 border-t border-gray-200">
-        <div className="text-xs text-gray-400 space-y-1">
+      <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
           <div><kbd className="font-mono">space+n</kbd> new task</div>
           <div><kbd className="font-mono">space</kbd> task actions</div>
           <div><kbd className="font-mono">⌘k</kbd> command palette</div>
+          <div><kbd className="font-mono">⌘⇧L</kbd> toggle dark mode</div>
         </div>
       </div>
     </aside>

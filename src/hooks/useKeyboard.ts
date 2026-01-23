@@ -28,6 +28,7 @@ export function useKeyboardShortcuts({
     toggleTask,
     deleteTask,
     setView,
+    toggleTheme,
   } = useTaskStore();
 
   // Track if we're waiting for a second key (for prefix commands)
@@ -49,6 +50,12 @@ export function useKeyboardShortcuts({
     if (paletteOpen) {
       closePalette();
     }
+  }, { enableOnFormTags: true });
+
+  // Toggle dark mode - Cmd/Ctrl+Shift+L
+  useHotkeys('meta+shift+l, ctrl+shift+l', (e) => {
+    e.preventDefault();
+    toggleTheme();
   }, { enableOnFormTags: true });
 
   // Global keyboard listener for type-anywhere and shortcuts
@@ -217,6 +224,7 @@ export function useKeyboardShortcuts({
     toggleTask, 
     deleteTask,
     setView,
+    toggleTheme,
     onGPressed,
     onGReleased,
     onSpacePressed,
