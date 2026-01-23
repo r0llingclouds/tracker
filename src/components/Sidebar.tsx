@@ -49,6 +49,8 @@ export function Sidebar() {
     setView, 
     projects,
     areas,
+    updateArea,
+    deleteArea,
     tags, 
     tasks 
   } = useTaskStore();
@@ -100,28 +102,28 @@ export function Sidebar() {
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         <NavItem
           label="Inbox"
-          shortcut="gi"
+          shortcut=""
           count={inboxCount}
           active={currentView === 'inbox'}
           onClick={() => setView('inbox')}
         />
         <NavItem
           label="Today"
-          shortcut="gt"
+          shortcut=""
           count={todayCount}
           active={currentView === 'today'}
           onClick={() => setView('today')}
         />
         <NavItem
           label="Upcoming"
-          shortcut="gu"
+          shortcut=""
           count={upcomingCount}
           active={currentView === 'upcoming'}
           onClick={() => setView('upcoming')}
         />
         <NavItem
           label="Someday"
-          shortcut="gs"
+          shortcut=""
           count={somedayCount}
           active={currentView === 'someday'}
           onClick={() => setView('someday')}
@@ -137,13 +139,29 @@ export function Sidebar() {
               const areaProjects = projectsByArea.get(area.id) || [];
               return (
                 <div key={area.id}>
-                  <NavItem
-                    label={area.name}
-                    shortcut=""
-                    count={getAreaCount(area.id)}
-                    active={currentView === 'area' && currentAreaId === area.id}
-                    onClick={() => setView('area', null, null, area.id)}
-                  />
+                  <div
+                    onDoubleClick={() => {
+                      const action = prompt('Type "rename" or "delete":');
+                      if (action?.toLowerCase() === 'rename') {
+                        const newName = prompt('New name:', area.name);
+                        if (newName && newName !== area.name) {
+                          updateArea(area.id, { name: newName });
+                        }
+                      } else if (action?.toLowerCase() === 'delete') {
+                        if (confirm(`Delete area "${area.name}"?`)) {
+                          deleteArea(area.id);
+                        }
+                      }
+                    }}
+                  >
+                    <NavItem
+                      label={area.name}
+                      shortcut=""
+                      count={getAreaCount(area.id)}
+                      active={currentView === 'area' && currentAreaId === area.id}
+                      onClick={() => setView('area', null, null, area.id)}
+                    />
+                  </div>
                   {/* Projects in this area */}
                   {areaProjects.map(project => (
                     <NavItem

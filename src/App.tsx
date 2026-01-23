@@ -31,12 +31,12 @@ function App() {
       return () => mediaQuery.removeEventListener('change', applyTheme);
     }
   }, [theme]);
-  const [paletteMode, setPaletteMode] = useState<'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline'>('search');
+
+  const [paletteMode, setPaletteMode] = useState<'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' | 'area'>('search');
   const [paletteInitialValue, setPaletteInitialValue] = useState('');
-  const [showGHint, setShowGHint] = useState(false);
   const [showSpaceHint, setShowSpaceHint] = useState(false);
 
-  const openPalette = useCallback((mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' = 'search', initialValue?: string) => {
+  const openPalette = useCallback((mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' | 'area' = 'search', initialValue?: string) => {
     setPaletteMode(mode);
     setPaletteInitialValue(initialValue ?? '');
     setPaletteOpen(true);
@@ -48,8 +48,6 @@ function App() {
     setPaletteInitialValue('');
   }, []);
 
-  const handleGPressed = useCallback(() => setShowGHint(true), []);
-  const handleGReleased = useCallback(() => setShowGHint(false), []);
   const handleSpacePressed = useCallback(() => setShowSpaceHint(true), []);
   const handleSpaceReleased = useCallback(() => setShowSpaceHint(false), []);
 
@@ -57,8 +55,6 @@ function App() {
     openPalette, 
     closePalette, 
     paletteOpen,
-    onGPressed: handleGPressed,
-    onGReleased: handleGReleased,
     onSpacePressed: handleSpacePressed,
     onSpaceReleased: handleSpaceReleased,
   });
@@ -81,24 +77,6 @@ function App() {
         mode={paletteMode}
         initialValue={paletteInitialValue}
       />
-      
-      {/* "Go to" mode indicator */}
-      {showGHint && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-          <span className="opacity-70">g + </span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">i</kbd>
-          <span className="opacity-70">inbox</span>
-          <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">t</kbd>
-          <span className="opacity-70">today</span>
-          <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">u</kbd>
-          <span className="opacity-70">upcoming</span>
-          <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">s</kbd>
-          <span className="opacity-70">someday</span>
-        </div>
-      )}
       
       {/* "Space" action mode indicator */}
       {showSpaceHint && (

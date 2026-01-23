@@ -339,7 +339,7 @@ function getDateSuggestions(query: string): DateSuggestion[] {
 interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
-  mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline';
+  mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' | 'area';
   initialValue?: string;
 }
 
@@ -363,6 +363,8 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     addTagToTask,
     removeTagFromTask,
     addProject,
+    addArea,
+    deleteArea,
     setView,
     selectTask,
     getTaskById,
@@ -462,6 +464,8 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
         return 'Schedule task...';
       case 'deadline':
         return 'Set deadline...';
+      case 'area':
+        return 'Type to create area, or select to delete...';
       default:
         return 'Search tasks, projects, or type a command...';
     }
@@ -588,7 +592,21 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   <span className="text-lg">📁</span>
                   <span>New Project</span>
                 </Command.Item>
-              </Command.Group>
+                <Command.Item
+                  value="new area"
+                  onSelect={() => {
+                    const name = prompt('Area name:');
+                    if (name) {
+                      addArea(name);
+                      onClose();
+                    }
+                  }}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                >
+                  <span className="text-gray-400 dark:text-gray-500">@</span>
+                  <span>New Area</span>
+                </Command.Item>
+                </Command.Group>
 
               {/* Navigation */}
               <Command.Group heading="Navigation">
@@ -811,6 +829,42 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 >
                   <span className="text-lg">+</span>
                   <span>Create tag "#{inputValue}"</span>
+                </Command.Item>
+              )}
+            </>
+          )}
+
+          {mode === 'area' && (
+            <>
+              {/* Existing areas */}
+              {areas.map(area => (
+                <Command.Item
+                  key={area.id}
+                  value={area.name}
+                  onSelect={() => handleSelect(() => {
+                    if (confirm(`Delete area "${area.name}"? Projects will become ungrouped.`)) {
+                      deleteArea(area.id);
+                    }
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                >
+                  <span className="text-gray-400 dark:text-gray-500">@</span>
+                  <span>{area.name}</span>
+                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">click to delete</span>
+                </Command.Item>
+              ))}
+              
+              {/* Create new area option */}
+              {inputValue && !areas.some(a => a.name.toLowerCase() === inputValue.toLowerCase()) && (
+                <Command.Item
+                  value={`create ${inputValue}`}
+                  onSelect={() => handleSelect(() => {
+                    addArea(inputValue);
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                >
+                  <span className="text-lg">+</span>
+                  <span>Create area "{inputValue}"</span>
                 </Command.Item>
               )}
             </>

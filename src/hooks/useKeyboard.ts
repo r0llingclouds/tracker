@@ -3,11 +3,9 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useTaskStore } from '../store/taskStore';
 
 interface UseKeyboardShortcutsProps {
-  openPalette: (mode?: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline', initialValue?: string) => void;
+  openPalette: (mode?: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' | 'area', initialValue?: string) => void;
   closePalette: () => void;
   paletteOpen: boolean;
-  onGPressed?: () => void;
-  onGReleased?: () => void;
   onSpacePressed?: () => void;
   onSpaceReleased?: () => void;
 }
@@ -16,8 +14,6 @@ export function useKeyboardShortcuts({
   openPalette, 
   closePalette, 
   paletteOpen,
-  onGPressed,
-  onGReleased,
   onSpacePressed,
   onSpaceReleased,
 }: UseKeyboardShortcutsProps) {
@@ -27,12 +23,10 @@ export function useKeyboardShortcuts({
     selectedTaskId,
     toggleTask,
     deleteTask,
-    setView,
     toggleTheme,
   } = useTaskStore();
 
   // Track if we're waiting for a second key (for prefix commands)
-  const waitingForGCommand = useRef(false);
   const waitingForSpaceCommand = useRef(false);
 
   // Command palette - Cmd+K
@@ -77,43 +71,12 @@ export function useKeyboardShortcuts({
 
       const key = e.key.toLowerCase();
 
-      // Handle "g" prefix commands (go to)
-      if (waitingForGCommand.current) {
-        waitingForGCommand.current = false;
-        onGReleased?.();
-        
-        switch (key) {
-          case 'i':
-            e.preventDefault();
-            setView('inbox');
-            return;
-          case 't':
-            e.preventDefault();
-            setView('today');
-            return;
-          case 'u':
-            e.preventDefault();
-            setView('upcoming');
-            return;
-          case 's':
-            e.preventDefault();
-            setView('someday');
-            return;
-        }
-        // If not a valid g-command, open search with the typed character
-        if (key.length === 1 && /[a-z0-9]/i.test(key)) {
-          e.preventDefault();
-          openPalette('search', key);
-        }
-        return;
-      }
-
       // Handle "Space" prefix commands (task actions)
       if (waitingForSpaceCommand.current) {
         waitingForSpaceCommand.current = false;
         onSpaceReleased?.();
         
-        // New task works without selection
+        // Commands that work without selection
         if (key === 'n') {
           e.preventDefault();
           openPalette('newTask');
@@ -176,19 +139,6 @@ export function useKeyboardShortcuts({
           }
           break;
           
-        case 'g':
-          e.preventDefault();
-          waitingForGCommand.current = true;
-          onGPressed?.();
-          // Reset after a timeout if no second key is pressed
-          setTimeout(() => {
-            if (waitingForGCommand.current) {
-              waitingForGCommand.current = false;
-              onGReleased?.();
-            }
-          }, 1500);
-          break;
-          
         case ' ':
           // Space as leader key for task actions (always active for space+n)
           e.preventDefault();
@@ -223,10 +173,7 @@ export function useKeyboardShortcuts({
     selectedTaskId, 
     toggleTask, 
     deleteTask,
-    setView,
     toggleTheme,
-    onGPressed,
-    onGReleased,
     onSpacePressed,
     onSpaceReleased,
   ]);
