@@ -1,5 +1,5 @@
 import { format, isToday, isTomorrow, isPast, startOfDay } from 'date-fns';
-import type { Task, Project } from '../types';
+import type { Task, Project, Recurrence } from '../types';
 
 interface TaskItemProps {
   task: Task;
@@ -51,6 +51,33 @@ function formatDeadline(date: Date): { text: string; isPastDue: boolean; isUrgen
   }
   // Otherwise show full date
   return { text: `Due ${format(date, 'MMM d')}`, isPastDue: false, isUrgent: false };
+}
+
+function formatRecurrence(recurrence: Recurrence): string {
+  const { type, interval, weekdays } = recurrence;
+  
+  if (type === 'daily') {
+    return interval === 1 ? 'Daily' : `Every ${interval} days`;
+  }
+  
+  if (type === 'weekly') {
+    if (weekdays && weekdays.length > 0 && weekdays.length < 7) {
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const days = weekdays.map(d => dayNames[d]).join('/');
+      return interval === 1 ? days : `${days} every ${interval} wks`;
+    }
+    return interval === 1 ? 'Weekly' : `Every ${interval} weeks`;
+  }
+  
+  if (type === 'monthly') {
+    return interval === 1 ? 'Monthly' : `Every ${interval} months`;
+  }
+  
+  if (type === 'yearly') {
+    return interval === 1 ? 'Yearly' : `Every ${interval} years`;
+  }
+  
+  return 'Repeating';
 }
 
 export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskItemProps) {
@@ -114,6 +141,15 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
               </svg>
               {deadlineInfo.text}
+            </span>
+          )}
+          
+          {task.recurrence && (
+            <span className="flex items-center gap-1 text-xs text-purple-500">
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {formatRecurrence(task.recurrence)}
             </span>
           )}
           

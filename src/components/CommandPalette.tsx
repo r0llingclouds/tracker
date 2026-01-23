@@ -357,6 +357,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     setTaskDate,
     setDeadline,
     setSomeday,
+    setRecurrence,
     addTagToTask,
     removeTagFromTask,
     addProject,
@@ -885,6 +886,102 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                     }}
                   />
                 </div>
+              </Command.Group>
+              
+              <Command.Group heading="Repeat">
+                {selectedTask?.recurrence && (
+                  <Command.Item
+                    value="no repeat"
+                    onSelect={() => handleSelect(() => {
+                      if (selectedTaskId) setRecurrence(selectedTaskId, null);
+                    })}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                  >
+                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="flex-1">No Repeat</span>
+                    <span className="text-xs text-gray-400">Remove recurrence</span>
+                  </Command.Item>
+                )}
+                <Command.Item
+                  value="daily"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'daily', interval: 1 });
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="flex-1">Daily</span>
+                  <span className="text-xs text-gray-400">Every day</span>
+                </Command.Item>
+                <Command.Item
+                  value="weekdays"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'weekly', interval: 1, weekdays: [1, 2, 3, 4, 5] });
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="flex-1">Weekdays</span>
+                  <span className="text-xs text-gray-400">Mon-Fri</span>
+                </Command.Item>
+                <Command.Item
+                  value="weekly"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'weekly', interval: 1 });
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="flex-1">Weekly</span>
+                  <span className="text-xs text-gray-400">Every week</span>
+                </Command.Item>
+                <Command.Item
+                  value="biweekly"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'weekly', interval: 2 });
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="flex-1">Biweekly</span>
+                  <span className="text-xs text-gray-400">Every 2 weeks</span>
+                </Command.Item>
+                <Command.Item
+                  value="monthly"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'monthly', interval: 1 });
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="flex-1">Monthly</span>
+                  <span className="text-xs text-gray-400">Every month</span>
+                </Command.Item>
+                <Command.Item
+                  value="yearly"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'yearly', interval: 1 });
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="flex-1">Yearly</span>
+                  <span className="text-xs text-gray-400">Every year</span>
+                </Command.Item>
               </Command.Group>
             </>
           )}

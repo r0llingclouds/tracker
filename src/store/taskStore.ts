@@ -1,7 +1,46 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { isSameDay, startOfDay } from 'date-fns';
-import type { Task, Project, View } from '../types';
+import { isSameDay, startOfDay, addDays, addWeeks, addMonths, addYears, getDay } from 'date-fns';
+import type { Task, Project, View, Recurrence } from '../types';
+
+// Helper to calculate next occurrence for recurring tasks
+function getNextOccurrence(fromDate: Date, recurrence: Recurrence): Date {
+  const date = startOfDay(fromDate);
+  
+  switch (recurrence.type) {
+    case 'daily':
+      return addDays(date, recurrence.interval);
+      
+    case 'weekly':
+      if (recurrence.weekdays && recurrence.weekdays.length > 0) {
+        // Find next matching weekday
+        const currentDay = getDay(date);
+        const sortedWeekdays = [...recurrence.weekdays].sort((a, b) => a - b);
+        
+        // Look for the next weekday in the current week
+        for (const wd of sortedWeekdays) {
+          if (wd > currentDay) {
+            return addDays(date, wd - currentDay);
+          }
+        }
+        
+        // If no weekday found in current week, go to first weekday of next interval
+        const daysUntilNextWeek = 7 - currentDay + sortedWeekdays[0];
+        const weeksToAdd = recurrence.interval - 1;
+        return addDays(date, daysUntilNextWeek + (weeksToAdd * 7));
+      }
+      return addWeeks(date, recurrence.interval);
+      
+    case 'monthly':
+      return addMonths(date, recurrence.interval);
+      
+    case 'yearly':
+      return addYears(date, recurrence.interval);
+      
+    default:
+      return addDays(date, 1);
+  }
+}
 
 // Type for grouped tasks by project
 export interface ProjectTaskGroup {
@@ -42,6 +81,7 @@ interface TaskStore {
   setTaskDate: (taskId: string, date: Date | null) => void;
   setDeadline: (taskId: string, date: Date | null) => void;
   setSomeday: (taskId: string, someday: boolean) => void;
+  setRecurrence: (taskId: string, recurrence: Recurrence | null) => void;
   addTagToTask: (taskId: string, tag: string) => void;
   removeTagFromTask: (taskId: string, tag: string) => void;
   
@@ -96,6 +136,7 @@ export const useTaskStore = create<TaskStore>()(
           scheduledDate: t.scheduledDate ? new Date(t.scheduledDate) : null,
           deadline: t.deadline ? new Date(t.deadline) : null,
           someday: t.someday ?? false,
+          recurrence: t.recurrence ?? null,
         }));
         
         set({ 
@@ -141,6 +182,7 @@ export const useTaskStore = create<TaskStore>()(
         scheduledDate,
         deadline,
         someday: false,
+        recurrence: null,
       };
       set(state => ({ 
         tasks: [...state.tasks, newTask],
@@ -181,9 +223,34 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     toggleTask: (id) => {
+      const task = get().tasks.find(t => t.id === id);
+      
+      // Handle recurring tasks: when completing, create a new instance
+      if (task && !task.completed && task.recurrence) {
+        // Use task's scheduled date or today as base for calculating next occurrence
+        const baseDate = task.scheduledDate || startOfDay(new Date());
+        const nextDate = getNextOccurrence(baseDate, task.recurrence);
+        const newTask: Task = {
+          ...task,
+          id: generateId(),
+          completed: false,
+          scheduledDate: nextDate,
+          createdAt: new Date(),
+        };
+        
+        set(state => ({
+          tasks: [
+            ...state.tasks.map(t => t.id === id ? { ...t, completed: true } : t),
+            newTask
+          ],
+        }));
+        return;
+      }
+      
+      // Normal toggle for non-recurring tasks or uncompleting
       set(state => ({
-        tasks: state.tasks.map(task =>
-          task.id === id ? { ...task, completed: !task.completed } : task
+        tasks: state.tasks.map(t =>
+          t.id === id ? { ...t, completed: !t.completed } : t
         ),
       }));
     },
@@ -216,6 +283,20 @@ export const useTaskStore = create<TaskStore>()(
       set(state => ({
         tasks: state.tasks.map(task =>
           task.id === taskId ? { ...task, someday, scheduledDate: someday ? null : task.scheduledDate } : task
+        ),
+      }));
+    },
+    
+    setRecurrence: (taskId, recurrence) => {
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          task.id === taskId ? { 
+            ...task, 
+            recurrence,
+            // Auto-schedule to today if adding recurrence and not scheduled
+            scheduledDate: recurrence && !task.scheduledDate ? startOfDay(new Date()) : task.scheduledDate,
+            someday: recurrence ? false : task.someday // Clear someday if recurring
+          } : task
         ),
       }));
     },
