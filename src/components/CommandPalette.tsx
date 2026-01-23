@@ -604,6 +604,23 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 </Command.Group>
               )}
 
+              {/* Tags */}
+              {tags.length > 0 && (
+                <Command.Group heading="Tags">
+                  {tags.map(tag => (
+                    <Command.Item
+                      key={tag}
+                      value={`tag ${tag}`}
+                      onSelect={() => handleSelect(() => setView('tag', null, tag))}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                    >
+                      <span className="text-gray-400 dark:text-gray-500">#</span>
+                      <span>{tag}</span>
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+              )}
+
               {/* Tasks */}
               {tasks.filter(t => !t.completed).length > 0 && (
                 <Command.Group heading="Tasks">

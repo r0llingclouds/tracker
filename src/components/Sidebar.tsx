@@ -38,9 +38,11 @@ function NavItem({ label, shortcut, count, active, onClick, color }: NavItemProp
 export function Sidebar() {
   const { 
     currentView, 
-    currentProjectId, 
+    currentProjectId,
+    currentTagId, 
     setView, 
-    projects, 
+    projects,
+    tags, 
     tasks 
   } = useTaskStore();
 
@@ -53,6 +55,9 @@ export function Sidebar() {
 
   const getProjectCount = (projectId: string) => 
     tasks.filter(t => t.projectId === projectId && !t.completed).length;
+
+  const getTagCount = (tag: string) => 
+    tasks.filter(t => t.tags.includes(tag) && !t.completed).length;
 
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen">
@@ -105,6 +110,24 @@ export function Sidebar() {
                 active={currentView === 'project' && currentProjectId === project.id}
                 onClick={() => setView('project', project.id)}
                 color={project.color}
+              />
+            ))}
+          </div>
+        )}
+        
+        {tags.length > 0 && (
+          <div className="pt-4">
+            <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              Tags
+            </h2>
+            {tags.map(tag => (
+              <NavItem
+                key={tag}
+                label={`#${tag}`}
+                shortcut=""
+                count={getTagCount(tag)}
+                active={currentView === 'tag' && currentTagId === tag}
+                onClick={() => setView('tag', null, tag)}
               />
             ))}
           </div>

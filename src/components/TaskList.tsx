@@ -11,6 +11,7 @@ export function TaskList() {
     getProjectById,
     currentView,
     currentProjectId,
+    currentTagId,
     projects,
   } = useTaskStore();
 
@@ -30,6 +31,8 @@ export function TaskList() {
       case 'project':
         const project = projects.find(p => p.id === currentProjectId);
         return project?.name ?? 'Project';
+      case 'tag':
+        return `#${currentTagId}`;
     }
   };
 
@@ -67,7 +70,7 @@ export function TaskList() {
             <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <p className="text-lg">{currentView === 'upcoming' ? 'No scheduled tasks' : currentView === 'someday' ? 'No someday tasks' : 'No tasks yet'}</p>
+            <p className="text-lg">{currentView === 'upcoming' ? 'No scheduled tasks' : currentView === 'someday' ? 'No someday tasks' : currentView === 'tag' ? 'No tasks with this tag' : 'No tasks yet'}</p>
             <p className="text-sm mt-1">Press <kbd className="font-mono bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">space+n</kbd> to add one</p>
           </div>
         ) : currentView === 'upcoming' ? (

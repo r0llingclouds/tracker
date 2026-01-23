@@ -23,7 +23,7 @@ export interface Project {
   color: string;
 }
 
-export type View = 'inbox' | 'today' | 'upcoming' | 'someday' | 'project';
+export type View = 'inbox' | 'today' | 'upcoming' | 'someday' | 'project' | 'tag';
 
 export interface AppState {
   tasks: Task[];

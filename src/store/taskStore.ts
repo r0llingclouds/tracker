@@ -67,6 +67,7 @@ interface TaskStore {
   tags: string[];
   currentView: View;
   currentProjectId: string | null;
+  currentTagId: string | null;
   selectedTaskId: string | null;
   isLoading: boolean;
   theme: Theme;
@@ -94,7 +95,7 @@ interface TaskStore {
   deleteProject: (id: string) => void;
   
   // Navigation
-  setView: (view: View, projectId?: string | null) => void;
+  setView: (view: View, projectId?: string | null, tagId?: string | null) => void;
   selectTask: (id: string | null) => void;
   selectNextTask: () => void;
   selectPrevTask: () => void;
@@ -126,6 +127,7 @@ export const useTaskStore = create<TaskStore>()(
     tags: [],
     currentView: 'inbox',
     currentProjectId: null,
+    currentTagId: null,
     selectedTaskId: null,
     isLoading: true,
     theme: (localStorage.getItem('theme') as Theme) || 'system',
@@ -369,10 +371,11 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     // Navigation
-    setView: (view, projectId = null) => {
+    setView: (view, projectId = null, tagId = null) => {
       set({ 
         currentView: view, 
         currentProjectId: view === 'project' ? projectId : null,
+        currentTagId: view === 'tag' ? tagId : null,
         selectedTaskId: null,
       });
     },
@@ -436,6 +439,10 @@ export const useTaskStore = create<TaskStore>()(
         case 'project':
           // Project view shows all tasks in project (including someday)
           tasks = tasks.filter(t => t.projectId === state.currentProjectId);
+          break;
+        case 'tag':
+          // Tag view shows all tasks with the selected tag
+          tasks = tasks.filter(t => state.currentTagId && t.tags.includes(state.currentTagId));
           break;
       }
       
