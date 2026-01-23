@@ -101,29 +101,19 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setAppMode('tasks')}
-            className={`text-xl font-bold transition-colors ${
-              appMode === 'tasks'
-                ? 'text-gray-900 dark:text-gray-100'
-                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
-            }`}
-          >
-            Tasks
-          </button>
-          <span className="text-gray-300 dark:text-gray-600">|</span>
-          <button
-            onClick={() => setAppMode('habits')}
-            className={`text-xl font-bold transition-colors ${
-              appMode === 'habits'
-                ? 'text-gray-900 dark:text-gray-100'
-                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
-            }`}
-          >
-            Habits
-          </button>
-        </div>
+        <select
+          value={appMode}
+          onChange={(e) => setAppMode(e.target.value as AppMode)}
+          className="text-xl font-bold bg-transparent border-none outline-none cursor-pointer text-gray-900 dark:text-gray-100 w-full appearance-none pr-6 bg-no-repeat bg-right"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+            backgroundSize: '1.25rem'
+          }}
+        >
+          <option value="tasks">Tasks</option>
+          <option value="habits">Habits</option>
+          <option value="food">Food</option>
+        </select>
         {appMode === 'tasks' && (
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Press any key to search</p>
         )}
@@ -261,10 +251,16 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
             </div>
           </div>
         </>
-      ) : (
+      ) : appMode === 'habits' ? (
         <div className="flex-1 p-3">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Track your daily habits with a GitHub-style heatmap visualization.
+          </p>
+        </div>
+      ) : (
+        <div className="flex-1 p-3">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Track your daily nutrition, water intake, and intermittent fasting.
           </p>
         </div>
       )}

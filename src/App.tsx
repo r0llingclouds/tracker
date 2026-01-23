@@ -3,10 +3,11 @@ import { Sidebar } from './components/Sidebar';
 import { TaskList } from './components/TaskList';
 import { CommandPalette } from './components/CommandPalette';
 import { TrackerApp } from './components/habits/TrackerApp';
+import { FoodTracker } from './components/food/FoodTracker';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
 import { useTaskStore } from './store/taskStore';
 
-export type AppMode = 'tasks' | 'habits';
+export type AppMode = 'tasks' | 'habits' | 'food';
 
 function App() {
   const { loadData, isLoading, theme } = useTaskStore();
@@ -74,11 +75,9 @@ function App() {
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar appMode={appMode} setAppMode={setAppMode} />
-      {appMode === 'tasks' ? (
-        <TaskList />
-      ) : (
-        <TrackerApp />
-      )}
+      {appMode === 'tasks' && <TaskList />}
+      {appMode === 'habits' && <TrackerApp />}
+      {appMode === 'food' && <FoodTracker />}
       {appMode === 'tasks' && (
         <CommandPalette 
           open={paletteOpen} 
