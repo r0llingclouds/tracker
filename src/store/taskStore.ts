@@ -79,7 +79,7 @@ interface TaskStore {
   saveData: () => Promise<void>;
   
   // Task actions
-  addTask: (title: string, projectId?: string | null, tags?: string[], scheduledDate?: Date | null, deadline?: Date | null) => void;
+  addTask: (title: string, projectId?: string | null, tags?: string[], scheduledDate?: Date | null, deadline?: Date | null, areaId?: string | null) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
@@ -196,16 +196,16 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     // Task actions
-    addTask: (title, projectId = null, taskTags = [], scheduledDate = null, deadline = null) => {
+    addTask: (title, projectId = null, taskTags = [], scheduledDate = null, deadline = null, areaId = null) => {
       // Normalize tags and add any new ones to the global tags list
       const normalizedTags = taskTags.map(t => t.toLowerCase().trim());
       const currentTags = get().tags;
       const newGlobalTags = normalizedTags.filter(t => !currentTags.includes(t));
       
-      // Determine areaId: if in area view and no project, use current area
+      // Determine areaId: use passed areaId, or if in area view and no project, use current area
       const state = get();
-      let taskAreaId: string | null = null;
-      if (state.currentView === 'area' && !projectId) {
+      let taskAreaId: string | null = areaId;
+      if (!taskAreaId && state.currentView === 'area' && !projectId) {
         taskAreaId = state.currentAreaId;
       }
       
