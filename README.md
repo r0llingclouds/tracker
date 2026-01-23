@@ -1,6 +1,6 @@
 # Gamified Tracker
 
-A full-stack personal productivity application combining **task management**, **habit tracking**, and **nutrition logging** in one unified interface. Built with React, TypeScript, and Express.js, featuring keyboard-driven workflows, AI-powered food parsing, and visual gamification through heatmaps and scoring systems.
+A full-stack personal productivity application combining **task management**, **habit tracking**, **nutrition logging**, and **workout tracking** in one unified interface. Built with React, TypeScript, and Express.js, featuring keyboard-driven workflows, AI-powered food parsing, and visual gamification through heatmaps and scoring systems.
 
 ## Features
 
@@ -37,6 +37,18 @@ Comprehensive nutrition logging with AI-powered assistance.
 - **Water Intake**: Visual water drop tracker with quick-add buttons
 - **Intermittent Fasting**: Track fasting completion with customizable eating windows
 - **Daily Summaries**: Aggregated nutrition totals with color-coded cards
+
+### Workout Tracker
+
+Track kettlebell swings and push-ups with timers and visual progress heatmaps.
+
+- **Kettlebell Logging**: Track weight, reps, and single/double-handed swings
+- **Push-up Logging**: Simple rep tracking for each set
+- **Stopwatch Timers**: Separate timers for kettlebell and push-up sessions
+- **Volume Calculation**: Automatic calculation of total weight lifted (weight × reps × hand multiplier)
+- **Daily Summary**: View total swings, volume, push-ups, and time spent
+- **Heatmap Visualization**: GitHub-style heatmaps showing daily kettlebell volume and push-up totals over 52 weeks
+- **Workout History**: Color-coded intensity levels based on configurable thresholds
 
 ## Tech Stack
 
@@ -184,17 +196,37 @@ When creating or scheduling tasks, use natural language dates:
 | GET | `/api/habits` | Get habits data |
 | POST | `/api/habits` | Save habits data |
 
+### Workouts
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/workouts/kettlebell` | Get kettlebell entries (optional `?date=`) |
+| POST | `/api/workouts/kettlebell` | Log a kettlebell entry |
+| PUT | `/api/workouts/kettlebell/:id` | Update a kettlebell entry |
+| DELETE | `/api/workouts/kettlebell/:id` | Delete a kettlebell entry |
+| GET | `/api/workouts/pushups` | Get push-up entries (optional `?date=`) |
+| POST | `/api/workouts/pushups` | Log a push-up entry |
+| PUT | `/api/workouts/pushups/:id` | Update a push-up entry |
+| DELETE | `/api/workouts/pushups/:id` | Delete a push-up entry |
+| GET | `/api/workouts/summary` | Get daily workout summary |
+| GET | `/api/workouts/daily` | Get daily timer data |
+| PUT | `/api/workouts/daily` | Update daily timer data |
+| GET | `/api/workouts/history` | Get aggregated history for heatmaps |
+
 ## Data Storage
 
 Data is stored as JSON files in `server/data/`:
 
 ```
 server/data/
-├── tasks.json      # Tasks, projects, areas
-├── foods.json      # Food database
-├── food-logs.json  # Daily food logs
-├── daily.json      # Fasting and water data
-└── habits.json     # Habits and daily entries
+├── tasks.json         # Tasks, projects, areas
+├── foods.json         # Food database
+├── food-logs.json     # Daily food logs
+├── daily.json         # Fasting and water data
+├── habits.json        # Habits and daily entries
+├── kettlebell.json    # Kettlebell swing entries
+├── pushups.json       # Push-up entries
+└── workout-daily.json # Workout timer data
 ```
 
 ### Cloud Sync (Optional)
@@ -206,6 +238,7 @@ To sync data across devices, configure custom paths in `server/.env`:
 TASKS_DATA_FILE=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/tasks.json
 HABITS_DATA_FILE=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/habits.json
 FOOD_DATA_DIR=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/food/
+WORKOUT_DATA_DIR=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/workout/
 ```
 
 ## Project Structure
@@ -217,6 +250,7 @@ gamified-tracker/
 │   │   ├── tasks/         # Task management UI
 │   │   ├── habits/        # Habit tracking UI
 │   │   ├── food/          # Food tracking UI
+│   │   ├── workout/       # Workout tracking UI
 │   │   └── Sidebar.tsx    # Navigation sidebar
 │   ├── store/
 │   │   └── taskStore.ts   # Zustand store for tasks
@@ -227,7 +261,8 @@ gamified-tracker/
 ├── server/
 │   ├── routes/
 │   │   ├── tasks.js       # Tasks API
-│   │   └── food.js        # Food & nutrition API
+│   │   ├── food.js        # Food & nutrition API
+│   │   └── workouts.js    # Workout tracking API
 │   ├── utils/             # Server utilities
 │   └── index.js           # Express server
 └── package.json
