@@ -34,15 +34,39 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     }
   }, [open, mode, initialValue]);
 
+  // Detect if user is typing a tag in newTask mode (e.g., "Buy groceries #shop")
+  const tagMatch = mode === 'newTask' ? inputValue.match(/#(\w*)$/) : null;
+  const isTypingTag = tagMatch !== null;
+  const tagQuery = tagMatch?.[1]?.toLowerCase() || '';
+  
+  // Filter tags based on the query after #
+  const filteredTags = isTypingTag
+    ? tags.filter(t => t.toLowerCase().includes(tagQuery))
+    : [];
+
+  // Parse all tags from input for display
+  const parsedTags = inputValue.match(/#(\w+)/g)?.map(t => t.slice(1).toLowerCase()) || [];
+  
+  // Get clean title (without tags) for display
+  const cleanTitle = inputValue.replace(/#\w+\s*/g, '').trim();
+
   const handleSelect = (callback: () => void) => {
     callback();
     onClose();
   };
 
+  // Insert a tag into the input, replacing the partial #query
+  const insertTag = (tag: string) => {
+    const newValue = inputValue.replace(/#\w*$/, `#${tag} `);
+    setInputValue(newValue);
+    // Keep focus on input
+    setTimeout(() => inputRef.current?.focus(), 10);
+  };
+
   const getPlaceholder = () => {
     switch (mode) {
       case 'newTask':
-        return 'What needs to be done?';
+        return 'What needs to be done? (use # for tags)';
       case 'move':
         return 'Move to project...';
       case 'tag':
@@ -52,22 +76,30 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     }
   };
 
+  // Create task with parsed tags
+  const createTaskWithTags = () => {
+    if (!cleanTitle && parsedTags.length === 0) return;
+    const title = cleanTitle || 'Untitled';
+    addTask(title, null, parsedTags);
+    onClose();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Handle Enter for new task creation
-    if (mode === 'newTask' && e.key === 'Enter' && inputValue.trim()) {
+    // Handle Tab to insert selected tag when typing #
+    if (mode === 'newTask' && isTypingTag && e.key === 'Tab' && filteredTags.length > 0) {
       e.preventDefault();
-      addTask(inputValue.trim());
-      onClose();
+      insertTag(filteredTags[0]);
       return;
     }
     
-    // Handle Enter for new tag creation
-    if (mode === 'tag' && e.key === 'Enter' && inputValue.trim() && selectedTaskId) {
+    // Handle Enter for new task creation (only if not selecting a tag)
+    if (mode === 'newTask' && e.key === 'Enter' && inputValue.trim() && !isTypingTag) {
       e.preventDefault();
-      addTagToTask(selectedTaskId, inputValue.trim());
-      onClose();
+      createTaskWithTags();
       return;
     }
+    
+    // Note: Tag mode Enter is handled by cmdk's onSelect to allow selecting filtered items
     
     // Handle Enter for new project creation when moving
     if (mode === 'move' && e.key === 'Enter' && inputValue.trim()) {
@@ -96,6 +128,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
         className="relative z-10 w-full max-w-xl bg-white rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-top-4 duration-200"
         onClick={(e) => e.stopPropagation()}
         loop
+        shouldFilter={mode !== 'newTask'}
       >
         <Command.Input
           ref={inputRef}
@@ -280,16 +313,65 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
             </>
           )}
 
-          {mode === 'newTask' && inputValue && (
-            <Command.Item
-              value={inputValue}
-              onSelect={() => handleSelect(() => addTask(inputValue))}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
-            >
-              <span className="text-lg">+</span>
-              <span>Create "{inputValue}"</span>
-              <span className="ml-auto text-xs text-gray-400">↵</span>
-            </Command.Item>
+          {mode === 'newTask' && (
+            <>
+              {/* Show tag suggestions when typing # */}
+              {isTypingTag && filteredTags.length > 0 && (
+                <Command.Group heading="Tags">
+                  {filteredTags.slice(0, 6).map(tag => (
+                    <Command.Item
+                      key={tag}
+                      value={`tag-${tag}`}
+                      onSelect={() => insertTag(tag)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                    >
+                      <span className="text-gray-400">#</span>
+                      <span>{tag}</span>
+                      <span className="ml-auto text-xs text-gray-400">Tab</span>
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+              )}
+              
+              {/* Show create new tag option if typing # with no matches */}
+              {isTypingTag && tagQuery && !tags.includes(tagQuery) && (
+                <Command.Item
+                  value={`create-tag-${tagQuery}`}
+                  onSelect={() => insertTag(tagQuery)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <span className="text-lg">+</span>
+                  <span>Create tag "#{tagQuery}"</span>
+                </Command.Item>
+              )}
+              
+              {/* Show task preview with parsed tags */}
+              {inputValue && !isTypingTag && (
+                <Command.Item
+                  value={inputValue}
+                  onSelect={createTaskWithTags}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <span className="text-lg">+</span>
+                  <div className="flex-1 flex items-center gap-2 flex-wrap">
+                    <span>Create "{cleanTitle || 'Untitled'}"</span>
+                    {parsedTags.map(tag => (
+                      <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="ml-auto text-xs text-gray-400">↵</span>
+                </Command.Item>
+              )}
+              
+              {/* Hint when input is empty */}
+              {!inputValue && (
+                <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                  Type task name, use <span className="font-mono bg-gray-100 px-1 rounded">#</span> for tags
+                </div>
+              )}
+            </>
           )}
         </Command.List>
         

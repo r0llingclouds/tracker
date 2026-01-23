@@ -19,7 +19,7 @@ interface TaskStore {
   saveData: () => Promise<void>;
   
   // Task actions
-  addTask: (title: string, projectId?: string | null) => void;
+  addTask: (title: string, projectId?: string | null, tags?: string[]) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
@@ -102,16 +102,24 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     // Task actions
-    addTask: (title, projectId = null) => {
+    addTask: (title, projectId = null, taskTags = []) => {
+      // Normalize tags and add any new ones to the global tags list
+      const normalizedTags = taskTags.map(t => t.toLowerCase().trim());
+      const currentTags = get().tags;
+      const newGlobalTags = normalizedTags.filter(t => !currentTags.includes(t));
+      
       const newTask: Task = {
         id: generateId(),
         title,
         completed: false,
         projectId: projectId ?? (get().currentView === 'project' ? get().currentProjectId : null),
-        tags: [],
+        tags: normalizedTags,
         createdAt: new Date(),
       };
-      set(state => ({ tasks: [...state.tasks, newTask] }));
+      set(state => ({ 
+        tasks: [...state.tasks, newTask],
+        tags: newGlobalTags.length > 0 ? [...state.tags, ...newGlobalTags] : state.tags,
+      }));
     },
     
     updateTask: (id, updates) => {
