@@ -24,6 +24,147 @@ const DAY_ABBREVIATIONS: Record<string, number> = {
   sat: 6, saturday: 6,
 };
 
+const MONTH_ABBREVIATIONS: Record<string, number> = {
+  jan: 0, january: 0,
+  feb: 1, february: 1,
+  mar: 2, march: 2,
+  apr: 3, april: 3,
+  may: 4,
+  jun: 5, june: 5,
+  jul: 6, july: 6,
+  aug: 7, august: 7,
+  sep: 8, sept: 8, september: 8,
+  oct: 9, october: 9,
+  nov: 10, november: 10,
+  dec: 11, december: 11,
+};
+
+// Natural language date parsing for task input
+interface ParsedTaskInput {
+  title: string;
+  scheduledDate: Date | null;
+  datePhrase: string | null;
+}
+
+function parseDateFromText(text: string): ParsedTaskInput {
+  const today = startOfDay(new Date());
+  
+  // Patterns to match (order matters - more specific first)
+  const patterns: Array<{ regex: RegExp; getDate: (match: RegExpMatchArray) => Date | null }> = [
+    // "next week"
+    {
+      regex: /\bnext\s+week\b/i,
+      getDate: () => addWeeks(today, 1),
+    },
+    // "next monday", "next tue", etc.
+    {
+      regex: /\bnext\s+(sun(?:day)?|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?)\b/i,
+      getDate: (match) => {
+        const dayStr = match[1].toLowerCase();
+        for (const [abbrev, dayIndex] of Object.entries(DAY_ABBREVIATIONS)) {
+          if (dayStr === abbrev || dayStr.startsWith(abbrev)) {
+            return getNextDayOccurrence(dayIndex, 1); // Skip to the one after next
+          }
+        }
+        return null;
+      },
+    },
+    // "21 jun", "21 june", "21st june", etc.
+    {
+      regex: /\b(\d{1,2})(?:st|nd|rd|th)?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i,
+      getDate: (match) => {
+        const day = parseInt(match[1], 10);
+        const monthStr = match[2].toLowerCase();
+        let monthIndex = -1;
+        for (const [abbrev, idx] of Object.entries(MONTH_ABBREVIATIONS)) {
+          if (monthStr === abbrev || monthStr.startsWith(abbrev.slice(0, 3))) {
+            monthIndex = idx;
+            break;
+          }
+        }
+        if (monthIndex === -1 || day < 1 || day > 31) return null;
+        
+        const year = new Date().getFullYear();
+        let date = new Date(year, monthIndex, day);
+        // If the date has passed, use next year
+        if (date < today) {
+          date = new Date(year + 1, monthIndex, day);
+        }
+        return startOfDay(date);
+      },
+    },
+    // "jun 21", "june 21st", etc.
+    {
+      regex: /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2})(?:st|nd|rd|th)?\b/i,
+      getDate: (match) => {
+        const monthStr = match[1].toLowerCase();
+        const day = parseInt(match[2], 10);
+        let monthIndex = -1;
+        for (const [abbrev, idx] of Object.entries(MONTH_ABBREVIATIONS)) {
+          if (monthStr === abbrev || monthStr.startsWith(abbrev.slice(0, 3))) {
+            monthIndex = idx;
+            break;
+          }
+        }
+        if (monthIndex === -1 || day < 1 || day > 31) return null;
+        
+        const year = new Date().getFullYear();
+        let date = new Date(year, monthIndex, day);
+        // If the date has passed, use next year
+        if (date < today) {
+          date = new Date(year + 1, monthIndex, day);
+        }
+        return startOfDay(date);
+      },
+    },
+    // Day names: "monday", "mon", "tue", etc.
+    {
+      regex: /\b(sun(?:day)?|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?)\b/i,
+      getDate: (match) => {
+        const dayStr = match[1].toLowerCase();
+        for (const [abbrev, dayIndex] of Object.entries(DAY_ABBREVIATIONS)) {
+          if (dayStr === abbrev) {
+            return getNextDayOccurrence(dayIndex, 0);
+          }
+        }
+        return null;
+      },
+    },
+    // "today", "tod"
+    {
+      regex: /\b(today|tod)\b/i,
+      getDate: () => today,
+    },
+    // "tomorrow", "tom", "tmr", "tmrw"
+    {
+      regex: /\b(tomorrow|tom|tmr|tmrw)\b/i,
+      getDate: () => addDays(today, 1),
+    },
+  ];
+  
+  for (const { regex, getDate } of patterns) {
+    const match = text.match(regex);
+    if (match) {
+      const date = getDate(match);
+      if (date) {
+        // Remove the matched phrase from the title
+        const cleanedTitle = text.replace(regex, '').replace(/\s+/g, ' ').trim();
+        return {
+          title: cleanedTitle,
+          scheduledDate: date,
+          datePhrase: match[0],
+        };
+      }
+    }
+  }
+  
+  return {
+    title: text,
+    scheduledDate: null,
+    datePhrase: null,
+  };
+}
+
 function getNextDayOccurrence(dayIndex: number, weeksAhead: number = 0): Date {
   const today = startOfDay(new Date());
   const todayDay = getDay(today);
@@ -245,7 +386,11 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
   const parsedTags = inputValue.match(/#(\w+)/g)?.map(t => t.slice(1).toLowerCase()) || [];
   
   // Get clean title (without tags) for display
-  const cleanTitle = inputValue.replace(/#\w+\s*/g, '').trim();
+  const titleWithoutTags = inputValue.replace(/#\w+\s*/g, '').trim();
+  
+  // Parse date from the title (for newTask mode)
+  const parsedDate = mode === 'newTask' ? parseDateFromText(titleWithoutTags) : null;
+  const cleanTitle = parsedDate?.title ?? titleWithoutTags;
 
   const handleSelect = (callback: () => void) => {
     callback();
@@ -278,11 +423,11 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
   // Get selected task for schedule mode
   const selectedTask = selectedTaskId ? getTaskById(selectedTaskId) : null;
 
-  // Create task with parsed tags
+  // Create task with parsed tags and date
   const createTaskWithTags = () => {
     if (!cleanTitle && parsedTags.length === 0) return;
     const title = cleanTitle || 'Untitled';
-    addTask(title, null, parsedTags);
+    addTask(title, null, parsedTags, parsedDate?.scheduledDate ?? null);
     onClose();
   };
 
@@ -582,7 +727,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 </Command.Item>
               )}
               
-              {/* Show task preview with parsed tags */}
+              {/* Show task preview with parsed tags and date */}
               {inputValue && !isTypingTag && (
                 <Command.Item
                   value={inputValue}
@@ -590,13 +735,23 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
                 >
                   <span className="text-lg">+</span>
-                  <div className="flex-1 flex items-center gap-2 flex-wrap">
-                    <span>Create "{cleanTitle || 'Untitled'}"</span>
-                    {parsedTags.map(tag => (
-                      <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
-                        #{tag}
-                      </span>
-                    ))}
+                  <div className="flex-1 flex flex-col gap-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span>Create "{cleanTitle || 'Untitled'}"</span>
+                      {parsedTags.map(tag => (
+                        <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                    {parsedDate?.scheduledDate && (
+                      <div className="flex items-center gap-1.5 text-xs text-blue-600">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>{format(parsedDate.scheduledDate, 'EEE, MMM d')}</span>
+                      </div>
+                    )}
                   </div>
                   <span className="ml-auto text-xs text-gray-400">↵</span>
                 </Command.Item>
@@ -606,6 +761,8 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
               {!inputValue && (
                 <div className="px-3 py-4 text-sm text-gray-500 text-center">
                   Type task name, use <span className="font-mono bg-gray-100 px-1 rounded">#</span> for tags
+                  <br />
+                  <span className="text-xs text-gray-400">Dates: "tomorrow", "mon", "21 jun"</span>
                 </div>
               )}
             </>
