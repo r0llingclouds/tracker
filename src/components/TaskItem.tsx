@@ -7,6 +7,7 @@ interface TaskItemProps {
   selected: boolean;
   onSelect: () => void;
   onToggle: () => void;
+  onDoubleClick: () => void;
 }
 
 function formatScheduledDate(date: Date): { text: string; isOverdue: boolean } {
@@ -80,12 +81,13 @@ function formatRecurrence(recurrence: Recurrence): string {
   return 'Repeating';
 }
 
-export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskItemProps) {
+export function TaskItem({ task, project, selected, onSelect, onToggle, onDoubleClick }: TaskItemProps) {
   const scheduledInfo = task.scheduledDate ? formatScheduledDate(task.scheduledDate) : null;
   const deadlineInfo = task.deadline ? formatDeadline(task.deadline) : null;
   return (
     <div
       onClick={onSelect}
+      onDoubleClick={onDoubleClick}
       className={`group flex items-center gap-3 px-4 py-3 cursor-pointer ${
         selected 
           ? 'bg-gray-100 dark:bg-gray-700 border-l-2 border-gray-400 dark:border-gray-500' 

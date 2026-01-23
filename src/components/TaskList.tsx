@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { useTaskStore } from '../store/taskStore';
 import { TaskItem } from './TaskItem';
+import { TaskDetail } from './TaskDetail';
 
 export function TaskList() {
+  const [detailTaskId, setDetailTaskId] = useState<string | null>(null);
   const { 
     getVisibleTasks, 
     getUpcomingTasksWithOverdue,
@@ -109,6 +112,7 @@ export function TaskList() {
                       selected={task.id === selectedTaskId}
                       onSelect={() => selectTask(task.id)}
                       onToggle={() => toggleTask(task.id)}
+                      onDoubleClick={() => setDetailTaskId(task.id)}
                     />
                   ))}
                 </div>
@@ -143,6 +147,7 @@ export function TaskList() {
                       selected={task.id === selectedTaskId}
                       onSelect={() => selectTask(task.id)}
                       onToggle={() => toggleTask(task.id)}
+                      onDoubleClick={() => setDetailTaskId(task.id)}
                     />
                   ))}
                 </div>
@@ -169,6 +174,7 @@ export function TaskList() {
                       selected={task.id === selectedTaskId}
                       onSelect={() => selectTask(task.id)}
                       onToggle={() => toggleTask(task.id)}
+                      onDoubleClick={() => setDetailTaskId(task.id)}
                     />
                   ))}
                 </div>
@@ -198,6 +204,7 @@ export function TaskList() {
                         selected={task.id === selectedTaskId}
                         onSelect={() => selectTask(task.id)}
                         onToggle={() => toggleTask(task.id)}
+                        onDoubleClick={() => setDetailTaskId(task.id)}
                       />
                     ))}
                   </div>
@@ -215,6 +222,7 @@ export function TaskList() {
                 selected={task.id === selectedTaskId}
                 onSelect={() => selectTask(task.id)}
                 onToggle={() => toggleTask(task.id)}
+                onDoubleClick={() => setDetailTaskId(task.id)}
               />
             ))}
           </div>
@@ -229,6 +237,15 @@ export function TaskList() {
         <span><kbd className="font-mono">space+t</kbd> tag</span>
         <span><kbd className="font-mono">space+d</kbd> delete</span>
       </footer>
+
+      {/* Task Detail Modal */}
+      {detailTaskId && (
+        <TaskDetail
+          taskId={detailTaskId}
+          open={!!detailTaskId}
+          onClose={() => setDetailTaskId(null)}
+        />
+      )}
     </main>
   );
 }
