@@ -1,6 +1,8 @@
 import { isSameDay, startOfDay } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
+import { useTimer } from '../hooks/useTimer';
 import type { AppMode } from '../App';
+import type { Task } from '../types';
 
 interface NavItemProps {
   label: string;
@@ -41,6 +43,18 @@ function NavItem({ label, shortcut, count, active, onClick, color, indent }: Nav
   );
 }
 
+function ActiveTimerItem({ task }: { task: Task }) {
+  const { formattedTime } = useTimer(task.timeSpent, task.timerStartedAt);
+  
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 text-sm">
+      <span>⏱️</span>
+      <span className="font-mono text-blue-600 dark:text-blue-400">{formattedTime}</span>
+      <span className="flex-1 truncate text-gray-700 dark:text-gray-300">{task.title}</span>
+    </div>
+  );
+}
+
 type SidebarProps = {
   appMode: AppMode;
   setAppMode: (mode: AppMode) => void;
@@ -61,6 +75,9 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
     tasks 
   } = useTaskStore();
 
+  // Get tasks with active timers
+  const activeTimers = tasks.filter(t => t.timerStartedAt !== null);
+  
   const inboxCount = tasks.filter(t => t.projectId === null && t.areaId === null && !t.completed && !t.someday).length;
   const today = new Date();
   const todayStart = startOfDay(today);
@@ -121,6 +138,16 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
       
       {appMode === 'tasks' ? (
         <>
+          {activeTimers.length > 0 && (
+            <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="px-0 py-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                Active Timers
+              </h2>
+              {activeTimers.map(task => (
+                <ActiveTimerItem key={task.id} task={task} />
+              ))}
+            </div>
+          )}
           <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
             <NavItem
               label="Inbox"

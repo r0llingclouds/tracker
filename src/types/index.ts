@@ -21,6 +21,8 @@ export interface Task {
   deadline: Date | null; // null = no deadline
   someday: boolean; // true = in Someday list
   recurrence: Recurrence | null; // null = not recurring
+  timeSpent: number; // accumulated time in milliseconds
+  timerStartedAt: Date | null; // timestamp when timer started (null = paused/stopped)
 }
 
 export interface Project {

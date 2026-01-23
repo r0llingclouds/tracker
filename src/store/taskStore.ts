@@ -92,6 +92,11 @@ interface TaskStore {
   addTagToTask: (taskId: string, tag: string) => void;
   removeTagFromTask: (taskId: string, tag: string) => void;
   
+  // Timer actions
+  startTimer: (taskId: string) => void;
+  stopTimer: (taskId: string) => void;
+  resetTimer: (taskId: string) => void;
+  
   // Project actions
   addProject: (name: string, color?: string, areaId?: string | null) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
@@ -160,6 +165,8 @@ export const useTaskStore = create<TaskStore>()(
           someday: t.someday ?? false,
           recurrence: t.recurrence ?? null,
           areaId: t.areaId ?? null,
+          timeSpent: t.timeSpent ?? 0,
+          timerStartedAt: t.timerStartedAt ? new Date(t.timerStartedAt) : null,
         }));
         
         // Ensure projects have areaId field
@@ -221,6 +228,8 @@ export const useTaskStore = create<TaskStore>()(
         deadline,
         someday: false,
         recurrence: null,
+        timeSpent: 0,
+        timerStartedAt: null,
       };
       set(state => ({ 
         tasks: [...state.tasks, newTask],
@@ -274,6 +283,8 @@ export const useTaskStore = create<TaskStore>()(
           completed: false,
           scheduledDate: nextDate,
           createdAt: new Date(),
+          timeSpent: 0,
+          timerStartedAt: null,
         };
         
         set(state => ({
@@ -372,6 +383,42 @@ export const useTaskStore = create<TaskStore>()(
         tasks: state.tasks.map(task =>
           task.id === taskId
             ? { ...task, tags: task.tags.filter(t => t !== tag) }
+            : task
+        ),
+      }));
+    },
+    
+    // Timer actions
+    startTimer: (taskId) => {
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          task.id === taskId && !task.timerStartedAt
+            ? { ...task, timerStartedAt: new Date() }
+            : task
+        ),
+      }));
+    },
+    
+    stopTimer: (taskId) => {
+      set(state => ({
+        tasks: state.tasks.map(task => {
+          if (task.id !== taskId || !task.timerStartedAt) return task;
+          
+          const elapsed = Date.now() - task.timerStartedAt.getTime();
+          return {
+            ...task,
+            timeSpent: task.timeSpent + elapsed,
+            timerStartedAt: null,
+          };
+        }),
+      }));
+    },
+    
+    resetTimer: (taskId) => {
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          task.id === taskId
+            ? { ...task, timeSpent: 0, timerStartedAt: null }
             : task
         ),
       }));

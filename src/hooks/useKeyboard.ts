@@ -24,6 +24,9 @@ export function useKeyboardShortcuts({
     toggleTask,
     deleteTask,
     toggleTheme,
+    startTimer,
+    stopTimer,
+    getTaskById,
   } = useTaskStore();
 
   // Track if we're waiting for a second key (for prefix commands)
@@ -109,6 +112,16 @@ export function useKeyboardShortcuts({
               e.preventDefault();
               openPalette('deadline');
               return;
+            case 'p':
+              e.preventDefault();
+              // Toggle timer (play/pause)
+              const task = getTaskById(selectedTaskId);
+              if (task?.timerStartedAt) {
+                stopTimer(selectedTaskId);
+              } else {
+                startTimer(selectedTaskId);
+              }
+              return;
           }
         }
         // If not a valid space-command, open search with the typed character
@@ -176,5 +189,8 @@ export function useKeyboardShortcuts({
     toggleTheme,
     onSpacePressed,
     onSpaceReleased,
+    startTimer,
+    stopTimer,
+    getTaskById,
   ]);
 }

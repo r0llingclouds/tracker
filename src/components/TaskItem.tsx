@@ -1,5 +1,7 @@
 import { format, isToday, isTomorrow, isPast, startOfDay } from 'date-fns';
 import type { Task, Project, Recurrence } from '../types';
+import { useTimer } from '../hooks/useTimer';
+import { useTaskStore } from '../store/taskStore';
 
 interface TaskItemProps {
   task: Task;
@@ -84,6 +86,20 @@ function formatRecurrence(recurrence: Recurrence): string {
 export function TaskItem({ task, project, selected, onSelect, onToggle, onDoubleClick }: TaskItemProps) {
   const scheduledInfo = task.scheduledDate ? formatScheduledDate(task.scheduledDate) : null;
   const deadlineInfo = task.deadline ? formatDeadline(task.deadline) : null;
+  const { formattedTime, isRunning } = useTimer(task.timeSpent, task.timerStartedAt);
+  const { startTimer, stopTimer } = useTaskStore();
+  
+  const hasTime = task.timeSpent > 0 || isRunning;
+  
+  const handleTimerClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isRunning) {
+      stopTimer(task.id);
+    } else {
+      startTimer(task.id);
+    }
+  };
+  
   return (
     <div
       onClick={onSelect}
@@ -177,8 +193,43 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
               ))}
             </div>
           )}
+          
+          {hasTime && (
+            <span className={`flex items-center gap-1 text-xs font-mono ${
+              isRunning 
+                ? 'text-blue-600 dark:text-blue-400 font-medium' 
+                : 'text-gray-500 dark:text-gray-400'
+            }`}>
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {formattedTime}
+            </span>
+          )}
         </div>
       </div>
+      
+      {/* Timer play/pause button */}
+      <button
+        onClick={handleTimerClick}
+        className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+          isRunning
+            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50'
+            : 'opacity-0 group-hover:opacity-100 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+        }`}
+        title={isRunning ? 'Stop timer' : 'Start timer'}
+      >
+        {isRunning ? (
+          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+        ) : (
+          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        )}
+      </button>
       
       <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-gray-400 dark:text-gray-500">
         <span className="font-mono">space+c</span> complete

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
+import { useTimer } from '../hooks/useTimer';
 import type { Recurrence } from '../types';
 
 interface TaskDetailProps {
@@ -25,12 +26,21 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
     addTagToTask,
     removeTagFromTask,
     deleteTask,
+    startTimer,
+    stopTimer,
+    resetTimer,
   } = useTaskStore();
 
   const task = tasks.find(t => t.id === taskId);
   const titleRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState(task?.title || '');
   const [newTag, setNewTag] = useState('');
+  
+  // Timer hook - use task values or defaults when task is not yet available
+  const { formattedTime, isRunning } = useTimer(
+    task?.timeSpent ?? 0,
+    task?.timerStartedAt ?? null
+  );
 
   useEffect(() => {
     if (task) {
@@ -311,6 +321,69 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300">Someday</span>
               </label>
+            </div>
+          </div>
+          
+          {/* Time Tracked */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Time Tracked
+            </label>
+            <div className="flex items-center gap-3">
+              <div className={`flex-1 px-4 py-3 rounded-lg font-mono text-lg ${
+                isRunning 
+                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800' 
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <svg className={`w-4 h-4 ${isRunning ? 'animate-pulse' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {formattedTime}
+                </div>
+              </div>
+              
+              <button
+                onClick={() => isRunning ? stopTimer(taskId) : startTimer(taskId)}
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  isRunning
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900'
+                }`}
+              >
+                {isRunning ? (
+                  <span className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <rect x="6" y="4" width="4" height="16" rx="1" />
+                      <rect x="14" y="4" width="4" height="16" rx="1" />
+                    </svg>
+                    Stop
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                    Start
+                  </span>
+                )}
+              </button>
+              
+              {(task.timeSpent > 0 || isRunning) && (
+                <button
+                  onClick={() => {
+                    if (confirm('Reset timer to 0:00?')) {
+                      resetTimer(taskId);
+                    }
+                  }}
+                  className="px-3 py-3 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                  title="Reset timer"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
         </div>
