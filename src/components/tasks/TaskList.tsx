@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { useTaskStore } from '../../store/taskStore';
 import { TaskItem } from './TaskItem';
 import { TaskDetail } from './TaskDetail';
 
 export function TaskList() {
-  const [detailTaskId, setDetailTaskId] = useState<string | null>(null);
   const { 
     getVisibleTasks, 
     getUpcomingTasksWithOverdue,
@@ -18,6 +16,8 @@ export function TaskList() {
     currentAreaId,
     projects,
     areas,
+    editingTaskId,
+    setEditingTask,
   } = useTaskStore();
 
   const tasks = getVisibleTasks();
@@ -112,7 +112,7 @@ export function TaskList() {
                       selected={task.id === selectedTaskId}
                       onSelect={() => selectTask(task.id)}
                       onToggle={() => toggleTask(task.id)}
-                      onDoubleClick={() => setDetailTaskId(task.id)}
+                      onDoubleClick={() => setEditingTask(task.id)}
                     />
                   ))}
                 </div>
@@ -147,7 +147,7 @@ export function TaskList() {
                       selected={task.id === selectedTaskId}
                       onSelect={() => selectTask(task.id)}
                       onToggle={() => toggleTask(task.id)}
-                      onDoubleClick={() => setDetailTaskId(task.id)}
+                      onDoubleClick={() => setEditingTask(task.id)}
                     />
                   ))}
                 </div>
@@ -174,7 +174,7 @@ export function TaskList() {
                       selected={task.id === selectedTaskId}
                       onSelect={() => selectTask(task.id)}
                       onToggle={() => toggleTask(task.id)}
-                      onDoubleClick={() => setDetailTaskId(task.id)}
+                      onDoubleClick={() => setEditingTask(task.id)}
                     />
                   ))}
                 </div>
@@ -204,7 +204,7 @@ export function TaskList() {
                         selected={task.id === selectedTaskId}
                         onSelect={() => selectTask(task.id)}
                         onToggle={() => toggleTask(task.id)}
-                        onDoubleClick={() => setDetailTaskId(task.id)}
+                        onDoubleClick={() => setEditingTask(task.id)}
                       />
                     ))}
                   </div>
@@ -222,7 +222,7 @@ export function TaskList() {
                 selected={task.id === selectedTaskId}
                 onSelect={() => selectTask(task.id)}
                 onToggle={() => toggleTask(task.id)}
-                onDoubleClick={() => setDetailTaskId(task.id)}
+                onDoubleClick={() => setEditingTask(task.id)}
               />
             ))}
           </div>
@@ -231,19 +231,21 @@ export function TaskList() {
       
       <footer className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-400 dark:text-gray-500 flex gap-4">
         <span><kbd className="font-mono">↑↓</kbd> navigate</span>
+        <span><kbd className="font-mono">space+e</kbd> edit</span>
         <span><kbd className="font-mono">space+c</kbd> complete</span>
         <span><kbd className="font-mono">space+s</kbd> schedule</span>
+        <span><kbd className="font-mono">space+d</kbd> deadline</span>
         <span><kbd className="font-mono">space+m</kbd> move</span>
         <span><kbd className="font-mono">space+t</kbd> tag</span>
-        <span><kbd className="font-mono">space+d</kbd> delete</span>
+        <span><kbd className="font-mono">space+x</kbd> delete</span>
       </footer>
 
       {/* Task Detail Modal */}
-      {detailTaskId && (
+      {editingTaskId && (
         <TaskDetail
-          taskId={detailTaskId}
-          open={!!detailTaskId}
-          onClose={() => setDetailTaskId(null)}
+          taskId={editingTaskId}
+          open={!!editingTaskId}
+          onClose={() => setEditingTask(null)}
         />
       )}
     </main>

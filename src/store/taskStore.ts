@@ -71,6 +71,7 @@ interface TaskStore {
   currentTagId: string | null;
   currentAreaId: string | null;
   selectedTaskId: string | null;
+  editingTaskId: string | null;
   isLoading: boolean;
   theme: Theme;
   
@@ -113,6 +114,7 @@ interface TaskStore {
   selectTask: (id: string | null) => void;
   selectNextTask: () => void;
   selectPrevTask: () => void;
+  setEditingTask: (id: string | null) => void;
   
   // Computed
   getVisibleTasks: () => Task[];
@@ -146,6 +148,7 @@ export const useTaskStore = create<TaskStore>()(
     currentTagId: null,
     currentAreaId: null,
     selectedTaskId: null,
+    editingTaskId: null,
     isLoading: true,
     theme: (localStorage.getItem('theme') as Theme) || 'system',
     
@@ -548,6 +551,10 @@ export const useTaskStore = create<TaskStore>()(
       } else {
         set({ selectedTaskId: visibleTasks[currentIndex - 1].id });
       }
+    },
+    
+    setEditingTask: (id) => {
+      set({ editingTaskId: id });
     },
     
     // Computed

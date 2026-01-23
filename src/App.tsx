@@ -94,10 +94,13 @@ function App() {
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">n</kbd>
           <span className="opacity-70">new</span>
           <span className="mx-2 opacity-50">|</span>
+          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">e</kbd>
+          <span className="opacity-70">edit</span>
+          <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">s</kbd>
           <span className="opacity-70">schedule</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">e</kbd>
+          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">d</kbd>
           <span className="opacity-70">deadline</span>
           <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">t</kbd>
@@ -106,7 +109,7 @@ function App() {
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">m</kbd>
           <span className="opacity-70">move</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">d</kbd>
+          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">x</kbd>
           <span className="opacity-70">delete</span>
           <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">c</kbd>

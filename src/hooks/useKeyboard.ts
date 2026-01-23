@@ -27,6 +27,7 @@ export function useKeyboardShortcuts({
     startTimer,
     stopTimer,
     getTaskById,
+    setEditingTask,
   } = useTaskStore();
 
   // Track if we're waiting for a second key (for prefix commands)
@@ -92,7 +93,7 @@ export function useKeyboardShortcuts({
               e.preventDefault();
               openPalette('tag');
               return;
-            case 'd':
+            case 'x':
               e.preventDefault();
               deleteTask(selectedTaskId);
               return;
@@ -108,7 +109,7 @@ export function useKeyboardShortcuts({
               e.preventDefault();
               openPalette('schedule');
               return;
-            case 'e':
+            case 'd':
               e.preventDefault();
               openPalette('deadline');
               return;
@@ -121,6 +122,11 @@ export function useKeyboardShortcuts({
               } else {
                 startTimer(selectedTaskId);
               }
+              return;
+            case 'e':
+              e.preventDefault();
+              // Open task edit modal
+              setEditingTask(selectedTaskId);
               return;
           }
         }
@@ -192,5 +198,6 @@ export function useKeyboardShortcuts({
     startTimer,
     stopTimer,
     getTaskById,
+    setEditingTask,
   ]);
 }
