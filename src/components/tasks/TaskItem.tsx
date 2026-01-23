@@ -1,7 +1,7 @@
 import { format, isToday, isTomorrow, isPast, startOfDay } from 'date-fns';
-import type { Task, Project, Recurrence } from '../types';
-import { useTimer } from '../hooks/useTimer';
-import { useTaskStore } from '../store/taskStore';
+import type { Task, Project, Recurrence } from '../../types';
+import { useTimer } from '../../hooks/useTimer';
+import { useTaskStore } from '../../store/taskStore';
 
 interface TaskItemProps {
   task: Task;

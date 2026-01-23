@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
-import { useTaskStore } from '../store/taskStore';
-import { useTimer } from '../hooks/useTimer';
-import type { Recurrence } from '../types';
+import { useTaskStore } from '../../store/taskStore';
+import { useTimer } from '../../hooks/useTimer';
+import type { Recurrence } from '../../types';
 
 interface TaskDetailProps {
   taskId: string;

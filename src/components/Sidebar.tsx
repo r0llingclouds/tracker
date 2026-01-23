@@ -71,6 +71,9 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
     areas,
     updateArea,
     deleteArea,
+    updateProject,
+    deleteProject,
+    setProjectArea,
     tags, 
     tasks 
   } = useTaskStore();
@@ -213,16 +216,45 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                       </div>
                       {/* Projects in this area */}
                       {areaProjects.map(project => (
-                        <NavItem
+                        <div
                           key={project.id}
-                          label={project.name}
-                          shortcut=""
-                          count={getProjectCount(project.id)}
-                          active={currentView === 'project' && currentProjectId === project.id}
-                          onClick={() => setView('project', project.id)}
-                          color={project.color}
-                          indent
-                        />
+                          onDoubleClick={() => {
+                            const action = prompt('Type "rename", "delete", or "move":');
+                            if (action?.toLowerCase() === 'rename') {
+                              const newName = prompt('New name:', project.name);
+                              if (newName && newName !== project.name) {
+                                updateProject(project.id, { name: newName });
+                              }
+                            } else if (action?.toLowerCase() === 'delete') {
+                              if (confirm(`Delete project "${project.name}"? Tasks will be moved to Inbox.`)) {
+                                deleteProject(project.id);
+                              }
+                            } else if (action?.toLowerCase() === 'move') {
+                              const areaNames = areas.map(a => a.name).join(', ');
+                              const areaName = prompt(`Move to area (${areaNames || 'no areas'}), or type "none" to remove from area:`);
+                              if (areaName?.toLowerCase() === 'none') {
+                                setProjectArea(project.id, null);
+                              } else if (areaName) {
+                                const targetArea = areas.find(a => a.name.toLowerCase() === areaName.toLowerCase());
+                                if (targetArea) {
+                                  setProjectArea(project.id, targetArea.id);
+                                } else {
+                                  alert(`Area "${areaName}" not found.`);
+                                }
+                              }
+                            }
+                          }}
+                        >
+                          <NavItem
+                            label={project.name}
+                            shortcut=""
+                            count={getProjectCount(project.id)}
+                            active={currentView === 'project' && currentProjectId === project.id}
+                            onClick={() => setView('project', project.id)}
+                            color={project.color}
+                            indent
+                          />
+                        </div>
                       ))}
                     </div>
                   );
@@ -237,15 +269,44 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                   Projects
                 </h2>
                 {ungroupedProjects.map(project => (
-                  <NavItem
+                  <div
                     key={project.id}
-                    label={project.name}
-                    shortcut=""
-                    count={getProjectCount(project.id)}
-                    active={currentView === 'project' && currentProjectId === project.id}
-                    onClick={() => setView('project', project.id)}
-                    color={project.color}
-                  />
+                    onDoubleClick={() => {
+                      const action = prompt('Type "rename", "delete", or "move":');
+                      if (action?.toLowerCase() === 'rename') {
+                        const newName = prompt('New name:', project.name);
+                        if (newName && newName !== project.name) {
+                          updateProject(project.id, { name: newName });
+                        }
+                      } else if (action?.toLowerCase() === 'delete') {
+                        if (confirm(`Delete project "${project.name}"? Tasks will be moved to Inbox.`)) {
+                          deleteProject(project.id);
+                        }
+                      } else if (action?.toLowerCase() === 'move') {
+                        const areaNames = areas.map(a => a.name).join(', ');
+                        const areaName = prompt(`Move to area (${areaNames || 'no areas'}), or type "none" to remove from area:`);
+                        if (areaName?.toLowerCase() === 'none') {
+                          setProjectArea(project.id, null);
+                        } else if (areaName) {
+                          const targetArea = areas.find(a => a.name.toLowerCase() === areaName.toLowerCase());
+                          if (targetArea) {
+                            setProjectArea(project.id, targetArea.id);
+                          } else {
+                            alert(`Area "${areaName}" not found.`);
+                          }
+                        }
+                      }
+                    }}
+                  >
+                    <NavItem
+                      label={project.name}
+                      shortcut=""
+                      count={getProjectCount(project.id)}
+                      active={currentView === 'project' && currentProjectId === project.id}
+                      onClick={() => setView('project', project.id)}
+                      color={project.color}
+                    />
+                  </div>
                 ))}
               </div>
             )}

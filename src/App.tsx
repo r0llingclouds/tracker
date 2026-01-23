@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
-import { TaskList } from './components/TaskList';
-import { CommandPalette } from './components/CommandPalette';
+import { TaskList } from './components/tasks/TaskList';
+import { CommandPalette } from './components/tasks/CommandPalette';
 import { TrackerApp } from './components/habits/TrackerApp';
 import { FoodTracker } from './components/food/FoodTracker';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';

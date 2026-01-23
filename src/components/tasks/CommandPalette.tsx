@@ -1,7 +1,7 @@
 import { Command } from 'cmdk';
 import { useEffect, useState, useRef } from 'react';
 import { addDays, addWeeks, format, startOfDay, nextDay, getDay } from 'date-fns';
-import { useTaskStore } from '../store/taskStore';
+import { useTaskStore } from '../../store/taskStore';
 
 // Date suggestion types and helpers for schedule mode
 interface DateSuggestion {
@@ -356,6 +356,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     addTask, 
     moveTask,
     setTaskArea,
+    setProjectArea,
     setTaskDate,
     setDeadline,
     setSomeday,
@@ -682,6 +683,52 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       <span>{area.name}</span>
                     </Command.Item>
                   ))}
+                </Command.Group>
+              )}
+
+              {/* Move Project to Area */}
+              {projects.length > 0 && areas.length > 0 && (
+                <Command.Group heading="Move Project to Area">
+                  {projects.map(project => {
+                    const currentArea = areas.find(a => a.id === project.areaId);
+                    return (
+                      <Command.Item
+                        key={`move-${project.id}`}
+                        value={`move project ${project.name} to area`}
+                        onSelect={() => {
+                          const areaNames = areas.map(a => a.name).join(', ');
+                          const areaName = prompt(
+                            `Move "${project.name}" to area (${areaNames}), or type "none" to remove from area:`,
+                            currentArea?.name || ''
+                          );
+                          if (areaName?.toLowerCase() === 'none') {
+                            setProjectArea(project.id, null);
+                            onClose();
+                          } else if (areaName) {
+                            const targetArea = areas.find(a => a.name.toLowerCase() === areaName.toLowerCase());
+                            if (targetArea) {
+                              setProjectArea(project.id, targetArea.id);
+                              onClose();
+                            } else {
+                              alert(`Area "${areaName}" not found.`);
+                            }
+                          }
+                        }}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                      >
+                        <span 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: project.color }}
+                        />
+                        <span className="flex-1">{project.name}</span>
+                        {currentArea ? (
+                          <span className="text-xs text-gray-400 dark:text-gray-500">in @{currentArea.name}</span>
+                        ) : (
+                          <span className="text-xs text-gray-400 dark:text-gray-500">no area</span>
+                        )}
+                      </Command.Item>
+                    );
+                  })}
                 </Command.Group>
               )}
 

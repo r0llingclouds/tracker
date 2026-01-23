@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useTaskStore } from '../store/taskStore';
+import { useTaskStore } from '../../store/taskStore';
 import { TaskItem } from './TaskItem';
 import { TaskDetail } from './TaskDetail';
 
