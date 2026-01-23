@@ -3,7 +3,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { useTaskStore } from '../store/taskStore';
 
 interface UseKeyboardShortcutsProps {
-  openPalette: (mode?: 'search' | 'move' | 'tag' | 'newTask', initialValue?: string) => void;
+  openPalette: (mode?: 'search' | 'move' | 'tag' | 'newTask' | 'schedule', initialValue?: string) => void;
   closePalette: () => void;
   paletteOpen: boolean;
   onGPressed?: () => void;
@@ -115,6 +115,10 @@ export function useKeyboardShortcuts({
             case 'c':
               e.preventDefault();
               toggleTask(selectedTaskId);
+              return;
+            case 's':
+              e.preventDefault();
+              openPalette('schedule');
               return;
           }
         }

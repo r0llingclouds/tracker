@@ -1,3 +1,4 @@
+import { format, isToday, isTomorrow, isPast, startOfDay } from 'date-fns';
 import type { Task, Project } from '../types';
 
 interface TaskItemProps {
@@ -8,7 +9,30 @@ interface TaskItemProps {
   onToggle: () => void;
 }
 
+function formatScheduledDate(date: Date): { text: string; isOverdue: boolean } {
+  const today = startOfDay(new Date());
+  const scheduledDay = startOfDay(date);
+  
+  if (isToday(date)) {
+    return { text: 'Today', isOverdue: false };
+  }
+  if (isTomorrow(date)) {
+    return { text: 'Tomorrow', isOverdue: false };
+  }
+  if (isPast(scheduledDay) && scheduledDay < today) {
+    return { text: format(date, 'MMM d'), isOverdue: true };
+  }
+  // Within the same week, show day name
+  const daysUntil = Math.ceil((scheduledDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  if (daysUntil <= 7) {
+    return { text: format(date, 'EEE'), isOverdue: false };
+  }
+  // Otherwise show full date
+  return { text: format(date, 'MMM d'), isOverdue: false };
+}
+
 export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskItemProps) {
+  const scheduledInfo = task.scheduledDate ? formatScheduledDate(task.scheduledDate) : null;
   return (
     <div
       onClick={onSelect}
@@ -42,6 +66,19 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
         </p>
         
         <div className="flex items-center gap-2 mt-1">
+          {scheduledInfo && (
+            <span className={`flex items-center gap-1 text-xs ${
+              scheduledInfo.isOverdue && !task.completed
+                ? 'text-red-500 font-medium' 
+                : 'text-gray-500'
+            }`}>
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {scheduledInfo.text}
+            </span>
+          )}
+          
           {project && (
             <span className="flex items-center gap-1 text-xs text-gray-500">
               <span 

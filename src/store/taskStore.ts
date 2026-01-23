@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
+import { isSameDay } from 'date-fns';
 import type { Task, Project, View } from '../types';
 
 const API_URL = 'http://localhost:3001/api';
@@ -19,11 +20,12 @@ interface TaskStore {
   saveData: () => Promise<void>;
   
   // Task actions
-  addTask: (title: string, projectId?: string | null, tags?: string[]) => void;
+  addTask: (title: string, projectId?: string | null, tags?: string[], scheduledDate?: Date | null) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
   moveTask: (id: string, projectId: string | null) => void;
+  setTaskDate: (taskId: string, date: Date | null) => void;
   addTagToTask: (taskId: string, tag: string) => void;
   removeTagFromTask: (taskId: string, tag: string) => void;
   
@@ -73,6 +75,7 @@ export const useTaskStore = create<TaskStore>()(
         const tasks = data.tasks.map((t: Task) => ({
           ...t,
           createdAt: new Date(t.createdAt),
+          scheduledDate: t.scheduledDate ? new Date(t.scheduledDate) : null,
         }));
         
         set({ 
@@ -102,7 +105,7 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     // Task actions
-    addTask: (title, projectId = null, taskTags = []) => {
+    addTask: (title, projectId = null, taskTags = [], scheduledDate = null) => {
       // Normalize tags and add any new ones to the global tags list
       const normalizedTags = taskTags.map(t => t.toLowerCase().trim());
       const currentTags = get().tags;
@@ -115,6 +118,7 @@ export const useTaskStore = create<TaskStore>()(
         projectId: projectId ?? (get().currentView === 'project' ? get().currentProjectId : null),
         tags: normalizedTags,
         createdAt: new Date(),
+        scheduledDate,
       };
       set(state => ({ 
         tasks: [...state.tasks, newTask],
@@ -166,6 +170,14 @@ export const useTaskStore = create<TaskStore>()(
       set(state => ({
         tasks: state.tasks.map(task =>
           task.id === id ? { ...task, projectId } : task
+        ),
+      }));
+    },
+    
+    setTaskDate: (taskId, date) => {
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          task.id === taskId ? { ...task, scheduledDate: date } : task
         ),
       }));
     },
@@ -278,8 +290,9 @@ export const useTaskStore = create<TaskStore>()(
           tasks = tasks.filter(t => t.projectId === null);
           break;
         case 'today':
-          // For now, show all incomplete tasks as "today"
-          tasks = tasks.filter(t => !t.completed);
+          // Show tasks scheduled for today
+          const today = new Date();
+          tasks = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today));
           break;
         case 'project':
           tasks = tasks.filter(t => t.projectId === state.currentProjectId);

@@ -1,11 +1,12 @@
 import { Command } from 'cmdk';
 import { useEffect, useState, useRef } from 'react';
+import { addDays, addWeeks, format, startOfDay } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
 
 interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
-  mode: 'search' | 'move' | 'tag' | 'newTask';
+  mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule';
   initialValue?: string;
 }
 
@@ -20,10 +21,12 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     selectedTaskId,
     addTask, 
     moveTask,
+    setTaskDate,
     addTagToTask,
     addProject,
     setView,
     selectTask,
+    getTaskById,
   } = useTaskStore();
 
   useEffect(() => {
@@ -71,10 +74,15 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
         return 'Move to project...';
       case 'tag':
         return 'Add tag...';
+      case 'schedule':
+        return 'Schedule task...';
       default:
         return 'Search tasks, projects, or type a command...';
     }
   };
+  
+  // Get selected task for schedule mode
+  const selectedTask = selectedTaskId ? getTaskById(selectedTaskId) : null;
 
   // Create task with parsed tags
   const createTaskWithTags = () => {
@@ -114,6 +122,33 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
         // For now, we'll just close - the user can select it from the list
       }
     }
+    
+    // Handle quick keys for schedule mode
+    if (mode === 'schedule' && selectedTaskId) {
+      const key = e.key.toLowerCase();
+      switch (key) {
+        case 't':
+          e.preventDefault();
+          setTaskDate(selectedTaskId, startOfDay(new Date()));
+          onClose();
+          return;
+        case 'm':
+          e.preventDefault();
+          setTaskDate(selectedTaskId, startOfDay(addDays(new Date(), 1)));
+          onClose();
+          return;
+        case 'w':
+          e.preventDefault();
+          setTaskDate(selectedTaskId, startOfDay(addWeeks(new Date(), 1)));
+          onClose();
+          return;
+        case 'x':
+          e.preventDefault();
+          setTaskDate(selectedTaskId, null);
+          onClose();
+          return;
+      }
+    }
   };
 
   if (!open) return null;
@@ -128,7 +163,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
         className="relative z-10 w-full max-w-xl bg-white rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-top-4 duration-200"
         onClick={(e) => e.stopPropagation()}
         loop
-        shouldFilter={mode !== 'newTask'}
+        shouldFilter={mode !== 'newTask' && mode !== 'schedule'}
       >
         <Command.Input
           ref={inputRef}
@@ -371,6 +406,93 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   Type task name, use <span className="font-mono bg-gray-100 px-1 rounded">#</span> for tags
                 </div>
               )}
+            </>
+          )}
+
+          {mode === 'schedule' && (
+            <>
+              {selectedTask && (
+                <div className="px-3 py-2 mb-2 text-sm text-gray-600 border-b border-gray-100">
+                  Scheduling: <span className="font-medium">{selectedTask.title}</span>
+                  {selectedTask.scheduledDate && (
+                    <span className="ml-2 text-gray-400">
+                      (currently: {format(selectedTask.scheduledDate, 'MMM d')})
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              <Command.Group heading="Quick Options">
+                <Command.Item
+                  value="today"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setTaskDate(selectedTaskId, startOfDay(new Date()));
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+                  </svg>
+                  <span>Today</span>
+                  <span className="ml-auto text-xs text-gray-400 font-mono">t</span>
+                </Command.Item>
+                <Command.Item
+                  value="tomorrow"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setTaskDate(selectedTaskId, startOfDay(addDays(new Date(), 1)));
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>Tomorrow</span>
+                  <span className="ml-auto text-xs text-gray-400 font-mono">m</span>
+                </Command.Item>
+                <Command.Item
+                  value="next week"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setTaskDate(selectedTaskId, startOfDay(addWeeks(new Date(), 1)));
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>Next Week</span>
+                  <span className="ml-auto text-xs text-gray-400 font-mono">w</span>
+                </Command.Item>
+                <Command.Item
+                  value="no date"
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) setTaskDate(selectedTaskId, null);
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span>No Date</span>
+                  <span className="ml-auto text-xs text-gray-400 font-mono">x</span>
+                </Command.Item>
+              </Command.Group>
+              
+              <Command.Group heading="Pick a Date">
+                <div className="px-3 py-2">
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    min={format(new Date(), 'yyyy-MM-dd')}
+                    onChange={(e) => {
+                      if (e.target.value && selectedTaskId) {
+                        const date = new Date(e.target.value + 'T00:00:00');
+                        setTaskDate(selectedTaskId, date);
+                        onClose();
+                      }
+                    }}
+                  />
+                </div>
+              </Command.Group>
             </>
           )}
         </Command.List>

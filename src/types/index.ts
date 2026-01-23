@@ -5,6 +5,7 @@ export interface Task {
   projectId: string | null; // null = inbox
   tags: string[];
   createdAt: Date;
+  scheduledDate: Date | null; // null = unscheduled
 }
 
 export interface Project {

@@ -1,3 +1,4 @@
+import { isSameDay } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
 
 interface NavItemProps {
@@ -44,7 +45,8 @@ export function Sidebar() {
   } = useTaskStore();
 
   const inboxCount = tasks.filter(t => t.projectId === null && !t.completed).length;
-  const todayCount = tasks.filter(t => !t.completed).length;
+  const today = new Date();
+  const todayCount = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today)).length;
 
   const getProjectCount = (projectId: string) => 
     tasks.filter(t => t.projectId === projectId && !t.completed).length;

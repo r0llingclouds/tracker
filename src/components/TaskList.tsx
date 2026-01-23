@@ -69,6 +69,7 @@ export function TaskList() {
       <footer className="px-6 py-3 border-t border-gray-200 text-xs text-gray-400 flex gap-4">
         <span><kbd className="font-mono">j/k</kbd> navigate</span>
         <span><kbd className="font-mono">space+c</kbd> complete</span>
+        <span><kbd className="font-mono">space+s</kbd> schedule</span>
         <span><kbd className="font-mono">space+m</kbd> move</span>
         <span><kbd className="font-mono">space+t</kbd> tag</span>
         <span><kbd className="font-mono">space+d</kbd> delete</span>
