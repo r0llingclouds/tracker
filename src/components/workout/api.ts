@@ -109,3 +109,14 @@ export async function getWorkoutSummary(date?: string): Promise<WorkoutSummary> 
   const params = date ? `?date=${encodeURIComponent(date)}` : '';
   return fetchAPI<WorkoutSummary>(`/workouts/summary${params}`);
 }
+
+// ============ HISTORY API (for heatmaps) ============
+
+export interface WorkoutHistory {
+  kettlebell: Record<string, { reps: number; volume: number }>;
+  pushups: Record<string, { reps: number }>;
+}
+
+export async function getWorkoutHistory(): Promise<WorkoutHistory> {
+  return fetchAPI<WorkoutHistory>('/workouts/history');
+}

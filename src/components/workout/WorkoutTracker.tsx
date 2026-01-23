@@ -7,13 +7,16 @@ import {
   getDailyWorkoutData,
   updateDailyWorkoutData,
   deleteKettlebellEntry,
-  deletePushUpEntry
+  deletePushUpEntry,
+  getWorkoutHistory,
+  type WorkoutHistory
 } from './api';
 import { WorkoutSummary } from './WorkoutSummary';
 import { KettlebellForm } from './KettlebellForm';
 import { PushUpForm } from './PushUpForm';
 import { WorkoutLog } from './WorkoutLog';
 import { WorkoutTimer } from './WorkoutTimer';
+import { WorkoutHeatmap } from './WorkoutHeatmap';
 
 const defaultSummary: WorkoutSummaryType = {
   kettlebell_total_reps: 0,
@@ -31,29 +34,38 @@ const defaultDailyData: DailyWorkoutData = {
   pushup_time: 0
 };
 
+const defaultHistory: WorkoutHistory = {
+  kettlebell: {},
+  pushups: {}
+};
+
 export function WorkoutTracker() {
   const [kettlebellEntries, setKettlebellEntries] = useState<KettlebellEntry[]>([]);
   const [pushUpEntries, setPushUpEntries] = useState<PushUpEntry[]>([]);
   const [summary, setSummary] = useState<WorkoutSummaryType>(defaultSummary);
   const [dailyData, setDailyData] = useState<DailyWorkoutData>(defaultDailyData);
+  const [history, setHistory] = useState<WorkoutHistory>(defaultHistory);
 
   const fetchData = useCallback(async () => {
     try {
-      const [kettlebellRes, pushUpRes, summaryRes, dailyRes] = await Promise.all([
+      const [kettlebellRes, pushUpRes, summaryRes, dailyRes, historyRes] = await Promise.all([
         getKettlebellEntries(),
         getPushUpEntries(),
         getWorkoutSummary(),
-        getDailyWorkoutData()
+        getDailyWorkoutData(),
+        getWorkoutHistory()
       ]);
       setKettlebellEntries(kettlebellRes);
       setPushUpEntries(pushUpRes);
       setSummary(summaryRes);
       setDailyData(dailyRes);
+      setHistory(historyRes);
     } catch (error) {
       console.error('Error fetching workout data:', error);
       // Set default empty values so UI renders properly
       setSummary(defaultSummary);
       setDailyData(defaultDailyData);
+      setHistory(defaultHistory);
     }
   }, []);
 
@@ -123,6 +135,30 @@ export function WorkoutTracker() {
           <div className="grid gap-6">
             {/* Workout Summary */}
             <WorkoutSummary summary={summary} />
+
+            {/* Heatmaps */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <WorkoutHeatmap
+                data={Object.fromEntries(
+                  Object.entries(history.kettlebell).map(([date, data]) => [date, data.volume])
+                )}
+                title="Kettlebell Volume"
+                subtitle="Total kg lifted per day (last 52 weeks)"
+                unit="kg"
+                colorScheme="amber"
+                thresholds={[500, 1000, 2000, 4000]}
+              />
+              <WorkoutHeatmap
+                data={Object.fromEntries(
+                  Object.entries(history.pushups).map(([date, data]) => [date, data.reps])
+                )}
+                title="Push Ups"
+                subtitle="Total reps per day (last 52 weeks)"
+                unit="reps"
+                colorScheme="rose"
+                thresholds={[20, 50, 100, 200]}
+              />
+            </div>
 
             {/* Kettlebell Form */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">

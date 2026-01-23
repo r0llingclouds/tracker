@@ -333,6 +333,43 @@ router.put('/workouts/daily', (req, res) => {
   }
 });
 
+// ============ HISTORY API (for heatmaps) ============
+
+// GET /api/workouts/history - Get aggregated daily totals for all dates
+router.get('/workouts/history', (req, res) => {
+  try {
+    const kettlebellStore = readJSON(KETTLEBELL_FILE);
+    const pushupStore = readJSON(PUSHUPS_FILE);
+    
+    // Aggregate kettlebell entries by date
+    const kettlebell = {};
+    for (const entry of kettlebellStore.items) {
+      const date = entry.date;
+      if (!kettlebell[date]) {
+        kettlebell[date] = { reps: 0, volume: 0 };
+      }
+      const totalReps = entry.series * entry.reps;
+      const handMultiplier = entry.singleHanded ? 1 : 2;
+      kettlebell[date].reps += totalReps;
+      kettlebell[date].volume += entry.weight * totalReps * handMultiplier;
+    }
+    
+    // Aggregate push-up entries by date
+    const pushups = {};
+    for (const entry of pushupStore.items) {
+      const date = entry.date;
+      if (!pushups[date]) {
+        pushups[date] = { reps: 0 };
+      }
+      pushups[date].reps += entry.series * entry.reps;
+    }
+    
+    res.json({ kettlebell, pushups });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============ COMBINED SUMMARY API ============
 
 // GET /api/workouts/summary - Get combined workout summary for a date
