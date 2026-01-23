@@ -84,6 +84,10 @@ export function useKeyboardShortcuts({
             e.preventDefault();
             setView('today');
             return;
+          case 'u':
+            e.preventDefault();
+            setView('upcoming');
+            return;
         }
         // If not a valid g-command, open search with the typed character
         if (key.length === 1 && /[a-z0-9]/i.test(key)) {
@@ -97,6 +101,13 @@ export function useKeyboardShortcuts({
       if (waitingForSpaceCommand.current) {
         waitingForSpaceCommand.current = false;
         onSpaceReleased?.();
+        
+        // New task works without selection
+        if (key === 'n') {
+          e.preventDefault();
+          openPalette('newTask');
+          return;
+        }
         
         if (selectedTaskId) {
           switch (key) {
@@ -132,21 +143,14 @@ export function useKeyboardShortcuts({
 
       // Single-key shortcuts
       switch (key) {
-        case 'j':
         case 'arrowdown':
           e.preventDefault();
           selectNextTask();
           break;
           
-        case 'k':
         case 'arrowup':
           e.preventDefault();
           selectPrevTask();
-          break;
-          
-        case 'n':
-          e.preventDefault();
-          openPalette('newTask');
           break;
           
         case 'enter':
@@ -171,19 +175,17 @@ export function useKeyboardShortcuts({
           break;
           
         case ' ':
-          // Space as leader key for task actions
+          // Space as leader key for task actions (always active for space+n)
           e.preventDefault();
-          if (selectedTaskId) {
-            waitingForSpaceCommand.current = true;
-            onSpacePressed?.();
-            // Reset after a timeout if no second key is pressed
-            setTimeout(() => {
-              if (waitingForSpaceCommand.current) {
-                waitingForSpaceCommand.current = false;
-                onSpaceReleased?.();
-              }
-            }, 1500);
-          }
+          waitingForSpaceCommand.current = true;
+          onSpacePressed?.();
+          // Reset after a timeout if no second key is pressed
+          setTimeout(() => {
+            if (waitingForSpaceCommand.current) {
+              waitingForSpaceCommand.current = false;
+              onSpaceReleased?.();
+            }
+          }, 1500);
           break;
           
         default:

@@ -73,6 +73,9 @@ function App() {
           <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">t</kbd>
           <span className="opacity-70">today</span>
+          <span className="mx-2 opacity-50">|</span>
+          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">u</kbd>
+          <span className="opacity-70">upcoming</span>
         </div>
       )}
       
@@ -80,6 +83,9 @@ function App() {
       {showSpaceHint && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
           <span className="opacity-70">space + </span>
+          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">n</kbd>
+          <span className="opacity-70">new</span>
+          <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">s</kbd>
           <span className="opacity-70">schedule</span>
           <span className="mx-2 opacity-50">|</span>

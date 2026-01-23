@@ -1,7 +1,15 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { isSameDay } from 'date-fns';
+import { isSameDay, startOfDay } from 'date-fns';
 import type { Task, Project, View } from '../types';
+
+// Type for grouped tasks by project
+export interface ProjectTaskGroup {
+  projectId: string | null;
+  projectName: string;
+  color: string | null;
+  tasks: Task[];
+}
 
 const API_URL = 'http://localhost:3001/api';
 
@@ -42,6 +50,7 @@ interface TaskStore {
   
   // Computed
   getVisibleTasks: () => Task[];
+  getUpcomingTasksByProject: () => ProjectTaskGroup[];
   getTaskById: (id: string) => Task | undefined;
   getProjectById: (id: string) => Project | undefined;
 }
@@ -294,6 +303,11 @@ export const useTaskStore = create<TaskStore>()(
           const today = new Date();
           tasks = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today));
           break;
+        case 'upcoming':
+          // Show all tasks with a scheduled date >= today
+          const todayStart = startOfDay(new Date());
+          tasks = tasks.filter(t => t.scheduledDate && t.scheduledDate >= todayStart);
+          break;
         case 'project':
           tasks = tasks.filter(t => t.projectId === state.currentProjectId);
           break;
@@ -304,6 +318,60 @@ export const useTaskStore = create<TaskStore>()(
         if (a.completed !== b.completed) return a.completed ? 1 : -1;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
+    },
+    
+    getUpcomingTasksByProject: () => {
+      const state = get();
+      const todayStart = startOfDay(new Date());
+      
+      // Get all upcoming tasks (scheduled date >= today)
+      const upcomingTasks = state.tasks.filter(
+        t => t.scheduledDate && t.scheduledDate >= todayStart
+      );
+      
+      // Group tasks by project
+      const groupMap = new Map<string | null, Task[]>();
+      
+      for (const task of upcomingTasks) {
+        const projectId = task.projectId;
+        if (!groupMap.has(projectId)) {
+          groupMap.set(projectId, []);
+        }
+        groupMap.get(projectId)!.push(task);
+      }
+      
+      // Convert to array and sort each group by scheduled date
+      const groups: ProjectTaskGroup[] = [];
+      
+      // Add inbox (null project) first if it has tasks
+      if (groupMap.has(null)) {
+        const tasks = groupMap.get(null)!.sort((a, b) => 
+          (a.scheduledDate?.getTime() ?? 0) - (b.scheduledDate?.getTime() ?? 0)
+        );
+        groups.push({
+          projectId: null,
+          projectName: 'Inbox',
+          color: null,
+          tasks,
+        });
+      }
+      
+      // Add other projects in order
+      for (const project of state.projects) {
+        if (groupMap.has(project.id)) {
+          const tasks = groupMap.get(project.id)!.sort((a, b) => 
+            (a.scheduledDate?.getTime() ?? 0) - (b.scheduledDate?.getTime() ?? 0)
+          );
+          groups.push({
+            projectId: project.id,
+            projectName: project.name,
+            color: project.color,
+            tasks,
+          });
+        }
+      }
+      
+      return groups;
     },
     
     getTaskById: (id) => get().tasks.find(t => t.id === id),

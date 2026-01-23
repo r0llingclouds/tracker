@@ -1,4 +1,4 @@
-import { isSameDay } from 'date-fns';
+import { isSameDay, startOfDay } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
 
 interface NavItemProps {
@@ -46,7 +46,9 @@ export function Sidebar() {
 
   const inboxCount = tasks.filter(t => t.projectId === null && !t.completed).length;
   const today = new Date();
+  const todayStart = startOfDay(today);
   const todayCount = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today)).length;
+  const upcomingCount = tasks.filter(t => t.scheduledDate && t.scheduledDate >= todayStart).length;
 
   const getProjectCount = (projectId: string) => 
     tasks.filter(t => t.projectId === projectId && !t.completed).length;
@@ -73,6 +75,13 @@ export function Sidebar() {
           active={currentView === 'today'}
           onClick={() => setView('today')}
         />
+        <NavItem
+          label="Upcoming"
+          shortcut="gu"
+          count={upcomingCount}
+          active={currentView === 'upcoming'}
+          onClick={() => setView('upcoming')}
+        />
         
         {projects.length > 0 && (
           <div className="pt-4">
@@ -96,7 +105,7 @@ export function Sidebar() {
       
       <div className="p-3 border-t border-gray-200">
         <div className="text-xs text-gray-400 space-y-1">
-          <div><kbd className="font-mono">n</kbd> new task</div>
+          <div><kbd className="font-mono">space+n</kbd> new task</div>
           <div><kbd className="font-mono">space</kbd> task actions</div>
           <div><kbd className="font-mono">⌘k</kbd> command palette</div>
         </div>

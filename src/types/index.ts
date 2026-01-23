@@ -14,7 +14,7 @@ export interface Project {
   color: string;
 }
 
-export type View = 'inbox' | 'today' | 'project';
+export type View = 'inbox' | 'today' | 'upcoming' | 'project';
 
 export interface AppState {
   tasks: Task[];

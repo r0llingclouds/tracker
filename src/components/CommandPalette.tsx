@@ -1,7 +1,187 @@
 import { Command } from 'cmdk';
 import { useEffect, useState, useRef } from 'react';
-import { addDays, addWeeks, format, startOfDay } from 'date-fns';
+import { addDays, addWeeks, format, startOfDay, nextDay, getDay } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
+
+// Date suggestion types and helpers for schedule mode
+interface DateSuggestion {
+  id: string;
+  label: string;
+  date: Date | null;
+  description: string;
+  icon: 'sun' | 'calendar' | 'week' | 'clear';
+}
+
+const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+const DAY_ABBREVIATIONS: Record<string, number> = {
+  sun: 0, sunday: 0,
+  mon: 1, monday: 1,
+  tue: 2, tues: 2, tuesday: 2,
+  wed: 3, wednesday: 3,
+  thu: 4, thur: 4, thurs: 4, thursday: 4,
+  fri: 5, friday: 5,
+  sat: 6, saturday: 6,
+};
+
+function getNextDayOccurrence(dayIndex: number, weeksAhead: number = 0): Date {
+  const today = startOfDay(new Date());
+  const todayDay = getDay(today);
+  
+  // If it's the same day of the week, get next week's occurrence
+  if (todayDay === dayIndex) {
+    return addWeeks(today, 1 + weeksAhead);
+  }
+  
+  // Get the next occurrence of this day
+  const next = nextDay(today, dayIndex as 0 | 1 | 2 | 3 | 4 | 5 | 6);
+  return addWeeks(next, weeksAhead);
+}
+
+function fuzzyMatch(query: string, target: string): boolean {
+  const q = query.toLowerCase();
+  const t = target.toLowerCase();
+  return t.startsWith(q) || t.includes(q);
+}
+
+function getDateSuggestions(query: string): DateSuggestion[] {
+  const q = query.toLowerCase().trim();
+  const today = startOfDay(new Date());
+  const tomorrow = startOfDay(addDays(new Date(), 1));
+  const nextWeek = startOfDay(addWeeks(new Date(), 1));
+  
+  const baseSuggestions: DateSuggestion[] = [
+    {
+      id: 'today',
+      label: 'Today',
+      date: today,
+      description: format(today, 'EEE, MMM d'),
+      icon: 'sun',
+    },
+    {
+      id: 'tomorrow',
+      label: 'Tomorrow',
+      date: tomorrow,
+      description: format(tomorrow, 'EEE, MMM d'),
+      icon: 'calendar',
+    },
+    {
+      id: 'next-week',
+      label: 'Next Week',
+      date: nextWeek,
+      description: format(nextWeek, 'EEE, MMM d'),
+      icon: 'week',
+    },
+    {
+      id: 'no-date',
+      label: 'No Date',
+      date: null,
+      description: 'Remove scheduled date',
+      icon: 'clear',
+    },
+  ];
+  
+  // If no query, return base suggestions
+  if (!q) {
+    return baseSuggestions;
+  }
+  
+  const results: DateSuggestion[] = [];
+  
+  // Check for keyword matches
+  if (fuzzyMatch(q, 'today')) {
+    results.push(baseSuggestions[0]);
+  }
+  if (fuzzyMatch(q, 'tomorrow') || fuzzyMatch(q, 'tom')) {
+    results.push(baseSuggestions[1]);
+  }
+  if (fuzzyMatch(q, 'next week') || fuzzyMatch(q, 'next') || fuzzyMatch(q, 'week')) {
+    results.push(baseSuggestions[2]);
+  }
+  if (fuzzyMatch(q, 'no date') || fuzzyMatch(q, 'none') || fuzzyMatch(q, 'clear') || fuzzyMatch(q, 'remove')) {
+    results.push(baseSuggestions[3]);
+  }
+  
+  // Check for day name matches
+  for (const [abbrev, dayIndex] of Object.entries(DAY_ABBREVIATIONS)) {
+    if (abbrev.startsWith(q) || q === abbrev) {
+      const dayName = DAY_NAMES[dayIndex];
+      const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+      
+      // Get next occurrence
+      const firstOccurrence = getNextDayOccurrence(dayIndex, 0);
+      const secondOccurrence = getNextDayOccurrence(dayIndex, 1);
+      
+      // Add first occurrence if not already in results
+      const firstId = `${dayName}-1`;
+      if (!results.some(r => r.id === firstId)) {
+        results.push({
+          id: firstId,
+          label: capitalizedDay,
+          date: firstOccurrence,
+          description: format(firstOccurrence, 'MMM d'),
+          icon: 'calendar',
+        });
+      }
+      
+      // Add second occurrence
+      const secondId = `${dayName}-2`;
+      if (!results.some(r => r.id === secondId)) {
+        results.push({
+          id: secondId,
+          label: capitalizedDay,
+          date: secondOccurrence,
+          description: format(secondOccurrence, 'MMM d'),
+          icon: 'calendar',
+        });
+      }
+      
+      // Only match one day abbreviation
+      break;
+    }
+  }
+  
+  // Check for day number (1-31)
+  const dayNum = parseInt(q, 10);
+  if (!isNaN(dayNum) && dayNum >= 1 && dayNum <= 31) {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Try this month first
+    let firstDate = new Date(currentYear, currentMonth, dayNum);
+    
+    // If that day has passed (or is today), use next month
+    if (firstDate <= now) {
+      firstDate = new Date(currentYear, currentMonth + 1, dayNum);
+    }
+    
+    // Second occurrence is the month after
+    const secondDate = new Date(firstDate.getFullYear(), firstDate.getMonth() + 1, dayNum);
+    
+    // Only add if the date is valid (handles months with fewer days)
+    if (firstDate.getDate() === dayNum) {
+      results.push({
+        id: `day-${dayNum}-1`,
+        label: format(firstDate, 'EEEE'),
+        date: startOfDay(firstDate),
+        description: format(firstDate, 'MMM d'),
+        icon: 'calendar',
+      });
+    }
+    
+    if (secondDate.getDate() === dayNum) {
+      results.push({
+        id: `day-${dayNum}-2`,
+        label: format(secondDate, 'EEEE'),
+        date: startOfDay(secondDate),
+        description: format(secondDate, 'MMM d'),
+        icon: 'calendar',
+      });
+    }
+  }
+  
+  return results;
+}
 
 interface CommandPaletteProps {
   open: boolean;
@@ -123,32 +303,8 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
       }
     }
     
-    // Handle quick keys for schedule mode
-    if (mode === 'schedule' && selectedTaskId) {
-      const key = e.key.toLowerCase();
-      switch (key) {
-        case 't':
-          e.preventDefault();
-          setTaskDate(selectedTaskId, startOfDay(new Date()));
-          onClose();
-          return;
-        case 'm':
-          e.preventDefault();
-          setTaskDate(selectedTaskId, startOfDay(addDays(new Date(), 1)));
-          onClose();
-          return;
-        case 'w':
-          e.preventDefault();
-          setTaskDate(selectedTaskId, startOfDay(addWeeks(new Date(), 1)));
-          onClose();
-          return;
-        case 'x':
-          e.preventDefault();
-          setTaskDate(selectedTaskId, null);
-          onClose();
-          return;
-      }
-    }
+    // Note: Removed single-key shortcuts for schedule mode (t/m/w/x) 
+    // to allow fuzzy typing. Users can now type "tod", "tom", "mon", etc.
   };
 
   if (!open) return null;
@@ -232,6 +388,15 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   <span className="text-lg">📅</span>
                   <span>Go to Today</span>
                   <span className="ml-auto text-xs text-gray-400 font-mono">gt</span>
+                </Command.Item>
+                <Command.Item
+                  value="upcoming"
+                  onSelect={() => handleSelect(() => setView('upcoming'))}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <span className="text-lg">📆</span>
+                  <span>Go to Upcoming</span>
+                  <span className="ml-auto text-xs text-gray-400 font-mono">gu</span>
                 </Command.Item>
               </Command.Group>
 
@@ -422,60 +587,47 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 </div>
               )}
               
-              <Command.Group heading="Quick Options">
+              {/* Dynamic date suggestions */}
+              {getDateSuggestions(inputValue).map(suggestion => (
                 <Command.Item
-                  value="today"
+                  key={suggestion.id}
+                  value={`${suggestion.label} ${suggestion.description}`}
                   onSelect={() => handleSelect(() => {
-                    if (selectedTaskId) setTaskDate(selectedTaskId, startOfDay(new Date()));
+                    if (selectedTaskId) setTaskDate(selectedTaskId, suggestion.date);
                   })}
                   className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
                 >
-                  <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-                  </svg>
-                  <span>Today</span>
-                  <span className="ml-auto text-xs text-gray-400 font-mono">t</span>
+                  {suggestion.icon === 'sun' && (
+                    <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'calendar' && (
+                    <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'week' && (
+                    <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'clear' && (
+                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                  <span className="flex-1">{suggestion.label}</span>
+                  <span className="text-xs text-gray-400">{suggestion.description}</span>
                 </Command.Item>
-                <Command.Item
-                  value="tomorrow"
-                  onSelect={() => handleSelect(() => {
-                    if (selectedTaskId) setTaskDate(selectedTaskId, startOfDay(addDays(new Date(), 1)));
-                  })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
-                >
-                  <svg className="w-4 h-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>Tomorrow</span>
-                  <span className="ml-auto text-xs text-gray-400 font-mono">m</span>
-                </Command.Item>
-                <Command.Item
-                  value="next week"
-                  onSelect={() => handleSelect(() => {
-                    if (selectedTaskId) setTaskDate(selectedTaskId, startOfDay(addWeeks(new Date(), 1)));
-                  })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
-                >
-                  <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>Next Week</span>
-                  <span className="ml-auto text-xs text-gray-400 font-mono">w</span>
-                </Command.Item>
-                <Command.Item
-                  value="no date"
-                  onSelect={() => handleSelect(() => {
-                    if (selectedTaskId) setTaskDate(selectedTaskId, null);
-                  })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
-                >
-                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  <span>No Date</span>
-                  <span className="ml-auto text-xs text-gray-400 font-mono">x</span>
-                </Command.Item>
-              </Command.Group>
+              ))}
+              
+              {/* Show "no results" hint when query doesn't match */}
+              {inputValue && getDateSuggestions(inputValue).length === 0 && (
+                <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                  No matching dates. Try "today", "tomorrow", or a day name like "mon"
+                </div>
+              )}
               
               <Command.Group heading="Pick a Date">
                 <div className="px-3 py-2">
