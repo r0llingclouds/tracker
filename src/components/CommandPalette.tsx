@@ -203,6 +203,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     moveTask,
     setTaskDate,
     addTagToTask,
+    removeTagFromTask,
     addProject,
     setView,
     selectTask,
@@ -485,19 +486,33 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
 
           {mode === 'tag' && (
             <>
-              {tags.map(tag => (
-                <Command.Item
-                  key={tag}
-                  value={tag}
-                  onSelect={() => handleSelect(() => {
-                    if (selectedTaskId) addTagToTask(selectedTaskId, tag);
-                  })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
-                >
-                  <span className="text-gray-400">#</span>
-                  <span>{tag}</span>
-                </Command.Item>
-              ))}
+              {tags.map(tag => {
+                const isOnTask = selectedTask?.tags.includes(tag);
+                return (
+                  <Command.Item
+                    key={tag}
+                    value={tag}
+                    onSelect={() => handleSelect(() => {
+                      if (selectedTaskId) {
+                        if (isOnTask) {
+                          removeTagFromTask(selectedTaskId, tag);
+                        } else {
+                          addTagToTask(selectedTaskId, tag);
+                        }
+                      }
+                    })}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                  >
+                    <span className="text-gray-400">#</span>
+                    <span className="flex-1">{tag}</span>
+                    {isOnTask && (
+                      <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </Command.Item>
+                );
+              })}
               {inputValue && !tags.includes(inputValue.toLowerCase()) && (
                 <Command.Item
                   value={`create tag ${inputValue}`}
