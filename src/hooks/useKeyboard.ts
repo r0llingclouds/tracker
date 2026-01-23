@@ -88,6 +88,10 @@ export function useKeyboardShortcuts({
             e.preventDefault();
             setView('upcoming');
             return;
+          case 's':
+            e.preventDefault();
+            setView('someday');
+            return;
         }
         // If not a valid g-command, open search with the typed character
         if (key.length === 1 && /[a-z0-9]/i.test(key)) {

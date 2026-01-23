@@ -6,6 +6,7 @@ export interface Task {
   tags: string[];
   createdAt: Date;
   scheduledDate: Date | null; // null = unscheduled
+  someday: boolean; // true = in Someday list
 }
 
 export interface Project {
@@ -14,7 +15,7 @@ export interface Project {
   color: string;
 }
 
-export type View = 'inbox' | 'today' | 'upcoming' | 'project';
+export type View = 'inbox' | 'today' | 'upcoming' | 'someday' | 'project';
 
 export interface AppState {
   tasks: Task[];

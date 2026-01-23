@@ -11,6 +11,12 @@ export interface ProjectTaskGroup {
   tasks: Task[];
 }
 
+// Type for upcoming view with overdue section
+export interface UpcomingData {
+  overdueTasks: Task[];
+  upcomingGroups: ProjectTaskGroup[];
+}
+
 const API_URL = 'http://localhost:3001/api';
 
 interface TaskStore {
@@ -34,6 +40,7 @@ interface TaskStore {
   toggleTask: (id: string) => void;
   moveTask: (id: string, projectId: string | null) => void;
   setTaskDate: (taskId: string, date: Date | null) => void;
+  setSomeday: (taskId: string, someday: boolean) => void;
   addTagToTask: (taskId: string, tag: string) => void;
   removeTagFromTask: (taskId: string, tag: string) => void;
   
@@ -51,6 +58,7 @@ interface TaskStore {
   // Computed
   getVisibleTasks: () => Task[];
   getUpcomingTasksByProject: () => ProjectTaskGroup[];
+  getUpcomingTasksWithOverdue: () => UpcomingData;
   getTaskById: (id: string) => Task | undefined;
   getProjectById: (id: string) => Project | undefined;
 }
@@ -80,11 +88,12 @@ export const useTaskStore = create<TaskStore>()(
         const response = await fetch(`${API_URL}/data`);
         const data = await response.json();
         
-        // Convert date strings to Date objects
+        // Convert date strings to Date objects and ensure someday field exists
         const tasks = data.tasks.map((t: Task) => ({
           ...t,
           createdAt: new Date(t.createdAt),
           scheduledDate: t.scheduledDate ? new Date(t.scheduledDate) : null,
+          someday: t.someday ?? false,
         }));
         
         set({ 
@@ -128,6 +137,7 @@ export const useTaskStore = create<TaskStore>()(
         tags: normalizedTags,
         createdAt: new Date(),
         scheduledDate,
+        someday: false,
       };
       set(state => ({ 
         tasks: [...state.tasks, newTask],
@@ -186,7 +196,15 @@ export const useTaskStore = create<TaskStore>()(
     setTaskDate: (taskId, date) => {
       set(state => ({
         tasks: state.tasks.map(task =>
-          task.id === taskId ? { ...task, scheduledDate: date } : task
+          task.id === taskId ? { ...task, scheduledDate: date, someday: date ? false : task.someday } : task
+        ),
+      }));
+    },
+    
+    setSomeday: (taskId, someday) => {
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          task.id === taskId ? { ...task, someday, scheduledDate: someday ? null : task.scheduledDate } : task
         ),
       }));
     },
@@ -296,19 +314,27 @@ export const useTaskStore = create<TaskStore>()(
       
       switch (state.currentView) {
         case 'inbox':
-          tasks = tasks.filter(t => t.projectId === null);
+          // Inbox: tasks without a project, not someday
+          tasks = tasks.filter(t => t.projectId === null && !t.someday);
           break;
         case 'today':
-          // Show tasks scheduled for today
+          // Show tasks scheduled for today (not someday)
           const today = new Date();
-          tasks = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today));
+          tasks = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today) && !t.someday);
           break;
         case 'upcoming':
-          // Show all tasks with a scheduled date >= today
-          const todayStart = startOfDay(new Date());
-          tasks = tasks.filter(t => t.scheduledDate && t.scheduledDate >= todayStart);
+          // Show all tasks with a scheduled date (including overdue, not someday)
+          const todayStartUpcoming = startOfDay(new Date());
+          tasks = tasks.filter(t => 
+            t.scheduledDate && !t.someday && (t.scheduledDate >= todayStartUpcoming || !t.completed)
+          );
+          break;
+        case 'someday':
+          // Show all someday tasks
+          tasks = tasks.filter(t => t.someday);
           break;
         case 'project':
+          // Project view shows all tasks in project (including someday)
           tasks = tasks.filter(t => t.projectId === state.currentProjectId);
           break;
       }
@@ -372,6 +398,65 @@ export const useTaskStore = create<TaskStore>()(
       }
       
       return groups;
+    },
+    
+    getUpcomingTasksWithOverdue: () => {
+      const state = get();
+      const todayStart = startOfDay(new Date());
+      
+      // Get overdue tasks (scheduled date < today and not completed, not someday)
+      const overdueTasks = state.tasks
+        .filter(t => t.scheduledDate && t.scheduledDate < todayStart && !t.completed && !t.someday)
+        .sort((a, b) => (a.scheduledDate?.getTime() ?? 0) - (b.scheduledDate?.getTime() ?? 0));
+      
+      // Get upcoming tasks (scheduled date >= today, not someday)
+      const upcomingTasks = state.tasks.filter(
+        t => t.scheduledDate && t.scheduledDate >= todayStart && !t.someday
+      );
+      
+      // Group upcoming tasks by project
+      const groupMap = new Map<string | null, Task[]>();
+      
+      for (const task of upcomingTasks) {
+        const projectId = task.projectId;
+        if (!groupMap.has(projectId)) {
+          groupMap.set(projectId, []);
+        }
+        groupMap.get(projectId)!.push(task);
+      }
+      
+      // Convert to array and sort each group by scheduled date
+      const upcomingGroups: ProjectTaskGroup[] = [];
+      
+      // Add inbox (null project) first if it has tasks
+      if (groupMap.has(null)) {
+        const tasks = groupMap.get(null)!.sort((a, b) => 
+          (a.scheduledDate?.getTime() ?? 0) - (b.scheduledDate?.getTime() ?? 0)
+        );
+        upcomingGroups.push({
+          projectId: null,
+          projectName: 'Inbox',
+          color: null,
+          tasks,
+        });
+      }
+      
+      // Add other projects in order
+      for (const project of state.projects) {
+        if (groupMap.has(project.id)) {
+          const tasks = groupMap.get(project.id)!.sort((a, b) => 
+            (a.scheduledDate?.getTime() ?? 0) - (b.scheduledDate?.getTime() ?? 0)
+          );
+          upcomingGroups.push({
+            projectId: project.id,
+            projectName: project.name,
+            color: project.color,
+            tasks,
+          });
+        }
+      }
+      
+      return { overdueTasks, upcomingGroups };
     },
     
     getTaskById: (id) => get().tasks.find(t => t.id === id),

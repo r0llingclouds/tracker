@@ -44,11 +44,12 @@ export function Sidebar() {
     tasks 
   } = useTaskStore();
 
-  const inboxCount = tasks.filter(t => t.projectId === null && !t.completed).length;
+  const inboxCount = tasks.filter(t => t.projectId === null && !t.completed && !t.someday).length;
   const today = new Date();
   const todayStart = startOfDay(today);
-  const todayCount = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today)).length;
-  const upcomingCount = tasks.filter(t => t.scheduledDate && t.scheduledDate >= todayStart).length;
+  const todayCount = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today) && !t.someday).length;
+  const upcomingCount = tasks.filter(t => t.scheduledDate && t.scheduledDate >= todayStart && !t.someday).length;
+  const somedayCount = tasks.filter(t => t.someday && !t.completed).length;
 
   const getProjectCount = (projectId: string) => 
     tasks.filter(t => t.projectId === projectId && !t.completed).length;
@@ -81,6 +82,13 @@ export function Sidebar() {
           count={upcomingCount}
           active={currentView === 'upcoming'}
           onClick={() => setView('upcoming')}
+        />
+        <NavItem
+          label="Someday"
+          shortcut="gs"
+          count={somedayCount}
+          active={currentView === 'someday'}
+          onClick={() => setView('someday')}
         />
         
         {projects.length > 0 && (

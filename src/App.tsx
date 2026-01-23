@@ -76,6 +76,9 @@ function App() {
           <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">u</kbd>
           <span className="opacity-70">upcoming</span>
+          <span className="mx-2 opacity-50">|</span>
+          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">s</kbd>
+          <span className="opacity-70">someday</span>
         </div>
       )}
       

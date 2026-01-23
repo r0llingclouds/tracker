@@ -4,7 +4,7 @@ import { TaskItem } from './TaskItem';
 export function TaskList() {
   const { 
     getVisibleTasks, 
-    getUpcomingTasksByProject,
+    getUpcomingTasksWithOverdue,
     selectedTaskId, 
     selectTask, 
     toggleTask,
@@ -15,7 +15,7 @@ export function TaskList() {
   } = useTaskStore();
 
   const tasks = getVisibleTasks();
-  const upcomingGroups = currentView === 'upcoming' ? getUpcomingTasksByProject() : [];
+  const upcomingData = currentView === 'upcoming' ? getUpcomingTasksWithOverdue() : { overdueTasks: [], upcomingGroups: [] };
 
   const getViewTitle = () => {
     switch (currentView) {
@@ -25,6 +25,8 @@ export function TaskList() {
         return 'Today';
       case 'upcoming':
         return 'Upcoming';
+      case 'someday':
+        return 'Someday';
       case 'project':
         const project = projects.find(p => p.id === currentProjectId);
         return project?.name ?? 'Project';
@@ -33,8 +35,13 @@ export function TaskList() {
 
   const getViewSubtitle = () => {
     if (currentView === 'upcoming') {
-      const totalTasks = upcomingGroups.reduce((sum, g) => sum + g.tasks.length, 0);
+      const overdueCount = upcomingData.overdueTasks.length;
+      const upcomingCount = upcomingData.upcomingGroups.reduce((sum, g) => sum + g.tasks.length, 0);
+      const totalTasks = overdueCount + upcomingCount;
       if (totalTasks === 0) return 'No scheduled tasks';
+      if (overdueCount > 0) {
+        return `${overdueCount} overdue, ${upcomingCount} upcoming`;
+      }
       return `${totalTasks} task${totalTasks === 1 ? '' : 's'} scheduled`;
     }
     const incomplete = tasks.filter(t => !t.completed).length;
@@ -44,7 +51,7 @@ export function TaskList() {
   };
 
   const isEmpty = currentView === 'upcoming' 
-    ? upcomingGroups.length === 0 
+    ? (upcomingData.overdueTasks.length === 0 && upcomingData.upcomingGroups.length === 0)
     : tasks.length === 0;
 
   return (
@@ -60,12 +67,38 @@ export function TaskList() {
             <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <p className="text-lg">{currentView === 'upcoming' ? 'No scheduled tasks' : 'No tasks yet'}</p>
-            <p className="text-sm mt-1">Press <kbd className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">n</kbd> to add one</p>
+            <p className="text-lg">{currentView === 'upcoming' ? 'No scheduled tasks' : currentView === 'someday' ? 'No someday tasks' : 'No tasks yet'}</p>
+            <p className="text-sm mt-1">Press <kbd className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">space+n</kbd> to add one</p>
           </div>
         ) : currentView === 'upcoming' ? (
           <div>
-            {upcomingGroups.map(group => (
+            {/* Overdue section */}
+            {upcomingData.overdueTasks.length > 0 && (
+              <div className="mb-2">
+                <div className="sticky top-0 bg-red-50 px-6 py-2 border-b border-red-200 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-medium text-red-700">Overdue</span>
+                  <span className="text-xs text-red-400">{upcomingData.overdueTasks.length}</span>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {upcomingData.overdueTasks.map(task => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      project={task.projectId ? getProjectById(task.projectId) : undefined}
+                      selected={task.id === selectedTaskId}
+                      onSelect={() => selectTask(task.id)}
+                      onToggle={() => toggleTask(task.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Upcoming tasks grouped by project */}
+            {upcomingData.upcomingGroups.map(group => (
               <div key={group.projectId ?? 'inbox'} className="mb-2">
                 {/* Project header */}
                 <div className="sticky top-0 bg-gray-50 px-6 py-2 border-b border-gray-200 flex items-center gap-2">

@@ -9,7 +9,8 @@ interface DateSuggestion {
   label: string;
   date: Date | null;
   description: string;
-  icon: 'sun' | 'calendar' | 'week' | 'clear';
+  icon: 'sun' | 'calendar' | 'week' | 'clear' | 'someday';
+  isSomeday?: boolean;
 }
 
 const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
@@ -78,6 +79,14 @@ function getDateSuggestions(query: string): DateSuggestion[] {
       description: 'Remove scheduled date',
       icon: 'clear',
     },
+    {
+      id: 'someday',
+      label: 'Someday',
+      date: null,
+      description: 'Do it eventually',
+      icon: 'someday',
+      isSomeday: true,
+    },
   ];
   
   // If no query, return base suggestions
@@ -99,6 +108,9 @@ function getDateSuggestions(query: string): DateSuggestion[] {
   }
   if (fuzzyMatch(q, 'no date') || fuzzyMatch(q, 'none') || fuzzyMatch(q, 'clear') || fuzzyMatch(q, 'remove')) {
     results.push(baseSuggestions[3]);
+  }
+  if (fuzzyMatch(q, 'someday') || fuzzyMatch(q, 'later') || fuzzyMatch(q, 'eventually')) {
+    results.push(baseSuggestions[4]);
   }
   
   // Check for day name matches
@@ -202,6 +214,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     addTask, 
     moveTask,
     setTaskDate,
+    setSomeday,
     addTagToTask,
     removeTagFromTask,
     addProject,
@@ -398,6 +411,15 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   <span className="text-lg">📆</span>
                   <span>Go to Upcoming</span>
                   <span className="ml-auto text-xs text-gray-400 font-mono">gu</span>
+                </Command.Item>
+                <Command.Item
+                  value="someday"
+                  onSelect={() => handleSelect(() => setView('someday'))}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  <span className="text-lg">💭</span>
+                  <span>Go to Someday</span>
+                  <span className="ml-auto text-xs text-gray-400 font-mono">gs</span>
                 </Command.Item>
               </Command.Group>
 
@@ -608,7 +630,13 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   key={suggestion.id}
                   value={`${suggestion.label} ${suggestion.description}`}
                   onSelect={() => handleSelect(() => {
-                    if (selectedTaskId) setTaskDate(selectedTaskId, suggestion.date);
+                    if (selectedTaskId) {
+                      if (suggestion.isSomeday) {
+                        setSomeday(selectedTaskId, true);
+                      } else {
+                        setTaskDate(selectedTaskId, suggestion.date);
+                      }
+                    }
                   })}
                   className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
                 >
@@ -630,6 +658,11 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   {suggestion.icon === 'clear' && (
                     <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'someday' && (
+                    <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                   )}
                   <span className="flex-1">{suggestion.label}</span>
