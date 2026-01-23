@@ -405,8 +405,15 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
   // Parse all tags from input for display
   const parsedTags = inputValue.match(/#(\w+)/g)?.map(t => t.slice(1).toLowerCase()) || [];
   
-  // Get clean title (without tags and location) for display
-  const titleWithoutTags = inputValue.replace(/#\w+\s*/g, '').replace(/@\w+\s*/g, '').trim();
+  // URL regex pattern to detect http/https URLs
+  const URL_REGEX = /https?:\/\/[^\s]+/gi;
+  
+  // Extract URL from input (first match only)
+  const urlMatches = inputValue.match(URL_REGEX);
+  const parsedUrl = urlMatches?.[0] ?? null;
+  
+  // Get clean title (without tags, location, and URLs) for display
+  const titleWithoutTags = inputValue.replace(/#\w+\s*/g, '').replace(/@\w+\s*/g, '').replace(URL_REGEX, '').trim();
   
   // Parse location from input (e.g., "@dev" or "@gamedev")
   const locationFromInput = inputValue.match(/@(\w+)/)?.[1]?.toLowerCase();
@@ -475,16 +482,16 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
   // Get selected task for schedule mode
   const selectedTask = selectedTaskId ? getTaskById(selectedTaskId) : null;
 
-  // Create task with parsed tags, date, and deadline
+  // Create task with parsed tags, date, deadline, and URL
   const createTaskWithTags = () => {
-    if (!cleanTitle && parsedTags.length === 0) return;
+    if (!cleanTitle && parsedTags.length === 0 && !parsedUrl) return;
     const title = cleanTitle || 'Untitled';
     
     // Determine project/area from @ syntax
     const projectId = parsedProject?.id ?? null;
     const areaId = !projectId && parsedArea ? parsedArea.id : null;
     
-    addTask(title, projectId, parsedTags, parsedDate?.scheduledDate ?? null, parsedDeadline, areaId);
+    addTask(title, projectId, parsedTags, parsedDate?.scheduledDate ?? null, parsedDeadline, areaId, parsedUrl);
     onClose();
   };
 
@@ -1021,7 +1028,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                         </span>
                       ))}
                     </div>
-                    {(parsedDate?.scheduledDate || parsedDeadline) && (
+                    {(parsedDate?.scheduledDate || parsedDeadline || parsedUrl) && (
                       <div className="flex items-center gap-3 text-xs">
                         {parsedDate?.scheduledDate && (
                           <div className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
@@ -1037,6 +1044,14 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
                             </svg>
                             <span>Due {format(parsedDeadline, 'EEE, MMM d')}</span>
+                          </div>
+                        )}
+                        {parsedUrl && (
+                          <div className="flex items-center gap-1.5 text-blue-500 dark:text-blue-400">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <span className="truncate max-w-[150px]">{parsedUrl}</span>
                           </div>
                         )}
                       </div>

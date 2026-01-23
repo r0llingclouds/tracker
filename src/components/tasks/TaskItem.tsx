@@ -129,9 +129,28 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
       </button>
       
       <div className="flex-1 min-w-0">
-        <p className={`truncate ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
-          {task.title}
-        </p>
+        {task.url ? (
+          <a
+            href={task.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={`truncate block hover:underline ${
+              task.completed 
+                ? 'text-gray-400 dark:text-gray-500 line-through' 
+                : 'text-blue-600 dark:text-blue-400'
+            }`}
+          >
+            {task.title}
+            <svg className="inline-block w-3 h-3 ml-1 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        ) : (
+          <p className={`truncate ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
+            {task.title}
+          </p>
+        )}
         
         <div className="flex items-center gap-2 mt-1">
           {scheduledInfo && (

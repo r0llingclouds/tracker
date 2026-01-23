@@ -79,7 +79,7 @@ interface TaskStore {
   saveData: () => Promise<void>;
   
   // Task actions
-  addTask: (title: string, projectId?: string | null, tags?: string[], scheduledDate?: Date | null, deadline?: Date | null, areaId?: string | null) => void;
+  addTask: (title: string, projectId?: string | null, tags?: string[], scheduledDate?: Date | null, deadline?: Date | null, areaId?: string | null, url?: string | null) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
@@ -168,6 +168,7 @@ export const useTaskStore = create<TaskStore>()(
           timeSpent: t.timeSpent ?? 0,
           timerStartedAt: t.timerStartedAt ? new Date(t.timerStartedAt) : null,
           completedAt: t.completedAt ? new Date(t.completedAt) : null,
+          url: t.url ?? null,
         }));
         
         // Ensure projects have areaId field
@@ -204,7 +205,7 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     // Task actions
-    addTask: (title, projectId = null, taskTags = [], scheduledDate = null, deadline = null, areaId = null) => {
+    addTask: (title, projectId = null, taskTags = [], scheduledDate = null, deadline = null, areaId = null, url = null) => {
       // Normalize tags and add any new ones to the global tags list
       const normalizedTags = taskTags.map(t => t.toLowerCase().trim());
       const currentTags = get().tags;
@@ -232,6 +233,7 @@ export const useTaskStore = create<TaskStore>()(
         recurrence: null,
         timeSpent: 0,
         timerStartedAt: null,
+        url,
       };
       set(state => ({ 
         tasks: [...state.tasks, newTask],

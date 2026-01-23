@@ -34,6 +34,7 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
   const task = tasks.find(t => t.id === taskId);
   const titleRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState(task?.title || '');
+  const [url, setUrl] = useState(task?.url || '');
   const [newTag, setNewTag] = useState('');
   
   // Timer hook - use task values or defaults when task is not yet available
@@ -45,6 +46,7 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
   useEffect(() => {
     if (task) {
       setTitle(task.title);
+      setUrl(task.url || '');
     }
   }, [task]);
 
@@ -60,6 +62,24 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
   const handleTitleBlur = () => {
     if (title.trim() && title !== task.title) {
       updateTask(taskId, { title: title.trim() });
+    }
+  };
+
+  const handleUrlBlur = () => {
+    const trimmedUrl = url.trim();
+    if (trimmedUrl !== (task.url || '')) {
+      updateTask(taskId, { url: trimmedUrl || null });
+    }
+  };
+
+  const handleUrlKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleUrlBlur();
+      (e.target as HTMLInputElement).blur();
+    }
+    if (e.key === 'Escape') {
+      setUrl(task.url || '');
     }
   };
 
@@ -186,6 +206,37 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
               onKeyDown={handleTitleKeyDown}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
             />
+          </div>
+
+          {/* URL */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              URL
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={url}
+                onChange={e => setUrl(e.target.value)}
+                onBlur={handleUrlBlur}
+                onKeyDown={handleUrlKeyDown}
+                placeholder="https://..."
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+              />
+              {url && (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Open
+                </a>
+              )}
+            </div>
           </div>
 
           {/* Project/Area */}

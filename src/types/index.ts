@@ -24,6 +24,7 @@ export interface Task {
   recurrence: Recurrence | null; // null = not recurring
   timeSpent: number; // accumulated time in milliseconds
   timerStartedAt: Date | null; // timestamp when timer started (null = paused/stopped)
+  url: string | null; // extracted URL for the task
 }
 
 export interface Project {
