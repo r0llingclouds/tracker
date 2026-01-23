@@ -75,12 +75,12 @@ export function TaskList() {
             {/* Overdue section */}
             {upcomingData.overdueTasks.length > 0 && (
               <div className="mb-2">
-                <div className="sticky top-0 bg-red-50 dark:bg-red-900/30 px-6 py-2 border-b border-red-200 dark:border-red-800 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="sticky top-0 bg-gray-100 dark:bg-gray-800 px-6 py-2 border-b border-gray-300 dark:border-gray-600 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="font-medium text-red-700 dark:text-red-400">Overdue</span>
-                  <span className="text-xs text-red-400 dark:text-red-500">{upcomingData.overdueTasks.length}</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">Overdue</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{upcomingData.overdueTasks.length}</span>
                 </div>
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
                   {upcomingData.overdueTasks.map(task => (

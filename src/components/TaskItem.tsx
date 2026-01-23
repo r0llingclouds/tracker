@@ -99,7 +99,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
         }}
         className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transform hover:scale-110 active:scale-95 ${
           task.completed
-            ? 'bg-green-500 border-green-500 text-white'
+            ? 'bg-gray-800 border-gray-800 text-white dark:bg-gray-200 dark:border-gray-200 dark:text-gray-900'
             : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
         }`}
       >
@@ -119,7 +119,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
           {scheduledInfo && (
             <span className={`flex items-center gap-1 text-xs ${
               scheduledInfo.isOverdue && !task.completed
-                ? 'text-red-500 font-medium' 
+                ? 'text-gray-900 dark:text-gray-100 font-semibold' 
                 : 'text-gray-500 dark:text-gray-400'
             }`}>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,9 +132,9 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
           {deadlineInfo && (
             <span className={`flex items-center gap-1 text-xs ${
               deadlineInfo.isPastDue && !task.completed
-                ? 'text-red-600 font-semibold'
+                ? 'text-gray-900 dark:text-gray-100 font-bold'
                 : deadlineInfo.isUrgent && !task.completed
-                ? 'text-orange-500 font-medium'
+                ? 'text-gray-800 dark:text-gray-200 font-semibold'
                 : 'text-gray-500 dark:text-gray-400'
             }`}>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -145,7 +145,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
           )}
           
           {task.recurrence && (
-            <span className="flex items-center gap-1 text-xs text-purple-500 dark:text-purple-400">
+            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
