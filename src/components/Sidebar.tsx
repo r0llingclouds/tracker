@@ -8,13 +8,16 @@ interface NavItemProps {
   active: boolean;
   onClick: () => void;
   color?: string;
+  indent?: boolean;
 }
 
-function NavItem({ label, shortcut, count, active, onClick, color }: NavItemProps) {
+function NavItem({ label, shortcut, count, active, onClick, color, indent }: NavItemProps) {
   return (
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+        indent ? 'pl-6' : ''
+      } ${
         active 
           ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100' 
           : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
@@ -30,7 +33,9 @@ function NavItem({ label, shortcut, count, active, onClick, color }: NavItemProp
       {count !== undefined && count > 0 && (
         <span className="text-xs text-gray-400 dark:text-gray-500">{count}</span>
       )}
-      <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{shortcut}</span>
+      {shortcut && (
+        <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{shortcut}</span>
+      )}
     </button>
   );
 }
@@ -39,14 +44,16 @@ export function Sidebar() {
   const { 
     currentView, 
     currentProjectId,
-    currentTagId, 
+    currentTagId,
+    currentAreaId, 
     setView, 
     projects,
+    areas,
     tags, 
     tasks 
   } = useTaskStore();
 
-  const inboxCount = tasks.filter(t => t.projectId === null && !t.completed && !t.someday).length;
+  const inboxCount = tasks.filter(t => t.projectId === null && t.areaId === null && !t.completed && !t.someday).length;
   const today = new Date();
   const todayStart = startOfDay(today);
   const todayCount = tasks.filter(t => t.scheduledDate && isSameDay(t.scheduledDate, today) && !t.someday).length;
@@ -58,6 +65,30 @@ export function Sidebar() {
 
   const getTagCount = (tag: string) => 
     tasks.filter(t => t.tags.includes(tag) && !t.completed).length;
+
+  const getAreaCount = (areaId: string) => {
+    // Count tasks directly in area + tasks in projects belonging to area
+    const areaProjects = projects.filter(p => p.areaId === areaId);
+    const projectIds = areaProjects.map(p => p.id);
+    return tasks.filter(t => 
+      !t.completed && (
+        t.areaId === areaId || 
+        (t.projectId && projectIds.includes(t.projectId))
+      )
+    ).length;
+  };
+
+  // Group projects by area
+  const projectsByArea = new Map<string | null, typeof projects>();
+  projects.forEach(project => {
+    const areaId = project.areaId;
+    if (!projectsByArea.has(areaId)) {
+      projectsByArea.set(areaId, []);
+    }
+    projectsByArea.get(areaId)!.push(project);
+  });
+
+  const ungroupedProjects = projectsByArea.get(null) || [];
 
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen">
@@ -96,12 +127,49 @@ export function Sidebar() {
           onClick={() => setView('someday')}
         />
         
-        {projects.length > 0 && (
+        {/* Areas with their projects */}
+        {areas.length > 0 && (
+          <div className="pt-4">
+            <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              Areas
+            </h2>
+            {areas.map(area => {
+              const areaProjects = projectsByArea.get(area.id) || [];
+              return (
+                <div key={area.id}>
+                  <NavItem
+                    label={area.name}
+                    shortcut=""
+                    count={getAreaCount(area.id)}
+                    active={currentView === 'area' && currentAreaId === area.id}
+                    onClick={() => setView('area', null, null, area.id)}
+                  />
+                  {/* Projects in this area */}
+                  {areaProjects.map(project => (
+                    <NavItem
+                      key={project.id}
+                      label={project.name}
+                      shortcut=""
+                      count={getProjectCount(project.id)}
+                      active={currentView === 'project' && currentProjectId === project.id}
+                      onClick={() => setView('project', project.id)}
+                      color={project.color}
+                      indent
+                    />
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        
+        {/* Ungrouped projects (no area) */}
+        {ungroupedProjects.length > 0 && (
           <div className="pt-4">
             <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
               Projects
             </h2>
-            {projects.map(project => (
+            {ungroupedProjects.map(project => (
               <NavItem
                 key={project.id}
                 label={project.name}

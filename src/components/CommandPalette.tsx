@@ -349,11 +349,13 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
   
   const { 
     tasks, 
-    projects, 
+    projects,
+    areas,
     tags,
     selectedTaskId,
     addTask, 
     moveTask,
+    setTaskArea,
     setTaskDate,
     setDeadline,
     setSomeday,
@@ -604,6 +606,23 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 </Command.Group>
               )}
 
+              {/* Areas */}
+              {areas.length > 0 && (
+                <Command.Group heading="Areas">
+                  {areas.map(area => (
+                    <Command.Item
+                      key={area.id}
+                      value={`area ${area.name}`}
+                      onSelect={() => handleSelect(() => setView('area', null, null, area.id))}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                    >
+                      <span className="text-gray-400 dark:text-gray-500">@</span>
+                      <span>{area.name}</span>
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+              )}
+
               {/* Tags */}
               {tags.length > 0 && (
                 <Command.Group heading="Tags">
@@ -687,6 +706,24 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   <span className="text-lg">+</span>
                   <span>Create "{inputValue}"</span>
                 </Command.Item>
+              )}
+              {/* Areas */}
+              {areas.length > 0 && (
+                <Command.Group heading="Areas">
+                  {areas.map(area => (
+                    <Command.Item
+                      key={area.id}
+                      value={`area ${area.name}`}
+                      onSelect={() => handleSelect(() => {
+                        if (selectedTaskId) setTaskArea(selectedTaskId, area.id);
+                      })}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                    >
+                      <span className="text-gray-400 dark:text-gray-500">@</span>
+                      <span>{area.name}</span>
+                    </Command.Item>
+                  ))}
+                </Command.Group>
               )}
             </>
           )}

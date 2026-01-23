@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { isSameDay, startOfDay, addDays, addWeeks, addMonths, addYears, getDay } from 'date-fns';
-import type { Task, Project, View, Recurrence } from '../types';
+import type { Task, Project, View, Recurrence, Area } from '../types';
 
 // Helper to calculate next occurrence for recurring tasks
 function getNextOccurrence(fromDate: Date, recurrence: Recurrence): Date {
@@ -64,10 +64,12 @@ interface TaskStore {
   // State
   tasks: Task[];
   projects: Project[];
+  areas: Area[];
   tags: string[];
   currentView: View;
   currentProjectId: string | null;
   currentTagId: string | null;
+  currentAreaId: string | null;
   selectedTaskId: string | null;
   isLoading: boolean;
   theme: Theme;
@@ -82,6 +84,7 @@ interface TaskStore {
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
   moveTask: (id: string, projectId: string | null) => void;
+  setTaskArea: (taskId: string, areaId: string | null) => void;
   setTaskDate: (taskId: string, date: Date | null) => void;
   setDeadline: (taskId: string, date: Date | null) => void;
   setSomeday: (taskId: string, someday: boolean) => void;
@@ -90,12 +93,18 @@ interface TaskStore {
   removeTagFromTask: (taskId: string, tag: string) => void;
   
   // Project actions
-  addProject: (name: string, color?: string) => void;
+  addProject: (name: string, color?: string, areaId?: string | null) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
+  setProjectArea: (projectId: string, areaId: string | null) => void;
+  
+  // Area actions
+  addArea: (name: string) => void;
+  updateArea: (id: string, updates: Partial<Area>) => void;
+  deleteArea: (id: string) => void;
   
   // Navigation
-  setView: (view: View, projectId?: string | null, tagId?: string | null) => void;
+  setView: (view: View, projectId?: string | null, tagId?: string | null, areaId?: string | null) => void;
   selectTask: (id: string | null) => void;
   selectNextTask: () => void;
   selectPrevTask: () => void;
@@ -106,6 +115,7 @@ interface TaskStore {
   getUpcomingTasksWithOverdue: () => UpcomingData;
   getTaskById: (id: string) => Task | undefined;
   getProjectById: (id: string) => Project | undefined;
+  getAreaById: (id: string) => Area | undefined;
   
   // Theme
   setTheme: (theme: Theme) => void;
@@ -124,10 +134,12 @@ export const useTaskStore = create<TaskStore>()(
     // Initial state (empty until loaded from API)
     tasks: [],
     projects: [],
+    areas: [],
     tags: [],
     currentView: 'inbox',
     currentProjectId: null,
     currentTagId: null,
+    currentAreaId: null,
     selectedTaskId: null,
     isLoading: true,
     theme: (localStorage.getItem('theme') as Theme) || 'system',
@@ -147,11 +159,19 @@ export const useTaskStore = create<TaskStore>()(
           deadline: t.deadline ? new Date(t.deadline) : null,
           someday: t.someday ?? false,
           recurrence: t.recurrence ?? null,
+          areaId: t.areaId ?? null,
+        }));
+        
+        // Ensure projects have areaId field
+        const projects = (data.projects || []).map((p: Project) => ({
+          ...p,
+          areaId: p.areaId ?? null,
         }));
         
         set({ 
           tasks, 
-          projects: data.projects, 
+          projects,
+          areas: data.areas || [],
           tags: data.tags,
           isLoading: false 
         });
@@ -164,11 +184,11 @@ export const useTaskStore = create<TaskStore>()(
     // Save data to API
     saveData: async () => {
       try {
-        const { tasks, projects, tags } = get();
+        const { tasks, projects, areas, tags } = get();
         await fetch(`${API_URL}/data`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tasks, projects, tags }),
+          body: JSON.stringify({ tasks, projects, areas, tags }),
         });
       } catch (error) {
         console.error('Failed to save data:', error);
@@ -182,11 +202,19 @@ export const useTaskStore = create<TaskStore>()(
       const currentTags = get().tags;
       const newGlobalTags = normalizedTags.filter(t => !currentTags.includes(t));
       
+      // Determine areaId: if in area view and no project, use current area
+      const state = get();
+      let taskAreaId: string | null = null;
+      if (state.currentView === 'area' && !projectId) {
+        taskAreaId = state.currentAreaId;
+      }
+      
       const newTask: Task = {
         id: generateId(),
         title,
         completed: false,
-        projectId: projectId ?? (get().currentView === 'project' ? get().currentProjectId : null),
+        projectId: projectId ?? (state.currentView === 'project' ? state.currentProjectId : null),
+        areaId: taskAreaId,
         tags: normalizedTags,
         createdAt: new Date(),
         scheduledDate,
@@ -268,7 +296,17 @@ export const useTaskStore = create<TaskStore>()(
     moveTask: (id, projectId) => {
       set(state => ({
         tasks: state.tasks.map(task =>
-          task.id === id ? { ...task, projectId } : task
+          task.id === id ? { ...task, projectId, areaId: null } : task
+        ),
+      }));
+    },
+    
+    setTaskArea: (taskId, areaId) => {
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          task.id === taskId
+            ? { ...task, areaId, projectId: null }  // Clear project when moving to area
+            : task
         ),
       }));
     },
@@ -340,11 +378,14 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     // Project actions
-    addProject: (name, color) => {
+    addProject: (name, color, areaId = null) => {
+      // If in area view, default to current area
+      const effectiveAreaId = areaId ?? (get().currentView === 'area' ? get().currentAreaId : null);
       const newProject: Project = {
         id: generateId(),
         name,
         color: color ?? PROJECT_COLORS[get().projects.length % PROJECT_COLORS.length],
+        areaId: effectiveAreaId,
       };
       set(state => ({ projects: [...state.projects, newProject] }));
     },
@@ -370,12 +411,55 @@ export const useTaskStore = create<TaskStore>()(
       }));
     },
     
+    setProjectArea: (projectId, areaId) => {
+      set(state => ({
+        projects: state.projects.map(project =>
+          project.id === projectId ? { ...project, areaId } : project
+        ),
+      }));
+    },
+    
+    // Area actions
+    addArea: (name) => {
+      const newArea: Area = {
+        id: generateId(),
+        name,
+      };
+      set(state => ({ areas: [...state.areas, newArea] }));
+    },
+    
+    updateArea: (id, updates) => {
+      set(state => ({
+        areas: state.areas.map(area =>
+          area.id === id ? { ...area, ...updates } : area
+        ),
+      }));
+    },
+    
+    deleteArea: (id) => {
+      set(state => ({
+        areas: state.areas.filter(area => area.id !== id),
+        // Remove area from projects
+        projects: state.projects.map(project =>
+          project.areaId === id ? { ...project, areaId: null } : project
+        ),
+        // Remove area from tasks
+        tasks: state.tasks.map(task =>
+          task.areaId === id ? { ...task, areaId: null } : task
+        ),
+        // Navigate away if viewing deleted area
+        currentView: state.currentAreaId === id ? 'inbox' : state.currentView,
+        currentAreaId: state.currentAreaId === id ? null : state.currentAreaId,
+      }));
+    },
+    
     // Navigation
-    setView: (view, projectId = null, tagId = null) => {
+    setView: (view, projectId = null, tagId = null, areaId = null) => {
       set({ 
         currentView: view, 
         currentProjectId: view === 'project' ? projectId : null,
         currentTagId: view === 'tag' ? tagId : null,
+        currentAreaId: view === 'area' ? areaId : null,
         selectedTaskId: null,
       });
     },
@@ -443,6 +527,15 @@ export const useTaskStore = create<TaskStore>()(
         case 'tag':
           // Tag view shows all tasks with the selected tag
           tasks = tasks.filter(t => state.currentTagId && t.tags.includes(state.currentTagId));
+          break;
+        case 'area':
+          // Area view: tasks directly in area + tasks in projects belonging to area
+          const areaProjects = state.projects.filter(p => p.areaId === state.currentAreaId);
+          const projectIds = areaProjects.map(p => p.id);
+          tasks = tasks.filter(t => 
+            t.areaId === state.currentAreaId || 
+            (t.projectId && projectIds.includes(t.projectId))
+          );
           break;
       }
       
@@ -570,6 +663,8 @@ export const useTaskStore = create<TaskStore>()(
     
     getProjectById: (id) => get().projects.find(p => p.id === id),
     
+    getAreaById: (id) => get().areas.find(a => a.id === id),
+    
     // Theme actions
     setTheme: (theme) => {
       localStorage.setItem('theme', theme);
@@ -586,11 +681,11 @@ export const useTaskStore = create<TaskStore>()(
   }))
 );
 
-// Auto-save when tasks, projects, or tags change (debounced)
+// Auto-save when tasks, projects, areas, or tags change (debounced)
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 useTaskStore.subscribe(
-  (state) => ({ tasks: state.tasks, projects: state.projects, tags: state.tags }),
+  (state) => ({ tasks: state.tasks, projects: state.projects, areas: state.areas, tags: state.tags }),
   () => {
     // Don't save while loading
     if (useTaskStore.getState().isLoading) return;

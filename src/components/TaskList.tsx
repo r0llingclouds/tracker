@@ -12,11 +12,23 @@ export function TaskList() {
     currentView,
     currentProjectId,
     currentTagId,
+    currentAreaId,
     projects,
+    areas,
   } = useTaskStore();
 
   const tasks = getVisibleTasks();
   const upcomingData = currentView === 'upcoming' ? getUpcomingTasksWithOverdue() : { overdueTasks: [], upcomingGroups: [] };
+
+  // Compute area view grouping
+  const areaProjects = currentView === 'area' 
+    ? projects.filter(p => p.areaId === currentAreaId)
+    : [];
+  const directAreaTasks = currentView === 'area'
+    ? tasks.filter(t => t.projectId === null)
+    : [];
+  const getProjectTasksInArea = (projectId: string) => 
+    tasks.filter(t => t.projectId === projectId);
 
   const getViewTitle = () => {
     switch (currentView) {
@@ -33,6 +45,9 @@ export function TaskList() {
         return project?.name ?? 'Project';
       case 'tag':
         return `#${currentTagId}`;
+      case 'area':
+        const area = areas.find(a => a.id === currentAreaId);
+        return area?.name ?? 'Area';
     }
   };
 
@@ -70,7 +85,7 @@ export function TaskList() {
             <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <p className="text-lg">{currentView === 'upcoming' ? 'No scheduled tasks' : currentView === 'someday' ? 'No someday tasks' : currentView === 'tag' ? 'No tasks with this tag' : 'No tasks yet'}</p>
+            <p className="text-lg">{currentView === 'upcoming' ? 'No scheduled tasks' : currentView === 'someday' ? 'No someday tasks' : currentView === 'tag' ? 'No tasks with this tag' : currentView === 'area' ? 'No tasks in this area' : 'No tasks yet'}</p>
             <p className="text-sm mt-1">Press <kbd className="font-mono bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">space+n</kbd> to add one</p>
           </div>
         ) : currentView === 'upcoming' ? (
@@ -133,6 +148,62 @@ export function TaskList() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : currentView === 'area' ? (
+          <div>
+            {/* Direct tasks (no project) */}
+            {directAreaTasks.length > 0 && (
+              <div className="mb-2">
+                <div className="sticky top-0 bg-gray-50 dark:bg-gray-800 px-6 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">Tasks</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{directAreaTasks.length}</span>
+                </div>
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {directAreaTasks.map(task => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      selected={task.id === selectedTaskId}
+                      onSelect={() => selectTask(task.id)}
+                      onToggle={() => toggleTask(task.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tasks grouped by project */}
+            {areaProjects.map(project => {
+              const projectTasks = getProjectTasksInArea(project.id);
+              if (projectTasks.length === 0) return null;
+              return (
+                <div key={project.id} className="mb-2">
+                  <div className="sticky top-0 bg-gray-50 dark:bg-gray-800 px-6 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                    <span 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: project.color }}
+                    />
+                    <span className="font-medium text-gray-700 dark:text-gray-300">{project.name}</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">{projectTasks.length}</span>
+                  </div>
+                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {projectTasks.map(task => (
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        project={project}
+                        selected={task.id === selectedTaskId}
+                        onSelect={() => selectTask(task.id)}
+                        onToggle={() => toggleTask(task.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
