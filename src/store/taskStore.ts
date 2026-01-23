@@ -34,12 +34,13 @@ interface TaskStore {
   saveData: () => Promise<void>;
   
   // Task actions
-  addTask: (title: string, projectId?: string | null, tags?: string[], scheduledDate?: Date | null) => void;
+  addTask: (title: string, projectId?: string | null, tags?: string[], scheduledDate?: Date | null, deadline?: Date | null) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTask: (id: string) => void;
   moveTask: (id: string, projectId: string | null) => void;
   setTaskDate: (taskId: string, date: Date | null) => void;
+  setDeadline: (taskId: string, date: Date | null) => void;
   setSomeday: (taskId: string, someday: boolean) => void;
   addTagToTask: (taskId: string, tag: string) => void;
   removeTagFromTask: (taskId: string, tag: string) => void;
@@ -88,11 +89,12 @@ export const useTaskStore = create<TaskStore>()(
         const response = await fetch(`${API_URL}/data`);
         const data = await response.json();
         
-        // Convert date strings to Date objects and ensure someday field exists
+        // Convert date strings to Date objects and ensure fields exist
         const tasks = data.tasks.map((t: Task) => ({
           ...t,
           createdAt: new Date(t.createdAt),
           scheduledDate: t.scheduledDate ? new Date(t.scheduledDate) : null,
+          deadline: t.deadline ? new Date(t.deadline) : null,
           someday: t.someday ?? false,
         }));
         
@@ -123,7 +125,7 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     // Task actions
-    addTask: (title, projectId = null, taskTags = [], scheduledDate = null) => {
+    addTask: (title, projectId = null, taskTags = [], scheduledDate = null, deadline = null) => {
       // Normalize tags and add any new ones to the global tags list
       const normalizedTags = taskTags.map(t => t.toLowerCase().trim());
       const currentTags = get().tags;
@@ -137,6 +139,7 @@ export const useTaskStore = create<TaskStore>()(
         tags: normalizedTags,
         createdAt: new Date(),
         scheduledDate,
+        deadline,
         someday: false,
       };
       set(state => ({ 
@@ -197,6 +200,14 @@ export const useTaskStore = create<TaskStore>()(
       set(state => ({
         tasks: state.tasks.map(task =>
           task.id === taskId ? { ...task, scheduledDate: date, someday: date ? false : task.someday } : task
+        ),
+      }));
+    },
+    
+    setDeadline: (taskId, date) => {
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          task.id === taskId ? { ...task, deadline: date } : task
         ),
       }));
     },

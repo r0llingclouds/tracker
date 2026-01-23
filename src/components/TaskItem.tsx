@@ -31,8 +31,31 @@ function formatScheduledDate(date: Date): { text: string; isOverdue: boolean } {
   return { text: format(date, 'MMM d'), isOverdue: false };
 }
 
+function formatDeadline(date: Date): { text: string; isPastDue: boolean; isUrgent: boolean } {
+  const today = startOfDay(new Date());
+  const deadlineDay = startOfDay(date);
+  const daysUntil = Math.ceil((deadlineDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (isToday(date)) {
+    return { text: 'Due today', isPastDue: false, isUrgent: true };
+  }
+  if (isTomorrow(date)) {
+    return { text: 'Due tomorrow', isPastDue: false, isUrgent: true };
+  }
+  if (isPast(deadlineDay) && deadlineDay < today) {
+    return { text: `Due ${format(date, 'MMM d')}`, isPastDue: true, isUrgent: false };
+  }
+  // Within the same week, show day name
+  if (daysUntil <= 7) {
+    return { text: `Due ${format(date, 'EEE')}`, isPastDue: false, isUrgent: daysUntil <= 3 };
+  }
+  // Otherwise show full date
+  return { text: `Due ${format(date, 'MMM d')}`, isPastDue: false, isUrgent: false };
+}
+
 export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskItemProps) {
   const scheduledInfo = task.scheduledDate ? formatScheduledDate(task.scheduledDate) : null;
+  const deadlineInfo = task.deadline ? formatDeadline(task.deadline) : null;
   return (
     <div
       onClick={onSelect}
@@ -76,6 +99,21 @@ export function TaskItem({ task, project, selected, onSelect, onToggle }: TaskIt
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               {scheduledInfo.text}
+            </span>
+          )}
+          
+          {deadlineInfo && (
+            <span className={`flex items-center gap-1 text-xs ${
+              deadlineInfo.isPastDue && !task.completed
+                ? 'text-red-600 font-semibold'
+                : deadlineInfo.isUrgent && !task.completed
+                ? 'text-orange-500 font-medium'
+                : 'text-gray-500'
+            }`}>
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+              </svg>
+              {deadlineInfo.text}
             </span>
           )}
           

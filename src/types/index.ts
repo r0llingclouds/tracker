@@ -6,6 +6,7 @@ export interface Task {
   tags: string[];
   createdAt: Date;
   scheduledDate: Date | null; // null = unscheduled
+  deadline: Date | null; // null = no deadline
   someday: boolean; // true = in Someday list
 }
 

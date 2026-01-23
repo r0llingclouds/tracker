@@ -13,12 +13,12 @@ function App() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  const [paletteMode, setPaletteMode] = useState<'search' | 'move' | 'tag' | 'newTask' | 'schedule'>('search');
+  const [paletteMode, setPaletteMode] = useState<'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline'>('search');
   const [paletteInitialValue, setPaletteInitialValue] = useState('');
   const [showGHint, setShowGHint] = useState(false);
   const [showSpaceHint, setShowSpaceHint] = useState(false);
 
-  const openPalette = useCallback((mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' = 'search', initialValue?: string) => {
+  const openPalette = useCallback((mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' = 'search', initialValue?: string) => {
     setPaletteMode(mode);
     setPaletteInitialValue(initialValue ?? '');
     setPaletteOpen(true);
@@ -92,14 +92,17 @@ function App() {
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">s</kbd>
           <span className="opacity-70">schedule</span>
           <span className="mx-2 opacity-50">|</span>
+          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">e</kbd>
+          <span className="opacity-70">deadline</span>
+          <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">t</kbd>
           <span className="opacity-70">tag</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">d</kbd>
-          <span className="opacity-70">delete</span>
-          <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">m</kbd>
           <span className="opacity-70">move</span>
+          <span className="mx-2 opacity-50">|</span>
+          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">d</kbd>
+          <span className="opacity-70">delete</span>
           <span className="mx-2 opacity-50">|</span>
           <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">c</kbd>
           <span className="opacity-70">complete</span>

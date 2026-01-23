@@ -69,9 +69,9 @@ function parseDateFromText(text: string): ParsedTaskInput {
         return null;
       },
     },
-    // "21 jun", "21 june", "21st june", etc.
+    // "21 jun", "21 june", "21st june", "21jun", etc.
     {
-      regex: /\b(\d{1,2})(?:st|nd|rd|th)?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i,
+      regex: /\b(\d{1,2})(?:st|nd|rd|th)?\s*(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i,
       getDate: (match) => {
         const day = parseInt(match[1], 10);
         const monthStr = match[2].toLowerCase();
@@ -93,9 +93,9 @@ function parseDateFromText(text: string): ParsedTaskInput {
         return startOfDay(date);
       },
     },
-    // "jun 21", "june 21st", etc.
+    // "jun 21", "june 21st", "jun21", etc.
     {
-      regex: /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2})(?:st|nd|rd|th)?\b/i,
+      regex: /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s*(\d{1,2})(?:st|nd|rd|th)?\b/i,
       getDate: (match) => {
         const monthStr = match[1].toLowerCase();
         const day = parseInt(match[2], 10);
@@ -339,7 +339,7 @@ function getDateSuggestions(query: string): DateSuggestion[] {
 interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
-  mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule';
+  mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline';
   initialValue?: string;
 }
 
@@ -355,6 +355,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     addTask, 
     moveTask,
     setTaskDate,
+    setDeadline,
     setSomeday,
     addTagToTask,
     removeTagFromTask,
@@ -388,9 +389,21 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
   // Get clean title (without tags) for display
   const titleWithoutTags = inputValue.replace(/#\w+\s*/g, '').trim();
   
-  // Parse date from the title (for newTask mode)
-  const parsedDate = mode === 'newTask' ? parseDateFromText(titleWithoutTags) : null;
-  const cleanTitle = parsedDate?.title ?? titleWithoutTags;
+  // Parse deadline from d/ syntax (e.g., "d/mon", "d/tom", "d/23jun")
+  const deadlineMatch = mode === 'newTask' ? titleWithoutTags.match(/\bd\/(\S+)/i) : null;
+  let parsedDeadline: Date | null = null;
+  let titleWithoutDeadline = titleWithoutTags;
+  
+  if (deadlineMatch) {
+    const dateStr = deadlineMatch[1];
+    const dateResult = parseDateFromText(dateStr);
+    parsedDeadline = dateResult.scheduledDate;
+    titleWithoutDeadline = titleWithoutTags.replace(/\bd\/\S+\s*/i, '').trim();
+  }
+  
+  // Parse scheduled date from the remaining title (for newTask mode)
+  const parsedDate = mode === 'newTask' ? parseDateFromText(titleWithoutDeadline) : null;
+  const cleanTitle = parsedDate?.title ?? titleWithoutDeadline;
 
   const handleSelect = (callback: () => void) => {
     callback();
@@ -415,6 +428,8 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
         return 'Add tag...';
       case 'schedule':
         return 'Schedule task...';
+      case 'deadline':
+        return 'Set deadline...';
       default:
         return 'Search tasks, projects, or type a command...';
     }
@@ -423,11 +438,11 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
   // Get selected task for schedule mode
   const selectedTask = selectedTaskId ? getTaskById(selectedTaskId) : null;
 
-  // Create task with parsed tags and date
+  // Create task with parsed tags, date, and deadline
   const createTaskWithTags = () => {
     if (!cleanTitle && parsedTags.length === 0) return;
     const title = cleanTitle || 'Untitled';
-    addTask(title, null, parsedTags, parsedDate?.scheduledDate ?? null);
+    addTask(title, null, parsedTags, parsedDate?.scheduledDate ?? null, parsedDeadline);
     onClose();
   };
 
@@ -478,7 +493,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
         className="relative z-10 w-full max-w-xl bg-white rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-top-4 duration-200"
         onClick={(e) => e.stopPropagation()}
         loop
-        shouldFilter={mode !== 'newTask' && mode !== 'schedule'}
+        shouldFilter={mode !== 'newTask' && mode !== 'schedule' && mode !== 'deadline'}
       >
         <Command.Input
           ref={inputRef}
@@ -591,11 +606,18 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
               {/* Tasks */}
               {tasks.filter(t => !t.completed).length > 0 && (
                 <Command.Group heading="Tasks">
-                  {tasks.filter(t => !t.completed).slice(0, 10).map(task => (
+                  {tasks.filter(t => !t.completed).map(task => (
                     <Command.Item
                       key={task.id}
                       value={`task ${task.title}`}
-                      onSelect={() => handleSelect(() => selectTask(task.id))}
+                      onSelect={() => handleSelect(() => {
+                        if (task.projectId) {
+                          setView('project', task.projectId);
+                        } else {
+                          setView('inbox');
+                        }
+                        selectTask(task.id);
+                      })}
                       className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
                     >
                       <span className="w-4 h-4 rounded-full border-2 border-gray-300" />
@@ -744,12 +766,24 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                         </span>
                       ))}
                     </div>
-                    {parsedDate?.scheduledDate && (
-                      <div className="flex items-center gap-1.5 text-xs text-blue-600">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span>{format(parsedDate.scheduledDate, 'EEE, MMM d')}</span>
+                    {(parsedDate?.scheduledDate || parsedDeadline) && (
+                      <div className="flex items-center gap-3 text-xs">
+                        {parsedDate?.scheduledDate && (
+                          <div className="flex items-center gap-1.5 text-blue-600">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>{format(parsedDate.scheduledDate, 'EEE, MMM d')}</span>
+                          </div>
+                        )}
+                        {parsedDeadline && (
+                          <div className="flex items-center gap-1.5 text-orange-500">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                            </svg>
+                            <span>Due {format(parsedDeadline, 'EEE, MMM d')}</span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -762,7 +796,9 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 <div className="px-3 py-4 text-sm text-gray-500 text-center">
                   Type task name, use <span className="font-mono bg-gray-100 px-1 rounded">#</span> for tags
                   <br />
-                  <span className="text-xs text-gray-400">Dates: "tomorrow", "mon", "21 jun"</span>
+                  <span className="text-xs text-gray-400">
+                    Schedule: "tomorrow", "mon" | Deadline: <span className="font-mono">d/mon</span>, <span className="font-mono">d/23jun</span>
+                  </span>
                 </div>
               )}
             </>
@@ -844,6 +880,79 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       if (e.target.value && selectedTaskId) {
                         const date = new Date(e.target.value + 'T00:00:00');
                         setTaskDate(selectedTaskId, date);
+                        onClose();
+                      }
+                    }}
+                  />
+                </div>
+              </Command.Group>
+            </>
+          )}
+
+          {mode === 'deadline' && (
+            <>
+              {selectedTask && (
+                <div className="px-3 py-2 mb-2 text-sm text-gray-600 border-b border-gray-100">
+                  Setting deadline for: <span className="font-medium">{selectedTask.title}</span>
+                  {selectedTask.deadline && (
+                    <span className="ml-2 text-gray-400">
+                      (currently due: {format(selectedTask.deadline, 'MMM d')})
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              {/* Dynamic date suggestions for deadline */}
+              {getDateSuggestions(inputValue).filter(s => !s.isSomeday).map(suggestion => (
+                <Command.Item
+                  key={suggestion.id}
+                  value={`${suggestion.label} ${suggestion.description}`}
+                  onSelect={() => handleSelect(() => {
+                    if (selectedTaskId) {
+                      setDeadline(selectedTaskId, suggestion.date);
+                    }
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-blue-50"
+                >
+                  {suggestion.icon === 'sun' && (
+                    <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                  )}
+                  {(suggestion.icon === 'calendar' || suggestion.icon === 'week') && (
+                    <svg className="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'clear' && (
+                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                  <span className="flex-1">
+                    {suggestion.icon === 'clear' ? 'No Deadline' : `Due ${suggestion.label}`}
+                  </span>
+                  <span className="text-xs text-gray-400">{suggestion.description}</span>
+                </Command.Item>
+              ))}
+              
+              {/* Show "no results" hint when query doesn't match */}
+              {inputValue && getDateSuggestions(inputValue).filter(s => !s.isSomeday).length === 0 && (
+                <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                  No matching dates. Try "today", "tomorrow", or a day name like "mon"
+                </div>
+              )}
+              
+              <Command.Group heading="Pick a Deadline">
+                <div className="px-3 py-2">
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    min={format(new Date(), 'yyyy-MM-dd')}
+                    onChange={(e) => {
+                      if (e.target.value && selectedTaskId) {
+                        const date = new Date(e.target.value + 'T00:00:00');
+                        setDeadline(selectedTaskId, date);
                         onClose();
                       }
                     }}
