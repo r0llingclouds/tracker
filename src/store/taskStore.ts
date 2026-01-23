@@ -167,6 +167,7 @@ export const useTaskStore = create<TaskStore>()(
           areaId: t.areaId ?? null,
           timeSpent: t.timeSpent ?? 0,
           timerStartedAt: t.timerStartedAt ? new Date(t.timerStartedAt) : null,
+          completedAt: t.completedAt ? new Date(t.completedAt) : null,
         }));
         
         // Ensure projects have areaId field
@@ -220,6 +221,7 @@ export const useTaskStore = create<TaskStore>()(
         id: generateId(),
         title,
         completed: false,
+        completedAt: null,
         projectId: projectId ?? (state.currentView === 'project' ? state.currentProjectId : null),
         areaId: taskAreaId,
         tags: normalizedTags,
@@ -281,6 +283,7 @@ export const useTaskStore = create<TaskStore>()(
           ...task,
           id: generateId(),
           completed: false,
+          completedAt: null,
           scheduledDate: nextDate,
           createdAt: new Date(),
           timeSpent: 0,
@@ -289,7 +292,7 @@ export const useTaskStore = create<TaskStore>()(
         
         set(state => ({
           tasks: [
-            ...state.tasks.map(t => t.id === id ? { ...t, completed: true } : t),
+            ...state.tasks.map(t => t.id === id ? { ...t, completed: true, completedAt: new Date() } : t),
             newTask
           ],
         }));
@@ -299,7 +302,11 @@ export const useTaskStore = create<TaskStore>()(
       // Normal toggle for non-recurring tasks or uncompleting
       set(state => ({
         tasks: state.tasks.map(t =>
-          t.id === id ? { ...t, completed: !t.completed } : t
+          t.id === id ? { 
+            ...t, 
+            completed: !t.completed,
+            completedAt: !t.completed ? new Date() : null // Set when completing, clear when uncompleting
+          } : t
         ),
       }));
     },

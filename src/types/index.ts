@@ -13,6 +13,7 @@ export interface Task {
   id: string;
   title: string;
   completed: boolean;
+  completedAt: Date | null; // timestamp when task was completed (null = not completed)
   projectId: string | null; // null = inbox or area-only
   areaId: string | null;    // for tasks directly under an area (no project)
   tags: string[];
