@@ -133,6 +133,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
           <option value="tasks">Tasks</option>
           <option value="habits">Habits</option>
           <option value="food">Food</option>
+          <option value="workout">Workout</option>
         </select>
         {appMode === 'tasks' && (
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Press any key to search</p>
@@ -345,10 +346,16 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
             Track your daily habits with a GitHub-style heatmap visualization.
           </p>
         </div>
-      ) : (
+      ) : appMode === 'food' ? (
         <div className="flex-1 p-3">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Track your daily nutrition, water intake, and intermittent fasting.
+          </p>
+        </div>
+      ) : (
+        <div className="flex-1 p-3">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Track your kettlebell swings and push ups.
           </p>
         </div>
       )}

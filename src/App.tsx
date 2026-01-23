@@ -4,10 +4,11 @@ import { TaskList } from './components/tasks/TaskList';
 import { CommandPalette } from './components/tasks/CommandPalette';
 import { TrackerApp } from './components/habits/TrackerApp';
 import { FoodTracker } from './components/food/FoodTracker';
+import { WorkoutTracker } from './components/workout/WorkoutTracker';
 import { useKeyboardShortcuts } from './hooks/useKeyboard';
 import { useTaskStore } from './store/taskStore';
 
-export type AppMode = 'tasks' | 'habits' | 'food';
+export type AppMode = 'tasks' | 'habits' | 'food' | 'workout';
 
 function App() {
   const { loadData, isLoading, theme } = useTaskStore();
@@ -78,6 +79,7 @@ function App() {
       {appMode === 'tasks' && <TaskList />}
       {appMode === 'habits' && <TrackerApp />}
       {appMode === 'food' && <FoodTracker />}
+      {appMode === 'workout' && <WorkoutTracker />}
       {appMode === 'tasks' && (
         <CommandPalette 
           open={paletteOpen} 

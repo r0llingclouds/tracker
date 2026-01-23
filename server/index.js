@@ -8,6 +8,7 @@ import 'dotenv/config';
 // Route modules
 import tasksRouter from './routes/tasks.js';
 import foodRouter from './routes/food.js';
+import workoutsRouter from './routes/workouts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +29,7 @@ app.use(express.json());
 // Mount routes
 app.use('/api', tasksRouter);
 app.use('/api', foodRouter);
+app.use('/api', workoutsRouter);
 
 // Start server
 app.listen(PORT, () => {
