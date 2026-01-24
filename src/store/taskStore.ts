@@ -163,6 +163,7 @@ interface TaskStore {
   addTask: (title: string, projectId?: string | null, tags?: string[], scheduledDate?: Date | null, deadline?: Date | null, areaId?: string | null, url?: string | null) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
+  duplicateTask: (id: string) => void;
   toggleTask: (id: string) => void;
   moveTask: (id: string, projectId: string | null) => void;
   setTaskArea: (taskId: string, areaId: string | null) => void;
@@ -439,6 +440,30 @@ export const useTaskStore = create<TaskStore>()(
           selectedTaskId: newSelectedId,
         };
       });
+    },
+    
+    duplicateTask: (id) => {
+      const task = get().tasks.find(t => t.id === id);
+      if (!task) return;
+      
+      // Get order for new task (place right after original)
+      const newOrder = task.order + 0.001;
+      
+      const newTask: Task = {
+        ...task,
+        id: generateId(),
+        completed: false,
+        completedAt: null,
+        createdAt: new Date(),
+        timeSpent: 0,
+        timerStartedAt: null,
+        order: newOrder,
+      };
+      
+      set(state => ({
+        tasks: [...state.tasks, newTask],
+        selectedTaskId: newTask.id, // Select the new duplicate
+      }));
     },
     
     toggleTask: (id) => {

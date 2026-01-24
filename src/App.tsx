@@ -3,7 +3,6 @@ import {
   DndContext,
   DragOverlay,
   closestCenter,
-  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
@@ -11,7 +10,6 @@ import {
   rectIntersection,
 } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent, CollisionDetection } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { startOfDay, addDays } from 'date-fns';
 import { Sidebar } from './components/Sidebar';
 import { TaskList } from './components/tasks/TaskList';
@@ -30,15 +28,12 @@ function App() {
   const [appMode, setAppMode] = useState<AppMode>('tasks');
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   
-  // DnD sensors for pointer and keyboard
+  // DnD sensors - pointer only (keyboard sensor disabled to avoid conflict with Space shortcuts)
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8, // Require 8px movement before starting drag
       },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
     })
   );
   

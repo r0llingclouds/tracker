@@ -23,6 +23,7 @@ export function useKeyboardShortcuts({
     selectedTaskId,
     toggleTask,
     deleteTask,
+    duplicateTask,
     toggleTheme,
     startTimer,
     stopTimer,
@@ -125,8 +126,13 @@ export function useKeyboardShortcuts({
               return;
             case 'e':
               e.preventDefault();
-              // Open task edit modal
+              // Close palette if open, then open task edit modal
+              closePalette();
               setEditingTask(selectedTaskId);
+              return;
+            case 'y':
+              e.preventDefault();
+              duplicateTask(selectedTaskId);
               return;
           }
         }
@@ -186,7 +192,8 @@ export function useKeyboardShortcuts({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     paletteOpen, 
-    openPalette, 
+    openPalette,
+    closePalette,
     selectNextTask, 
     selectPrevTask, 
     selectedTaskId, 
@@ -199,5 +206,6 @@ export function useKeyboardShortcuts({
     stopTimer,
     getTaskById,
     setEditingTask,
+    duplicateTask,
   ]);
 }

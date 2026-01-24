@@ -1,7 +1,13 @@
 import { Command } from 'cmdk';
 import { useEffect, useState, useRef } from 'react';
-import { addDays, addWeeks, format, startOfDay, nextDay, getDay } from 'date-fns';
+import { addDays, addWeeks, format, startOfDay } from 'date-fns';
 import { useTaskStore } from '../../store/taskStore';
+import {
+  parseDateFromText,
+  getNextDayOccurrence,
+  DAY_ABBREVIATIONS,
+  URL_REGEX,
+} from '../../lib/tasks/parsing';
 
 // Date suggestion types and helpers for schedule mode
 interface DateSuggestion {
@@ -14,170 +20,6 @@ interface DateSuggestion {
 }
 
 const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-const DAY_ABBREVIATIONS: Record<string, number> = {
-  sun: 0, sunday: 0,
-  mon: 1, monday: 1,
-  tue: 2, tues: 2, tuesday: 2,
-  wed: 3, wednesday: 3,
-  thu: 4, thur: 4, thurs: 4, thursday: 4,
-  fri: 5, friday: 5,
-  sat: 6, saturday: 6,
-};
-
-const MONTH_ABBREVIATIONS: Record<string, number> = {
-  jan: 0, january: 0,
-  feb: 1, february: 1,
-  mar: 2, march: 2,
-  apr: 3, april: 3,
-  may: 4,
-  jun: 5, june: 5,
-  jul: 6, july: 6,
-  aug: 7, august: 7,
-  sep: 8, sept: 8, september: 8,
-  oct: 9, october: 9,
-  nov: 10, november: 10,
-  dec: 11, december: 11,
-};
-
-// Natural language date parsing for task input
-interface ParsedTaskInput {
-  title: string;
-  scheduledDate: Date | null;
-  datePhrase: string | null;
-}
-
-function parseDateFromText(text: string): ParsedTaskInput {
-  const today = startOfDay(new Date());
-  
-  // Patterns to match (order matters - more specific first)
-  const patterns: Array<{ regex: RegExp; getDate: (match: RegExpMatchArray) => Date | null }> = [
-    // "next week"
-    {
-      regex: /\bnext\s+week\b/i,
-      getDate: () => addWeeks(today, 1),
-    },
-    // "next monday", "next tue", etc.
-    {
-      regex: /\bnext\s+(sun(?:day)?|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?)\b/i,
-      getDate: (match) => {
-        const dayStr = match[1].toLowerCase();
-        for (const [abbrev, dayIndex] of Object.entries(DAY_ABBREVIATIONS)) {
-          if (dayStr === abbrev || dayStr.startsWith(abbrev)) {
-            return getNextDayOccurrence(dayIndex, 1); // Skip to the one after next
-          }
-        }
-        return null;
-      },
-    },
-    // "21 jun", "21 june", "21st june", "21jun", etc.
-    {
-      regex: /\b(\d{1,2})(?:st|nd|rd|th)?\s*(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i,
-      getDate: (match) => {
-        const day = parseInt(match[1], 10);
-        const monthStr = match[2].toLowerCase();
-        let monthIndex = -1;
-        for (const [abbrev, idx] of Object.entries(MONTH_ABBREVIATIONS)) {
-          if (monthStr === abbrev || monthStr.startsWith(abbrev.slice(0, 3))) {
-            monthIndex = idx;
-            break;
-          }
-        }
-        if (monthIndex === -1 || day < 1 || day > 31) return null;
-        
-        const year = new Date().getFullYear();
-        let date = new Date(year, monthIndex, day);
-        // If the date has passed, use next year
-        if (date < today) {
-          date = new Date(year + 1, monthIndex, day);
-        }
-        return startOfDay(date);
-      },
-    },
-    // "jun 21", "june 21st", "jun21", etc.
-    {
-      regex: /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s*(\d{1,2})(?:st|nd|rd|th)?\b/i,
-      getDate: (match) => {
-        const monthStr = match[1].toLowerCase();
-        const day = parseInt(match[2], 10);
-        let monthIndex = -1;
-        for (const [abbrev, idx] of Object.entries(MONTH_ABBREVIATIONS)) {
-          if (monthStr === abbrev || monthStr.startsWith(abbrev.slice(0, 3))) {
-            monthIndex = idx;
-            break;
-          }
-        }
-        if (monthIndex === -1 || day < 1 || day > 31) return null;
-        
-        const year = new Date().getFullYear();
-        let date = new Date(year, monthIndex, day);
-        // If the date has passed, use next year
-        if (date < today) {
-          date = new Date(year + 1, monthIndex, day);
-        }
-        return startOfDay(date);
-      },
-    },
-    // Day names: "monday", "mon", "tue", etc.
-    {
-      regex: /\b(sun(?:day)?|mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?)\b/i,
-      getDate: (match) => {
-        const dayStr = match[1].toLowerCase();
-        for (const [abbrev, dayIndex] of Object.entries(DAY_ABBREVIATIONS)) {
-          if (dayStr === abbrev) {
-            return getNextDayOccurrence(dayIndex, 0);
-          }
-        }
-        return null;
-      },
-    },
-    // "today", "tod"
-    {
-      regex: /\b(today|tod)\b/i,
-      getDate: () => today,
-    },
-    // "tomorrow", "tom", "tmr", "tmrw"
-    {
-      regex: /\b(tomorrow|tom|tmr|tmrw)\b/i,
-      getDate: () => addDays(today, 1),
-    },
-  ];
-  
-  for (const { regex, getDate } of patterns) {
-    const match = text.match(regex);
-    if (match) {
-      const date = getDate(match);
-      if (date) {
-        // Remove the matched phrase from the title
-        const cleanedTitle = text.replace(regex, '').replace(/\s+/g, ' ').trim();
-        return {
-          title: cleanedTitle,
-          scheduledDate: date,
-          datePhrase: match[0],
-        };
-      }
-    }
-  }
-  
-  return {
-    title: text,
-    scheduledDate: null,
-    datePhrase: null,
-  };
-}
-
-function getNextDayOccurrence(dayIndex: number, weeksAhead: number = 0): Date {
-  const today = startOfDay(new Date());
-  const todayDay = getDay(today);
-  
-  // If it's the same day of the week, get next week's occurrence
-  if (todayDay === dayIndex) {
-    return addWeeks(today, 1 + weeksAhead);
-  }
-  
-  // Get the next occurrence of this day
-  const next = nextDay(today, dayIndex as 0 | 1 | 2 | 3 | 4 | 5 | 6);
-  return addWeeks(next, weeksAhead);
-}
 
 function fuzzyMatch(query: string, target: string): boolean {
   const q = query.toLowerCase();
@@ -404,9 +246,6 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
 
   // Parse all tags from input for display
   const parsedTags = inputValue.match(/#(\w+)/g)?.map(t => t.slice(1).toLowerCase()) || [];
-  
-  // URL regex pattern to detect http/https URLs
-  const URL_REGEX = /https?:\/\/[^\s]+/gi;
   
   // Extract URL from input (first match only)
   const urlMatches = inputValue.match(URL_REGEX);

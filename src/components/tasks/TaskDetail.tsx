@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { useTaskStore } from '../../store/taskStore';
 import { useTimer } from '../../hooks/useTimer';
+import { SmartTaskInput } from './SmartTaskInput';
+import type { ParsedTaskInput } from '../../lib/tasks/parsing';
 import type { Recurrence } from '../../types';
 
 interface TaskDetailProps {
@@ -26,6 +28,7 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
     addTagToTask,
     removeTagFromTask,
     deleteTask,
+    duplicateTask,
     startTimer,
     stopTimer,
     resetTimer,
@@ -33,10 +36,9 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
   } = useTaskStore();
 
   const task = tasks.find(t => t.id === taskId);
-  const titleRef = useRef<HTMLInputElement>(null);
-  const [title, setTitle] = useState(task?.title || '');
   const [url, setUrl] = useState(task?.url || '');
   const [newTag, setNewTag] = useState('');
+  const [smartInputValue, setSmartInputValue] = useState(task?.title || '');
   
   // Timer hook - use task values or defaults when task is not yet available
   const { formattedTime, isRunning } = useTimer(
@@ -46,25 +48,57 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
 
   useEffect(() => {
     if (task) {
-      setTitle(task.title);
       setUrl(task.url || '');
+      setSmartInputValue(task.title);
     }
   }, [task]);
 
-  useEffect(() => {
-    if (open && titleRef.current) {
-      titleRef.current.focus();
-      titleRef.current.select();
-    }
-  }, [open]);
-
   if (!open || !task) return null;
 
-  const handleTitleBlur = () => {
-    if (title.trim() && title !== task.title) {
-      updateTask(taskId, { title: title.trim() });
+  // Handle smart input submission - applies all parsed values
+  const handleSmartInputSubmit = useCallback((parsed: ParsedTaskInput) => {
+    // Update title
+    const newTitle = parsed.cleanTitle.trim() || task.title;
+    if (newTitle !== task.title) {
+      updateTask(taskId, { title: newTitle });
     }
-  };
+
+    // Add new tags (don't remove existing ones)
+    for (const tag of parsed.tags) {
+      if (!task.tags.includes(tag)) {
+        addTagToTask(taskId, tag);
+      }
+    }
+
+    // Set project/area if @ was used
+    if (parsed.projectName) {
+      const project = projects.find(p => p.name.toLowerCase() === parsed.projectName);
+      const area = areas.find(a => a.name.toLowerCase() === parsed.projectName);
+      if (project) {
+        moveTask(taskId, project.id);
+      } else if (area) {
+        setTaskArea(taskId, area.id);
+      }
+    }
+
+    // Set scheduled date if detected
+    if (parsed.scheduledDate) {
+      setTaskDate(taskId, parsed.scheduledDate);
+    }
+
+    // Set deadline if d/ was used
+    if (parsed.deadline) {
+      setDeadline(taskId, parsed.deadline);
+    }
+
+    // Set URL if detected
+    if (parsed.url && parsed.url !== task.url) {
+      updateTask(taskId, { url: parsed.url });
+    }
+
+    // Reset the smart input to just the clean title
+    setSmartInputValue(newTitle);
+  }, [task, taskId, projects, areas, updateTask, addTagToTask, moveTask, setTaskArea, setTaskDate, setDeadline]);
 
   const handleUrlBlur = () => {
     const trimmedUrl = url.trim();
@@ -81,18 +115,6 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
     }
     if (e.key === 'Escape') {
       setUrl(task.url || '');
-    }
-  };
-
-  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleTitleBlur();
-      (e.target as HTMLInputElement).blur();
-    }
-    if (e.key === 'Escape') {
-      setTitle(task.title);
-      onClose();
     }
   };
 
@@ -163,6 +185,11 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
     }
   };
 
+  const handleDuplicate = () => {
+    duplicateTask(taskId);
+    onClose();
+  };
+
   const formatDateForInput = (date: Date | null) => {
     if (!date) return '';
     return format(date, 'yyyy-MM-dd');
@@ -193,19 +220,25 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
 
         {/* Content */}
         <div className="p-6 space-y-5">
-          {/* Title */}
+          {/* Title - Smart Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Title
+              <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">
+                Use # for tags, @ for location, d/ for deadline
+              </span>
             </label>
-            <input
-              ref={titleRef}
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              onBlur={handleTitleBlur}
-              onKeyDown={handleTitleKeyDown}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+            <SmartTaskInput
+              value={smartInputValue}
+              onChange={setSmartInputValue}
+              onSubmit={handleSmartInputSubmit}
+              onCancel={onClose}
+              projects={projects}
+              areas={areas}
+              tags={tags}
+              placeholder="Task title... (use #tag @project d/deadline tomorrow)"
+              autoFocus={open}
+              showPreview={true}
             />
           </div>
 
@@ -488,12 +521,20 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <button
-            onClick={handleDelete}
-            className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-          >
-            Delete task
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDelete}
+              className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+            >
+              Delete
+            </button>
+            <button
+              onClick={handleDuplicate}
+              className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+            >
+              Duplicate
+            </button>
+          </div>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200"
