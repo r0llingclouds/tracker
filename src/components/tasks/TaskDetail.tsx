@@ -39,6 +39,9 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
   const [url, setUrl] = useState(task?.url || '');
   const [newTag, setNewTag] = useState('');
   const [smartInputValue, setSmartInputValue] = useState(task?.title || '');
+  const [editingTime, setEditingTime] = useState(false);
+  const [timeInputHours, setTimeInputHours] = useState(0);
+  const [timeInputMinutes, setTimeInputMinutes] = useState(0);
   
   // Timer hook - use task values or defaults when task is not yet available
   const { formattedTime, isRunning } = useTimer(
@@ -211,6 +214,35 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
     if (confirm('Are you sure you want to delete this task?')) {
       deleteTask(taskId);
       onClose();
+    }
+  };
+
+  // Time editing handlers
+  const initTimeInputs = () => {
+    const totalMinutes = Math.floor(task.timeSpent / 60000);
+    setTimeInputHours(Math.floor(totalMinutes / 60));
+    setTimeInputMinutes(totalMinutes % 60);
+    setEditingTime(true);
+  };
+
+  const handleTimeSave = () => {
+    const newTimeSpent = (timeInputHours * 60 + timeInputMinutes) * 60000;
+    updateTask(taskId, { timeSpent: newTimeSpent });
+    setEditingTime(false);
+  };
+
+  const handleTimeCancel = () => {
+    setEditingTime(false);
+  };
+
+  const handleTimeKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleTimeSave();
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      handleTimeCancel();
     }
   };
 
@@ -490,18 +522,65 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
               Time Tracked
             </label>
             <div className="flex items-center gap-3">
-              <div className={`flex-1 px-4 py-3 rounded-lg font-mono text-lg ${
-                isRunning 
-                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800' 
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}>
-                <div className="flex items-center gap-2">
-                  <svg className={`w-4 h-4 ${isRunning ? 'animate-pulse' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {formattedTime}
+              {editingTime ? (
+                <div className="flex-1 flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={timeInputHours}
+                    onChange={e => setTimeInputHours(Math.max(0, parseInt(e.target.value) || 0))}
+                    onKeyDown={handleTimeKeyDown}
+                    className="w-16 px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center font-mono focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+                    autoFocus
+                  />
+                  <span className="text-gray-500 dark:text-gray-400">h</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="59"
+                    value={timeInputMinutes}
+                    onChange={e => setTimeInputMinutes(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
+                    onKeyDown={handleTimeKeyDown}
+                    className="w-16 px-2 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-center font-mono focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+                  />
+                  <span className="text-gray-500 dark:text-gray-400">m</span>
+                  <button
+                    onClick={handleTimeSave}
+                    className="px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleTimeCancel}
+                    className="px-3 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm"
+                  >
+                    Cancel
+                  </button>
                 </div>
-              </div>
+              ) : (
+                <button
+                  onClick={isRunning ? undefined : initTimeInputs}
+                  disabled={isRunning}
+                  className={`flex-1 px-4 py-3 rounded-lg font-mono text-lg text-left ${
+                    isRunning 
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 cursor-not-allowed' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer'
+                  }`}
+                  title={isRunning ? 'Stop timer to edit time' : 'Click to edit time'}
+                >
+                  <div className="flex items-center gap-2">
+                    <svg className={`w-4 h-4 ${isRunning ? 'animate-pulse' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {formattedTime}
+                    {!isRunning && (
+                      <svg className="w-3 h-3 ml-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+              )}
               
               <button
                 onClick={() => isRunning ? stopTimer(taskId) : startTimer(taskId)}
