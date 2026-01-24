@@ -1,8 +1,90 @@
+import { useState } from 'react';
 import { isSameDay, startOfDay } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
 import { useTimer } from '../hooks/useTimer';
+import { XpHistory } from './tasks/XpHistory';
 import type { AppMode } from '../App';
 import type { Task } from '../types';
+
+function XpProgressBar() {
+  const { userProgress, getXpToNextLevel } = useTaskStore();
+  const [showHistory, setShowHistory] = useState(false);
+  const [showFullHistory, setShowFullHistory] = useState(false);
+  const { current, required, progress } = getXpToNextLevel();
+  
+  return (
+    <>
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
+              Lv.{userProgress.level}
+            </span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {userProgress.totalXp} XP
+            </span>
+          </div>
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            title="View XP History"
+          >
+            {showHistory ? 'Hide' : 'History'}
+          </button>
+        </div>
+        <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-300"
+            style={{ width: `${Math.min(progress * 100, 100)}%` }}
+          />
+        </div>
+        <div className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-right">
+          {current} / {required} to next level
+        </div>
+        
+        {showHistory && (
+          <div className="mt-3 max-h-48 overflow-y-auto">
+            <div className="space-y-1">
+              {userProgress.xpHistory.length === 0 ? (
+                <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-2">
+                  No XP earned yet. Complete tasks to gain XP!
+                </p>
+              ) : (
+                <>
+                  {[...userProgress.xpHistory].reverse().slice(0, 10).map((event) => (
+                    <div
+                      key={event.id}
+                      className={`text-xs flex items-center gap-2 px-2 py-1 rounded ${
+                        event.xp > 0 
+                          ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
+                          : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                      }`}
+                    >
+                      <span className="font-mono">
+                        {event.xp > 0 ? '+' : ''}{event.xp}
+                      </span>
+                      <span className="flex-1 truncate">{event.taskTitle}</span>
+                    </div>
+                  ))}
+                  {userProgress.xpHistory.length > 10 && (
+                    <button
+                      onClick={() => setShowFullHistory(true)}
+                      className="w-full text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 py-2 text-center"
+                    >
+                      View all {userProgress.xpHistory.length} events
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <XpHistory open={showFullHistory} onClose={() => setShowFullHistory(false)} />
+    </>
+  );
+}
 
 interface NavItemProps {
   label: string;
@@ -142,6 +224,8 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
       
       {appMode === 'tasks' ? (
         <>
+          <XpProgressBar />
+          
           {activeTimers.length > 0 && (
             <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
               <h2 className="px-0 py-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">

@@ -25,6 +25,23 @@ export interface Task {
   timeSpent: number; // accumulated time in milliseconds
   timerStartedAt: Date | null; // timestamp when timer started (null = paused/stopped)
   url: string | null; // extracted URL for the task
+  xp: number; // XP awarded on completion, default 5
+}
+
+// XP Gamification Types
+export interface XpEvent {
+  id: string;
+  taskId: string;
+  taskTitle: string;  // snapshot for historical display
+  xp: number;         // positive for earned, negative for revoked
+  timestamp: Date;
+  levelAtTime: number; // user's level when event occurred
+}
+
+export interface UserProgress {
+  totalXp: number;
+  level: number;
+  xpHistory: XpEvent[];
 }
 
 export interface Project {

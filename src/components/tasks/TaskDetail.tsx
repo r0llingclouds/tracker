@@ -344,8 +344,8 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
             </div>
           </div>
 
-          {/* Recurrence & Someday */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Recurrence & Someday & XP */}
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Repeat
@@ -361,6 +361,22 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
                 <option value="monthly">Monthly</option>
                 <option value="yearly">Yearly</option>
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                XP Reward
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={task.xp ?? 5}
+                onChange={e => {
+                  const value = parseInt(e.target.value) || 5;
+                  updateTask(taskId, { xp: Math.max(1, Math.min(100, value)) });
+                }}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500"
+              />
             </div>
             <div className="flex items-end">
               <label className="flex items-center gap-2 px-3 py-2 cursor-pointer">

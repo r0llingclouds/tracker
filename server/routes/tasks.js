@@ -17,21 +17,35 @@ router.get('/data', (req, res) => {
   const data = readJSON(DATA_FILE, null);
   if (data === null) {
     // Return empty state to signal frontend should initialize with sample data
-    res.json({ tasks: [], projects: [], areas: [], tags: [], isNew: true });
+    res.json({ 
+      tasks: [], 
+      projects: [], 
+      areas: [], 
+      tags: [], 
+      userProgress: { totalXp: 0, level: 1, xpHistory: [] },
+      isNew: true 
+    });
   } else {
+    // Ensure userProgress exists (migration for existing data)
+    if (!data.userProgress) {
+      data.userProgress = { totalXp: 0, level: 1, xpHistory: [] };
+    }
     res.json(data);
   }
 });
 
 // POST /api/data - Save all task data
 router.post('/data', (req, res) => {
-  const { tasks, projects, areas, tags } = req.body;
+  const { tasks, projects, areas, tags, userProgress } = req.body;
   
   if (!Array.isArray(tasks) || !Array.isArray(projects) || !Array.isArray(tags) || !Array.isArray(areas)) {
     return res.status(400).json({ error: 'Invalid data format' });
   }
   
-  const success = writeJSON(DATA_FILE, { tasks, projects, areas, tags });
+  // Default userProgress if not provided
+  const progress = userProgress || { totalXp: 0, level: 1, xpHistory: [] };
+  
+  const success = writeJSON(DATA_FILE, { tasks, projects, areas, tags, userProgress: progress });
   
   if (success) {
     res.json({ success: true });

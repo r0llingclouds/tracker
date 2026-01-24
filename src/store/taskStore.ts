@@ -1,7 +1,33 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { isSameDay, startOfDay, addDays, addWeeks, addMonths, addYears, getDay } from 'date-fns';
-import type { Task, Project, View, Recurrence, Area } from '../types';
+import type { Task, Project, View, Recurrence, Area, XpEvent, UserProgress } from '../types';
+
+// XP Level Thresholds - progressive scaling
+const LEVEL_THRESHOLDS = [0, 100, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000];
+
+// Calculate level from total XP
+function calculateLevel(totalXp: number): number {
+  for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (totalXp >= LEVEL_THRESHOLDS[i]) return i + 1;
+  }
+  return 1;
+}
+
+// Get XP required for a specific level
+function getXpForLevel(level: number): number {
+  if (level <= 0) return 0;
+  if (level <= LEVEL_THRESHOLDS.length) return LEVEL_THRESHOLDS[level - 1];
+  // For levels beyond the array, continue doubling pattern
+  return LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1] * Math.pow(2, level - LEVEL_THRESHOLDS.length);
+}
+
+// Get effective XP for a task based on its tags
+function getEffectiveXp(task: Task): number {
+  if (task.tags.includes('hard')) return 15;
+  if (task.tags.includes('mid')) return 10;
+  return task.xp ?? 5;
+}
 
 // Helper to calculate next occurrence for recurring tasks
 function getNextOccurrence(fromDate: Date, recurrence: Recurrence): Date {
@@ -66,6 +92,7 @@ interface TaskStore {
   projects: Project[];
   areas: Area[];
   tags: string[];
+  userProgress: UserProgress;
   currentView: View;
   currentProjectId: string | null;
   currentTagId: string | null;
@@ -127,6 +154,11 @@ interface TaskStore {
   // Theme
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
+  
+  // XP actions
+  awardXp: (taskId: string, taskTitle: string, xp: number) => void;
+  revokeXp: (taskId: string, taskTitle: string, xp: number) => void;
+  getXpToNextLevel: () => { current: number; required: number; progress: number };
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -143,6 +175,7 @@ export const useTaskStore = create<TaskStore>()(
     projects: [],
     areas: [],
     tags: [],
+    userProgress: { totalXp: 0, level: 1, xpHistory: [] },
     currentView: 'inbox',
     currentProjectId: null,
     currentTagId: null,
@@ -160,6 +193,7 @@ export const useTaskStore = create<TaskStore>()(
         const data = await response.json();
         
         // Convert date strings to Date objects and ensure fields exist
+        // Migrate existing tasks: add xp field with default value of 5
         const tasks = data.tasks.map((t: Task) => ({
           ...t,
           createdAt: new Date(t.createdAt),
@@ -172,6 +206,7 @@ export const useTaskStore = create<TaskStore>()(
           timerStartedAt: t.timerStartedAt ? new Date(t.timerStartedAt) : null,
           completedAt: t.completedAt ? new Date(t.completedAt) : null,
           url: t.url ?? null,
+          xp: t.xp ?? 5, // Default XP for existing tasks
         }));
         
         // Ensure projects have areaId field
@@ -180,11 +215,24 @@ export const useTaskStore = create<TaskStore>()(
           areaId: p.areaId ?? null,
         }));
         
+        // Load userProgress with migration for existing data
+        const userProgress: UserProgress = data.userProgress ?? { totalXp: 0, level: 1, xpHistory: [] };
+        // Convert date strings in xpHistory
+        if (userProgress.xpHistory) {
+          userProgress.xpHistory = userProgress.xpHistory.map((event: XpEvent) => ({
+            ...event,
+            timestamp: new Date(event.timestamp),
+          }));
+        }
+        // Recalculate level to ensure consistency
+        userProgress.level = calculateLevel(userProgress.totalXp);
+        
         set({ 
           tasks, 
           projects,
           areas: data.areas || [],
           tags: data.tags,
+          userProgress,
           isLoading: false 
         });
       } catch (error) {
@@ -196,11 +244,11 @@ export const useTaskStore = create<TaskStore>()(
     // Save data to API
     saveData: async () => {
       try {
-        const { tasks, projects, areas, tags } = get();
+        const { tasks, projects, areas, tags, userProgress } = get();
         await fetch(`${API_URL}/data`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tasks, projects, areas, tags }),
+          body: JSON.stringify({ tasks, projects, areas, tags, userProgress }),
         });
       } catch (error) {
         console.error('Failed to save data:', error);
@@ -221,6 +269,11 @@ export const useTaskStore = create<TaskStore>()(
         taskAreaId = state.currentAreaId;
       }
       
+      // Determine XP based on difficulty tags: hard=15, mid=10, default=5
+      let taskXp = 5;
+      if (normalizedTags.includes('hard')) taskXp = 15;
+      else if (normalizedTags.includes('mid')) taskXp = 10;
+      
       const newTask: Task = {
         id: generateId(),
         title,
@@ -237,6 +290,7 @@ export const useTaskStore = create<TaskStore>()(
         timeSpent: 0,
         timerStartedAt: null,
         url,
+        xp: taskXp,
       };
       set(state => ({ 
         tasks: [...state.tasks, newTask],
@@ -278,9 +332,13 @@ export const useTaskStore = create<TaskStore>()(
     
     toggleTask: (id) => {
       const task = get().tasks.find(t => t.id === id);
+      if (!task) return;
+      
+      const isCompleting = !task.completed;
+      const taskXp = getEffectiveXp(task); // XP based on tags: hard=15, mid=10, default=5
       
       // Handle recurring tasks: when completing, create a new instance
-      if (task && !task.completed && task.recurrence) {
+      if (isCompleting && task.recurrence) {
         // Use task's scheduled date or today as base for calculating next occurrence
         const baseDate = task.scheduledDate || startOfDay(new Date());
         const nextDate = getNextOccurrence(baseDate, task.recurrence);
@@ -301,6 +359,9 @@ export const useTaskStore = create<TaskStore>()(
             newTask
           ],
         }));
+        
+        // Award XP for completing recurring task
+        get().awardXp(id, task.title, taskXp);
         return;
       }
       
@@ -314,6 +375,13 @@ export const useTaskStore = create<TaskStore>()(
           } : t
         ),
       }));
+      
+      // Award or revoke XP based on completion state
+      if (isCompleting) {
+        get().awardXp(id, task.title, taskXp);
+      } else {
+        get().revokeXp(id, task.title, taskXp);
+      }
     },
     
     moveTask: (id, projectId) => {
@@ -741,14 +809,83 @@ export const useTaskStore = create<TaskStore>()(
       localStorage.setItem('theme', newTheme);
       set({ theme: newTheme });
     },
+    
+    // XP actions
+    awardXp: (taskId, taskTitle, xp) => {
+      set(state => {
+        const newTotalXp = state.userProgress.totalXp + xp;
+        const newLevel = calculateLevel(newTotalXp);
+        
+        const xpEvent: XpEvent = {
+          id: generateId(),
+          taskId,
+          taskTitle,
+          xp,
+          timestamp: new Date(),
+          levelAtTime: newLevel,
+        };
+        
+        return {
+          userProgress: {
+            totalXp: newTotalXp,
+            level: newLevel,
+            xpHistory: [...state.userProgress.xpHistory, xpEvent],
+          },
+        };
+      });
+    },
+    
+    revokeXp: (taskId, taskTitle, xp) => {
+      set(state => {
+        const newTotalXp = Math.max(0, state.userProgress.totalXp - xp);
+        const newLevel = calculateLevel(newTotalXp);
+        
+        const xpEvent: XpEvent = {
+          id: generateId(),
+          taskId,
+          taskTitle,
+          xp: -xp, // Negative to indicate revocation
+          timestamp: new Date(),
+          levelAtTime: newLevel,
+        };
+        
+        return {
+          userProgress: {
+            totalXp: newTotalXp,
+            level: newLevel,
+            xpHistory: [...state.userProgress.xpHistory, xpEvent],
+          },
+        };
+      });
+    },
+    
+    getXpToNextLevel: () => {
+      const { userProgress } = get();
+      const currentLevelXp = getXpForLevel(userProgress.level);
+      const nextLevelXp = getXpForLevel(userProgress.level + 1);
+      const xpInCurrentLevel = userProgress.totalXp - currentLevelXp;
+      const xpNeededForNextLevel = nextLevelXp - currentLevelXp;
+      
+      return {
+        current: xpInCurrentLevel,
+        required: xpNeededForNextLevel,
+        progress: xpNeededForNextLevel > 0 ? xpInCurrentLevel / xpNeededForNextLevel : 1,
+      };
+    },
   }))
 );
 
-// Auto-save when tasks, projects, areas, or tags change (debounced)
+// Auto-save when tasks, projects, areas, tags, or userProgress change (debounced)
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 useTaskStore.subscribe(
-  (state) => ({ tasks: state.tasks, projects: state.projects, areas: state.areas, tags: state.tags }),
+  (state) => ({ 
+    tasks: state.tasks, 
+    projects: state.projects, 
+    areas: state.areas, 
+    tags: state.tags,
+    userProgress: state.userProgress 
+  }),
   () => {
     // Don't save while loading
     if (useTaskStore.getState().isLoading) return;
