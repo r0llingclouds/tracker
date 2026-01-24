@@ -286,11 +286,12 @@ export const useTaskStore = create<TaskStore>()(
           return task;
         });
         
-        // Ensure projects have areaId and boss fields
+        // Ensure projects have areaId, boss, and bossCard fields
         const projects = (data.projects || []).map((p: Project) => ({
           ...p,
           areaId: p.areaId ?? null,
           boss: p.boss ?? false,
+          bossCard: p.bossCard, // optional, only set when defined
         }));
         
         // Load userProgress with migration for existing data

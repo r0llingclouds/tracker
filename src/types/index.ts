@@ -44,12 +44,18 @@ export interface UserProgress {
   xpHistory: XpEvent[];
 }
 
+export interface BossCard {
+  image: string | null;    // URL path to image (e.g., /api/images/boss-xxx.jpg)
+  description: string;     // boss description/backstory
+}
+
 export interface Project {
   id: string;
   name: string;
   color: string;
   areaId: string | null; // null = no area
   boss: boolean; // Boss projects give 2x XP
+  bossCard?: BossCard; // optional boss card with image and description
 }
 
 export type View = 'inbox' | 'today' | 'upcoming' | 'someday' | 'project' | 'tag' | 'area';
