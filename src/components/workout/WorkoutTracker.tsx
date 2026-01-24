@@ -137,7 +137,7 @@ export function WorkoutTracker() {
             <WorkoutSummary summary={summary} />
 
             {/* Heatmaps */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-6">
               <WorkoutHeatmap
                 data={Object.fromEntries(
                   Object.entries(history.kettlebell).map(([date, data]) => [date, data.volume])
