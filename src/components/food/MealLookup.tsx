@@ -128,7 +128,7 @@ export function MealLookup({ onFoodCreated }: MealLookupProps) {
       {!parsedData ? (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
               Describe your meal in natural language
             </label>
             <textarea
@@ -140,7 +140,7 @@ export function MealLookup({ onFoodCreated }: MealLookupProps) {
 • 230g raviolis de carne Rana con salsa de tomate
 • Big Mac menu with medium fries and Coke`}
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors resize-none"
+              className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors resize-none"
             />
           </div>
 
@@ -186,23 +186,23 @@ export function MealLookup({ onFoodCreated }: MealLookupProps) {
                 </button>
               )}
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Review and edit the extracted values below, then save.</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">Review and edit the extracted values below, then save.</p>
           </div>
 
           {showRaw && rawResponse && (
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-h-60 overflow-y-auto">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your search:</h4>
-              <pre className="text-xs text-amber-700 dark:text-amber-400 whitespace-pre-wrap font-mono mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-zinc-50 dark:bg-black rounded-lg p-4 max-h-60 overflow-y-auto">
+              <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Your search:</h4>
+              <pre className="text-xs text-amber-700 dark:text-amber-400 whitespace-pre-wrap font-mono mb-4 pb-3 border-b border-zinc-200 dark:border-zinc-800">
                 {description}
               </pre>
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Perplexity Response:</h4>
-              <pre className="text-xs text-gray-600 dark:text-gray-400 whitespace-pre-wrap font-mono">
+              <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Perplexity Response:</h4>
+              <pre className="text-xs text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap font-mono">
                 {rawResponse}
               </pre>
               {sources && sources.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <h5 className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Sources:</h5>
-                  <ul className="text-xs text-gray-500 dark:text-gray-500 space-y-1">
+                <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                  <h5 className="text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Sources:</h5>
+                  <ul className="text-xs text-zinc-600 dark:text-zinc-400 space-y-1">
                     {sources.slice(0, 5).map((source, i) => (
                       <li key={i} className="truncate">
                         <a href={source} target="_blank" rel="noopener noreferrer" className="hover:text-amber-600 dark:hover:text-amber-400">
@@ -217,22 +217,22 @@ export function MealLookup({ onFoodCreated }: MealLookupProps) {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               Food Name *
             </label>
             <input
               type="text"
               value={editedData?.name || ''}
               onChange={(e) => handleEditChange('name', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+              className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
             />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {inputFields.map(({ name, label, unit, step = '0.1' }) => (
               <div key={name}>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {label} <span className="text-gray-400 dark:text-gray-500">({unit})</span>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  {label} <span className="text-zinc-600 dark:text-zinc-400">({unit})</span>
                 </label>
                 <input
                   type="number"
@@ -240,7 +240,7 @@ export function MealLookup({ onFoodCreated }: MealLookupProps) {
                   onChange={(e) => handleEditChange(name, e.target.value)}
                   min="0"
                   step={step}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
                 />
               </div>
             ))}
@@ -249,7 +249,7 @@ export function MealLookup({ onFoodCreated }: MealLookupProps) {
           <div className="flex gap-3">
             <button
               onClick={handleCancel}
-              className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-3 px-4 rounded-lg font-medium hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
             >
               Cancel
             </button>

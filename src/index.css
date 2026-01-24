@@ -7,21 +7,21 @@
 body {
   margin: 0;
   min-height: 100vh;
-  @apply bg-gray-100 text-gray-900;
+  @apply bg-zinc-50 text-zinc-900;
 }
 
 .dark body {
-  @apply bg-gray-900 text-gray-100;
+  @apply bg-black text-zinc-50;
 }
 
 /* Focus ring styles */
 *:focus-visible {
-  outline: 2px solid #6b7280;
+  outline: 2px solid #52525b;
   outline-offset: 2px;
 }
 
 .dark *:focus-visible {
-  outline-color: #9ca3af;
+  outline-color: #a1a1aa;
 }
 
 /* Smooth transitions */
@@ -33,7 +33,7 @@ body {
 
 /* Keyboard hint badge */
 kbd {
-  @apply bg-gray-100 border-gray-200 text-gray-600;
+  @apply bg-zinc-100 border-zinc-200 text-zinc-600;
   padding: 2px 6px;
   border-radius: 4px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -42,7 +42,7 @@ kbd {
 }
 
 .dark kbd {
-  @apply bg-gray-700 border-gray-600 text-gray-300;
+  @apply bg-zinc-800 border-zinc-800 text-zinc-400;
 }
 
 /* cmdk overrides for our theme */
@@ -56,7 +56,7 @@ kbd {
 }
 
 .dark [cmdk-root] {
-  @apply bg-gray-800;
+  @apply bg-zinc-950;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
@@ -67,19 +67,19 @@ kbd {
   border: none;
   outline: none;
   background: transparent;
-  @apply border-b border-gray-200 text-gray-900;
+  @apply border-b border-zinc-200 text-zinc-900;
 }
 
 .dark [cmdk-input] {
-  @apply border-gray-700 text-gray-100;
+  @apply border-zinc-800 text-zinc-50;
 }
 
 [cmdk-input]::placeholder {
-  @apply text-gray-400;
+  @apply text-zinc-400;
 }
 
 .dark [cmdk-input]::placeholder {
-  @apply text-gray-500;
+  @apply text-zinc-400;
 }
 
 [cmdk-list] {
@@ -96,48 +96,48 @@ kbd {
   align-items: center;
   gap: 12px;
   font-size: 14px;
-  @apply text-gray-700;
+  @apply text-zinc-700;
 }
 
 .dark [cmdk-item] {
-  @apply text-gray-300;
+  @apply text-zinc-300;
 }
 
 [cmdk-item][data-selected="true"] {
-  @apply bg-gray-100;
+  @apply bg-zinc-100;
 }
 
 .dark [cmdk-item][data-selected="true"] {
-  @apply bg-gray-700;
+  @apply bg-zinc-800;
 }
 
 [cmdk-item]:active {
-  @apply bg-gray-200;
+  @apply bg-zinc-200;
 }
 
 .dark [cmdk-item]:active {
-  @apply bg-gray-600;
+  @apply bg-zinc-700;
 }
 
 [cmdk-group-heading] {
   padding: 8px 16px;
   font-size: 12px;
   font-weight: 600;
-  @apply text-gray-400;
+  @apply text-zinc-600;
   text-transform: uppercase;
 }
 
 .dark [cmdk-group-heading] {
-  @apply text-gray-500;
+  @apply text-zinc-400;
 }
 
 [cmdk-empty] {
   padding: 24px;
   text-align: center;
-  @apply text-gray-400;
+  @apply text-zinc-600;
   font-size: 14px;
 }
 
 .dark [cmdk-empty] {
-  @apply text-gray-500;
+  @apply text-zinc-400;
 }

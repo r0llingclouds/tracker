@@ -9,8 +9,8 @@ interface FoodLogProps {
 export function FoodLog({ logs, onDelete, onEdit }: FoodLogProps) {
   if (logs.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-        <svg className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="text-center py-8 text-zinc-600 dark:text-zinc-400">
+        <svg className="w-12 h-12 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
         <p>No foods logged today</p>
@@ -31,19 +31,19 @@ export function FoodLog({ logs, onDelete, onEdit }: FoodLogProps) {
         return (
           <div
             key={log.id}
-            className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+            className="bg-zinc-50 dark:bg-zinc-900 rounded-xl p-4 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-gray-800 dark:text-gray-100">{log.name}</h3>
+                  <h3 className="font-semibold text-zinc-800 dark:text-zinc-50">{log.name}</h3>
                   {log.servings !== 1 && (
                     <span className="text-sm bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">
                       x{log.servings}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
                   {formatTime(log.logged_at)}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2 text-sm">
@@ -70,7 +70,7 @@ export function FoodLog({ logs, onDelete, onEdit }: FoodLogProps) {
                     </span>
                   )}
                   {log.total_grams && log.total_grams > 0 && (
-                    <span className="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-lg">
+                    <span className="bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 px-2 py-1 rounded-lg">
                       {Math.round(log.total_grams * multiplier * 10) / 10}g total
                     </span>
                   )}
@@ -79,7 +79,7 @@ export function FoodLog({ logs, onDelete, onEdit }: FoodLogProps) {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => onEdit(log)}
-                  className="text-gray-400 dark:text-gray-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors p-1"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors p-1"
                   title="Edit entry"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +88,7 @@ export function FoodLog({ logs, onDelete, onEdit }: FoodLogProps) {
                 </button>
                 <button
                   onClick={() => onDelete(log.id)}
-                  className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1"
                   title="Delete entry"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

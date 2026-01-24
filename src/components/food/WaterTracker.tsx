@@ -17,12 +17,12 @@ export function WaterTracker({ dailyData, onAddWater }: WaterTrackerProps) {
   const fillPercent = Math.min((waterMl / 3000) * 100, 100);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-2 border-blue-100 dark:border-blue-800">
+    <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-lg p-6 border-2 border-blue-100 dark:border-blue-800">
       <div className="flex items-center gap-2 mb-4">
         <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
         </svg>
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Water Intake</h2>
+        <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-50">Water Intake</h2>
       </div>
 
       {/* Water Display */}
@@ -66,9 +66,9 @@ export function WaterTracker({ dailyData, onAddWater }: WaterTrackerProps) {
           {/* Amount Display */}
           <div className="mt-2">
             <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">{waterMl}</span>
-            <span className="text-lg text-gray-500 dark:text-gray-400 ml-1">mL</span>
+            <span className="text-lg text-zinc-600 dark:text-zinc-400 ml-1">mL</span>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
             {waterLiters} L
           </p>
         </div>

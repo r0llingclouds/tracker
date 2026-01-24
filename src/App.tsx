@@ -164,8 +164,8 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen bg-gray-50 dark:bg-gray-900 items-center justify-center">
-        <div className="text-gray-500 dark:text-gray-400">Loading...</div>
+      <div className="flex h-screen bg-zinc-50 dark:bg-black items-center justify-center">
+        <div className="text-zinc-600 dark:text-zinc-400">Loading...</div>
       </div>
     );
   }
@@ -177,7 +177,7 @@ function App() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="flex h-screen bg-zinc-50 dark:bg-black">
         <Sidebar appMode={appMode} setAppMode={setAppMode} />
         {appMode === 'tasks' && <TaskList />}
         {appMode === 'habits' && <TrackerApp />}
@@ -195,38 +195,38 @@ function App() {
         {/* Drag overlay for visual feedback */}
         <DragOverlay>
           {activeTask ? (
-            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg px-4 py-3 border border-gray-200 dark:border-gray-600 max-w-md">
-              <p className="text-gray-900 dark:text-gray-100 truncate">{activeTask.title}</p>
+            <div className="bg-white dark:bg-zinc-950 shadow-lg rounded-lg px-4 py-3 border border-zinc-200 dark:border-zinc-800 max-w-md">
+              <p className="text-zinc-900 dark:text-zinc-50 truncate">{activeTask.title}</p>
             </div>
           ) : null}
         </DragOverlay>
       
       {/* "Space" action mode indicator */}
       {showSpaceHint && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-zinc-900 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
           <span className="opacity-70">space + </span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">n</kbd>
+          <kbd className="bg-zinc-700 px-2 py-0.5 rounded mx-1">n</kbd>
           <span className="opacity-70">new</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">e</kbd>
+          <kbd className="bg-zinc-700 px-2 py-0.5 rounded mx-1">e</kbd>
           <span className="opacity-70">edit</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">s</kbd>
+          <kbd className="bg-zinc-700 px-2 py-0.5 rounded mx-1">s</kbd>
           <span className="opacity-70">schedule</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">d</kbd>
+          <kbd className="bg-zinc-700 px-2 py-0.5 rounded mx-1">d</kbd>
           <span className="opacity-70">deadline</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">t</kbd>
+          <kbd className="bg-zinc-700 px-2 py-0.5 rounded mx-1">t</kbd>
           <span className="opacity-70">tag</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">m</kbd>
+          <kbd className="bg-zinc-700 px-2 py-0.5 rounded mx-1">m</kbd>
           <span className="opacity-70">move</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">x</kbd>
+          <kbd className="bg-zinc-700 px-2 py-0.5 rounded mx-1">x</kbd>
           <span className="opacity-70">delete</span>
           <span className="mx-2 opacity-50">|</span>
-          <kbd className="bg-gray-700 px-2 py-0.5 rounded mx-1">c</kbd>
+          <kbd className="bg-zinc-700 px-2 py-0.5 rounded mx-1">c</kbd>
           <span className="opacity-70">complete</span>
         </div>
       )}

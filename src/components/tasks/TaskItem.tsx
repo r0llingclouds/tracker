@@ -130,9 +130,9 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
       onDoubleClick={onDoubleClick}
       className={`group flex items-center gap-3 px-4 py-3 cursor-grab active:cursor-grabbing touch-none ${
         selected 
-          ? 'bg-gray-100 dark:bg-gray-700 border-l-2 border-gray-400 dark:border-gray-500' 
-          : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-l-2 border-transparent'
-      } ${task.completed ? 'opacity-60' : ''} ${isDragging ? 'bg-gray-100 dark:bg-gray-700 shadow-lg' : ''}`}
+          ? 'bg-zinc-100 dark:bg-zinc-800 border-l-2 border-zinc-400 dark:border-zinc-500' 
+          : 'hover:bg-zinc-50 dark:hover:bg-zinc-900 border-l-2 border-transparent'
+      } ${task.completed ? 'opacity-60' : ''} ${isDragging ? 'bg-zinc-100 dark:bg-zinc-800 shadow-lg' : ''}`}
     >
       <button
         onClick={(e) => {
@@ -141,8 +141,8 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
         }}
         className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transform hover:scale-110 active:scale-95 ${
           task.completed
-            ? 'bg-gray-800 border-gray-800 text-white dark:bg-gray-200 dark:border-gray-200 dark:text-gray-900'
-            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+            ? 'bg-zinc-800 border-zinc-800 text-white dark:bg-zinc-200 dark:border-zinc-200 dark:text-zinc-900'
+            : 'border-zinc-300 dark:border-zinc-600 hover:border-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
         }`}
       >
         {task.completed && (
@@ -161,7 +161,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
             onClick={(e) => e.stopPropagation()}
             className={`truncate block hover:underline ${
               task.completed 
-                ? 'text-gray-400 dark:text-gray-500 line-through' 
+                ? 'text-zinc-400 dark:text-zinc-500 line-through' 
                 : 'text-blue-600 dark:text-blue-400'
             }`}
           >
@@ -171,7 +171,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
             </svg>
           </a>
         ) : (
-          <p className={`truncate ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
+          <p className={`truncate ${task.completed ? 'text-zinc-400 dark:text-zinc-500 line-through' : 'text-zinc-900 dark:text-zinc-50'}`}>
             {task.title}
           </p>
         )}
@@ -180,8 +180,8 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
           {scheduledInfo && (
             <span className={`flex items-center gap-1 text-xs ${
               scheduledInfo.isOverdue && !task.completed
-                ? 'text-gray-900 dark:text-gray-100 font-semibold' 
-                : 'text-gray-500 dark:text-gray-400'
+                ? 'text-zinc-900 dark:text-zinc-50 font-semibold' 
+                : 'text-zinc-600 dark:text-zinc-400'
             }`}>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -193,10 +193,10 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
           {deadlineInfo && (
             <span className={`flex items-center gap-1 text-xs ${
               deadlineInfo.isPastDue && !task.completed
-                ? 'text-gray-900 dark:text-gray-100 font-bold'
+                ? 'text-zinc-900 dark:text-zinc-50 font-bold'
                 : deadlineInfo.isUrgent && !task.completed
-                ? 'text-gray-800 dark:text-gray-200 font-semibold'
-                : 'text-gray-500 dark:text-gray-400'
+                ? 'text-zinc-800 dark:text-zinc-200 font-semibold'
+                : 'text-zinc-600 dark:text-zinc-400'
             }`}>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
@@ -206,7 +206,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
           )}
           
           {task.recurrence && (
-            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -215,7 +215,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
           )}
           
           {project && (
-            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400">
               <span 
                 className="w-2 h-2 rounded-full" 
                 style={{ backgroundColor: project.color }}
@@ -229,7 +229,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
               {task.tags.map(tag => (
                 <span 
                   key={tag}
-                  className="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded"
+                  className="px-1.5 py-0.5 text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded"
                 >
                   #{tag}
                 </span>
@@ -269,7 +269,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
             <span className={`flex items-center gap-1 text-xs font-mono ${
               isRunning 
                 ? 'text-blue-600 dark:text-blue-400 font-medium' 
-                : 'text-gray-500 dark:text-gray-400'
+                : 'text-zinc-600 dark:text-zinc-400'
             }`}>
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -286,7 +286,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
         className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
           isRunning
             ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50'
-            : 'opacity-0 group-hover:opacity-100 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+            : 'opacity-0 group-hover:opacity-100 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
         }`}
         title={isRunning ? 'Stop timer' : 'Start timer'}
       >
@@ -302,7 +302,7 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
         )}
       </button>
       
-      <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-gray-400 dark:text-gray-500">
+      <div className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-zinc-600 dark:text-zinc-400">
         <span className="font-mono">space+c</span> complete
       </div>
     </div>

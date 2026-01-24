@@ -138,26 +138,26 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
           onFocus={() => query.trim() && filteredFoods.length > 0 && setShowDropdown(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search saved foods..."
-          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+          className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
         />
         
         {showDropdown && (
           <div
             ref={dropdownRef}
-            className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+            className="absolute z-10 w-full mt-1 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg max-h-60 overflow-y-auto"
           >
             {filteredFoods.map((food, index) => (
               <button
                 key={food.id}
                 onClick={() => handleSelectFood(food)}
-                className={`w-full px-4 py-3 text-left hover:bg-emerald-50 dark:hover:bg-gray-700 transition-colors ${
-                  index === selectedIndex ? 'bg-emerald-50 dark:bg-gray-700' : ''
+                className={`w-full px-4 py-3 text-left hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors ${
+                  index === selectedIndex ? 'bg-emerald-50 dark:bg-zinc-800' : ''
                 }`}
               >
-                <div className="font-medium text-gray-800 dark:text-gray-100">{food.name}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 flex flex-wrap gap-2 mt-1">
+                <div className="font-medium text-zinc-800 dark:text-zinc-50">{food.name}</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400 flex flex-wrap gap-2 mt-1">
                   <span>{formatNutrient(food.kcal, ' kcal')}</span>
-                  <span className="text-gray-300 dark:text-gray-600">|</span>
+                  <span className="text-zinc-300 dark:text-zinc-600">|</span>
                   <span>P: {formatNutrient(food.protein, 'g')}</span>
                   <span>C: {formatNutrient(food.carbs, 'g')}</span>
                   <span>F: {formatNutrient(food.fats, 'g')}</span>
@@ -172,8 +172,8 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
         <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-4 space-y-3">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-semibold text-gray-800 dark:text-gray-100">{selectedFood.name}</h3>
-              <div className="text-sm text-gray-600 dark:text-gray-400 mt-1 grid grid-cols-3 gap-x-4 gap-y-1">
+              <h3 className="font-semibold text-zinc-800 dark:text-zinc-50">{selectedFood.name}</h3>
+              <div className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 grid grid-cols-3 gap-x-4 gap-y-1">
                 <span>Calories: {selectedFood.kcal} kcal</span>
                 <span>Protein: {selectedFood.protein}g</span>
                 <span>Carbs: {selectedFood.carbs}g</span>
@@ -188,7 +188,7 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
                 className={`p-1 transition-all duration-200 ${
                   copied 
                     ? 'text-green-500 dark:text-green-400 scale-110' 
-                    : 'text-gray-400 dark:text-gray-500 hover:text-violet-500 dark:hover:text-violet-400'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-violet-500 dark:hover:text-violet-400'
                 }`}
                 title={copied ? 'Copied!' : 'Copy food info for AI parser'}
               >
@@ -204,7 +204,7 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
               </button>
               <button
                 onClick={() => onEditFood?.(selectedFood)}
-                className="text-gray-400 dark:text-gray-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors p-1"
+                className="text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors p-1"
                 title="Edit food"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +216,7 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
                   setSelectedFood(null);
                   setQuery('');
                 }}
-                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+                className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 p-1"
                 title="Clear selection"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,14 +228,14 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Servings:</label>
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Servings:</label>
               <input
                 type="number"
                 value={servings}
                 onChange={(e) => setServings(Math.max(0.1, parseFloat(e.target.value) || 1))}
                 min="0.1"
                 step="any"
-                className="w-20 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-20 px-3 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
             <button
@@ -246,7 +246,7 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
             </button>
           </div>
 
-          <div className="text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-lg p-3">
+          <div className="text-sm text-zinc-600 dark:text-zinc-300 bg-white dark:bg-zinc-950 rounded-lg p-3">
             <span className="font-medium">Total for {servings} serving(s):</span>
             <span className="ml-2">
               {Math.round(selectedFood.kcal * servings)} kcal, 
@@ -257,7 +257,7 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
       )}
 
       {foods.length === 0 && (
-        <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+        <p className="text-zinc-600 dark:text-zinc-400 text-center py-4">
           No foods saved yet. Add your first food below!
         </p>
       )}

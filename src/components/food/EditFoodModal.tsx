@@ -116,13 +116,13 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Edit Food</h2>
+            <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-50">Edit Food</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -142,7 +142,7 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                 Food Name *
               </label>
               <input
@@ -151,15 +151,15 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
                 value={form.name}
                 onChange={handleChange}
                 placeholder="e.g., Chicken Breast"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
               />
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {inputFields.map(({ name, label, unit, placeholder }) => (
                 <div key={name}>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {label} <span className="text-gray-400 dark:text-gray-500">({unit})</span>
+                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                    {label} <span className="text-zinc-600 dark:text-zinc-400">({unit})</span>
                   </label>
                   <input
                     type="number"
@@ -169,7 +169,7 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
                     placeholder={placeholder}
                     min="0"
                     step="0.1"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                    className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                   />
                 </div>
               ))}
@@ -179,7 +179,7 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 Cancel
               </button>
@@ -193,7 +193,7 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
             </div>
 
             {/* Delete section */}
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-4 mt-4">
               {!showConfirm ? (
                 <button
                   type="button"
@@ -212,7 +212,7 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
                       type="button"
                       onClick={() => setShowConfirm(false)}
                       disabled={deleting}
-                      className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+                      className="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
                     >
                       Cancel
                     </button>

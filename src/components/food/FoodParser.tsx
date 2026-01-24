@@ -116,7 +116,7 @@ export function FoodParser({ onFoodCreated }: FoodParserProps) {
       {!parsedData ? (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
               Paste nutritional information text
             </label>
             <textarea
@@ -132,7 +132,7 @@ Carbohidratos: ~228 g
 Grasas: ~43 g
 Sodio: ~730 mg`}
               rows={8}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors resize-none font-mono text-sm"
+              className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors resize-none font-mono text-sm"
             />
           </div>
 
@@ -168,26 +168,26 @@ Sodio: ~730 mg`}
               </svg>
               <span className="font-medium">AI Parsed Successfully</span>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Review and edit the extracted values below, then save.</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">Review and edit the extracted values below, then save.</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               Food Name *
             </label>
             <input
               type="text"
               value={editedData?.name || ''}
               onChange={(e) => handleEditChange('name', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+              className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
             />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {inputFields.map(({ name, label, unit, step = '0.1' }) => (
               <div key={name}>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  {label} <span className="text-gray-400 dark:text-gray-500">({unit})</span>
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  {label} <span className="text-zinc-600 dark:text-zinc-400">({unit})</span>
                 </label>
                 <input
                   type="number"
@@ -195,7 +195,7 @@ Sodio: ~730 mg`}
                   onChange={(e) => handleEditChange(name, e.target.value)}
                   min="0"
                   step={step}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
+                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
                 />
               </div>
             ))}
@@ -204,7 +204,7 @@ Sodio: ~730 mg`}
           <div className="flex gap-3">
             <button
               onClick={handleCancel}
-              className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="flex-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-3 px-4 rounded-lg font-medium hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
             >
               Cancel
             </button>

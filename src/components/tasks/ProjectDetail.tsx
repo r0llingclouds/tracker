@@ -194,15 +194,15 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
     >
       <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm" />
       <div
-        className="relative z-10 w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-200"
+        className="relative z-10 w-full max-w-md bg-white dark:bg-zinc-950 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-200"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Edit Project</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Edit Project</h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+            className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -212,13 +212,13 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
 
         {/* Tabs - only show if boss project */}
         {project.boss && (
-          <div className="flex border-b border-gray-200 dark:border-gray-700">
+          <div className="flex border-b border-zinc-200 dark:border-zinc-800">
             <button
               onClick={() => setActiveTab('settings')}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'settings'
-                  ? 'text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  ? 'text-zinc-900 dark:text-zinc-50 border-b-2 border-gray-900 dark:border-gray-100'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
               }`}
             >
               Settings
@@ -227,8 +227,8 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
               onClick={() => setActiveTab('bossCard')}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                 activeTab === 'bossCard'
-                  ? 'text-gray-900 dark:text-gray-100 border-b-2 border-gray-900 dark:border-gray-100'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  ? 'text-zinc-900 dark:text-zinc-50 border-b-2 border-gray-900 dark:border-gray-100'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
               }`}
             >
               <span>👑</span>
@@ -243,7 +243,7 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
             <>
               {/* Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Name
                 </label>
                 <input
@@ -253,13 +253,13 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
                   onChange={e => setName(e.target.value)}
                   onBlur={handleNameBlur}
                   onKeyDown={handleNameKeyDown}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
                 />
               </div>
 
               {/* Color */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                   Color
                 </label>
                 <div className="flex gap-2 flex-wrap">
@@ -269,7 +269,7 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
                       onClick={() => handleColorChange(color)}
                       className={`w-8 h-8 rounded-full transition-all ${
                         project.color === color
-                          ? 'ring-2 ring-offset-2 ring-gray-400 dark:ring-gray-500 dark:ring-offset-gray-800 scale-110'
+                          ? 'ring-2 ring-offset-2 ring-zinc-400 dark:ring-zinc-500 dark:ring-offset-zinc-950 scale-110'
                           : 'hover:scale-110'
                       }`}
                       style={{ backgroundColor: color }}
@@ -281,13 +281,13 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
 
               {/* Area */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Area
                 </label>
                 <select
                   value={project.areaId || 'none'}
                   onChange={handleAreaChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
                 >
                   <option value="none">No Area</option>
                   {areas.map(area => (
@@ -306,16 +306,16 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
                       type="checkbox"
                       checked={project.boss}
                       onChange={() => toggleProjectBoss(projectId)}
-                      className="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-400"
+                      className="w-5 h-5 rounded border-zinc-300 dark:border-zinc-700 text-purple-600 focus:ring-purple-400"
                     />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <div className="flex items-center gap-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">
                       <span className="text-lg">👑</span>
                       Boss Project
                     </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                      Tasks in boss projects earn <span className="font-semibold text-purple-600 dark:text-purple-400">2x XP</span> when completed and are automatically tagged with <span className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">#boss</span>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-0.5">
+                      Tasks in boss projects earn <span className="font-semibold text-purple-600 dark:text-purple-400">2x XP</span> when completed and are automatically tagged with <span className="font-mono text-xs bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">#boss</span>
                     </p>
                   </div>
                 </label>
@@ -326,14 +326,14 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
             <>
               {/* Image Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                   Boss Image
                 </label>
                 
                 {project.bossCard?.image ? (
                   /* Image Preview */
                   <div className="space-y-3">
-                    <div className="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+                    <div className="relative rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                       <img
                         src={`http://localhost:3001${project.bossCard.image}`}
                         alt="Boss"
@@ -344,7 +344,7 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploading}
-                        className="flex-1 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                        className="flex-1 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors disabled:opacity-50"
                       >
                         {isUploading ? 'Uploading...' : 'Change Image'}
                       </button>
@@ -369,7 +369,7 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
                         ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 cursor-wait'
                         : isDragging
                           ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 cursor-pointer'
-                          : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 bg-gray-50 dark:bg-gray-700/50 cursor-pointer'
+                          : 'border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 bg-zinc-50 dark:bg-zinc-900/50 cursor-pointer'
                     }`}
                   >
                     {isUploading ? (
@@ -382,13 +382,13 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
                       </>
                     ) : (
                       <>
-                        <svg className="w-10 h-10 text-gray-400 dark:text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-10 h-10 text-zinc-600 dark:text-zinc-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center">
                           <span className="font-medium text-purple-600 dark:text-purple-400">Click to upload</span> or drag and drop
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
                           PNG, JPG, GIF or WebP
                         </p>
                       </>
@@ -407,7 +407,7 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Description
                 </label>
                 <textarea
@@ -416,7 +416,7 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
                   onBlur={handleDescriptionBlur}
                   placeholder="Describe the boss challenge, its backstory, or what defeating it means..."
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 resize-none"
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 resize-none"
                 />
               </div>
             </>
@@ -424,7 +424,7 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
           <button
             onClick={handleDelete}
             className="px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
@@ -433,7 +433,7 @@ export function ProjectDetail({ projectId, open, onClose }: ProjectDetailProps) 
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-200"
+            className="px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200"
           >
             Done
           </button>

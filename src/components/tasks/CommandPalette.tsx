@@ -388,7 +388,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     >
       <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm" />
       <Command
-        className="relative z-10 w-full max-w-xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-top-4 duration-200"
+        className="relative z-10 w-full max-w-xl bg-white dark:bg-zinc-950 rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-top-4 duration-200"
         onClick={(e) => e.stopPropagation()}
         loop
         shouldFilter={mode !== 'newTask' && mode !== 'schedule' && mode !== 'deadline'}
@@ -399,10 +399,10 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
           onValueChange={setInputValue}
           onKeyDown={handleKeyDown}
           placeholder={getPlaceholder()}
-          className="w-full px-4 py-4 text-lg border-b border-gray-200 dark:border-gray-700 outline-none bg-transparent text-gray-900 dark:text-gray-100"
+          className="w-full px-4 py-4 text-lg border-b border-zinc-200 dark:border-zinc-800 outline-none bg-transparent text-zinc-900 dark:text-zinc-50"
         />
         <Command.List className="max-h-80 overflow-y-auto p-2">
-          <Command.Empty className="py-6 text-center text-gray-500 dark:text-gray-400">
+          <Command.Empty className="py-6 text-center text-zinc-600 dark:text-zinc-400">
             {mode === 'newTask' 
               ? 'Press Enter to create task' 
               : mode === 'tag'
@@ -419,11 +419,11 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   onSelect={() => handleSelect(() => {
                     // Will be handled by parent opening in newTask mode
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">+</span>
                   <span>New Task</span>
-                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-mono">n</span>
+                  <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400 font-mono">n</span>
                 </Command.Item>
                 <Command.Item
                   value="new project"
@@ -434,7 +434,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       onClose();
                     }
                   }}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">📁</span>
                   <span>New Project</span>
@@ -448,9 +448,9 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       onClose();
                     }
                   }}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
-                  <span className="text-gray-400 dark:text-gray-500">@</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">@</span>
                   <span>New Area</span>
                 </Command.Item>
                 </Command.Group>
@@ -460,38 +460,38 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 <Command.Item
                   value="inbox"
                   onSelect={() => handleSelect(() => setView('inbox'))}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">📥</span>
                   <span>Go to Inbox</span>
-                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-mono">gi</span>
+                  <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400 font-mono">gi</span>
                 </Command.Item>
                 <Command.Item
                   value="today"
                   onSelect={() => handleSelect(() => setView('today'))}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">📅</span>
                   <span>Go to Today</span>
-                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-mono">gt</span>
+                  <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400 font-mono">gt</span>
                 </Command.Item>
                 <Command.Item
                   value="upcoming"
                   onSelect={() => handleSelect(() => setView('upcoming'))}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">📆</span>
                   <span>Go to Upcoming</span>
-                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-mono">gu</span>
+                  <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400 font-mono">gu</span>
                 </Command.Item>
                 <Command.Item
                   value="someday"
                   onSelect={() => handleSelect(() => setView('someday'))}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">💭</span>
                   <span>Go to Someday</span>
-                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500 font-mono">gs</span>
+                  <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400 font-mono">gs</span>
                 </Command.Item>
               </Command.Group>
 
@@ -503,7 +503,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       key={project.id}
                       value={`project ${project.name}`}
                       onSelect={() => handleSelect(() => setView('project', project.id))}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                     >
                       <span 
                         className="w-3 h-3 rounded-full" 
@@ -523,9 +523,9 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       key={area.id}
                       value={`area ${area.name}`}
                       onSelect={() => handleSelect(() => setView('area', null, null, area.id))}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                     >
-                      <span className="text-gray-400 dark:text-gray-500">@</span>
+                      <span className="text-zinc-600 dark:text-zinc-400">@</span>
                       <span>{area.name}</span>
                     </Command.Item>
                   ))}
@@ -560,7 +560,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                             }
                           }
                         }}
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                       >
                         <span 
                           className="w-3 h-3 rounded-full" 
@@ -568,9 +568,9 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                         />
                         <span className="flex-1">{project.name}</span>
                         {currentArea ? (
-                          <span className="text-xs text-gray-400 dark:text-gray-500">in @{currentArea.name}</span>
+                          <span className="text-xs text-zinc-600 dark:text-zinc-400">in @{currentArea.name}</span>
                         ) : (
-                          <span className="text-xs text-gray-400 dark:text-gray-500">no area</span>
+                          <span className="text-xs text-zinc-600 dark:text-zinc-400">no area</span>
                         )}
                       </Command.Item>
                     );
@@ -586,9 +586,9 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       key={tag}
                       value={`tag ${tag}`}
                       onSelect={() => handleSelect(() => setView('tag', null, tag))}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                     >
-                      <span className="text-gray-400 dark:text-gray-500">#</span>
+                      <span className="text-zinc-600 dark:text-zinc-400">#</span>
                       <span>{tag}</span>
                     </Command.Item>
                   ))}
@@ -610,7 +610,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                         }
                         selectTask(task.id);
                       })}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                     >
                       <span className="w-4 h-4 rounded-full border-2 border-gray-300" />
                       <span className="truncate">{task.title}</span>
@@ -628,7 +628,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 onSelect={() => handleSelect(() => {
                   if (selectedTaskId) moveTask(selectedTaskId, null);
                 })}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
               >
                 <span className="text-lg">📥</span>
                 <span>Inbox</span>
@@ -640,7 +640,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   onSelect={() => handleSelect(() => {
                     if (selectedTaskId) moveTask(selectedTaskId, project.id);
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span 
                     className="w-3 h-3 rounded-full" 
@@ -656,7 +656,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                     addProject(inputValue);
                     // Move task to the new project - need to do this after project is created
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">+</span>
                   <span>Create "{inputValue}"</span>
@@ -672,9 +672,9 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       onSelect={() => handleSelect(() => {
                         if (selectedTaskId) setTaskArea(selectedTaskId, area.id);
                       })}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                     >
-                      <span className="text-gray-400 dark:text-gray-500">@</span>
+                      <span className="text-zinc-600 dark:text-zinc-400">@</span>
                       <span>{area.name}</span>
                     </Command.Item>
                   ))}
@@ -700,12 +700,12 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                         }
                       }
                     })}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                   >
-                    <span className="text-gray-400 dark:text-gray-500">#</span>
+                    <span className="text-zinc-600 dark:text-zinc-400">#</span>
                     <span className="flex-1">{tag}</span>
                     {isOnTask && (
-                      <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     )}
@@ -718,7 +718,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   onSelect={() => handleSelect(() => {
                     if (selectedTaskId) addTagToTask(selectedTaskId, inputValue);
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">+</span>
                   <span>Create tag "#{inputValue}"</span>
@@ -739,11 +739,11 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       deleteArea(area.id);
                     }
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
-                  <span className="text-gray-400 dark:text-gray-500">@</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">@</span>
                   <span>{area.name}</span>
-                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">click to delete</span>
+                  <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400">click to delete</span>
                 </Command.Item>
               ))}
               
@@ -754,7 +754,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   onSelect={() => handleSelect(() => {
                     addArea(inputValue);
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">+</span>
                   <span>Create area "{inputValue}"</span>
@@ -773,11 +773,11 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       key={tag}
                       value={`tag-${tag}`}
                       onSelect={() => insertTag(tag)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                     >
-                      <span className="text-gray-400 dark:text-gray-500">#</span>
+                      <span className="text-zinc-600 dark:text-zinc-400">#</span>
                       <span>{tag}</span>
-                      <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">Tab</span>
+                      <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400">Tab</span>
                     </Command.Item>
                   ))}
                 </Command.Group>
@@ -788,7 +788,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 <Command.Item
                   value={`create-tag-${tagQuery}`}
                   onSelect={() => insertTag(tagQuery)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">+</span>
                   <span>Create tag "#{tagQuery}"</span>
@@ -805,14 +805,14 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                           key={project.id}
                           value={`project-${project.id}`}
                           onSelect={() => insertLocation(project.name)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                         >
                           <span 
                             className="w-3 h-3 rounded-full" 
                             style={{ backgroundColor: project.color }}
                           />
                           <span>{project.name}</span>
-                          <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">Tab</span>
+                          <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400">Tab</span>
                         </Command.Item>
                       ))}
                     </Command.Group>
@@ -824,11 +824,11 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                           key={area.id}
                           value={`area-${area.id}`}
                           onSelect={() => insertLocation(area.name)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                         >
-                          <span className="text-gray-400 dark:text-gray-500">@</span>
+                          <span className="text-zinc-600 dark:text-zinc-400">@</span>
                           <span>{area.name}</span>
-                          <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">Tab</span>
+                          <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400">Tab</span>
                         </Command.Item>
                       ))}
                     </Command.Group>
@@ -841,14 +841,14 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 <Command.Item
                   value={inputValue}
                   onSelect={createTaskWithTags}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   <span className="text-lg">+</span>
                   <div className="flex-1 flex flex-col gap-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span>Create "{cleanTitle || 'Untitled'}"</span>
                       {parsedProject && (
-                        <span className="flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded">
+                        <span className="flex items-center gap-1 text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded">
                           <span 
                             className="w-2 h-2 rounded-full" 
                             style={{ backgroundColor: parsedProject.color }}
@@ -857,12 +857,12 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                         </span>
                       )}
                       {parsedArea && (
-                        <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded">
+                        <span className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded">
                           @{parsedArea.name}
                         </span>
                       )}
                       {parsedTags.map(tag => (
-                        <span key={tag} className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded">
+                        <span key={tag} className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded">
                           #{tag}
                         </span>
                       ))}
@@ -878,7 +878,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                           </div>
                         )}
                         {parsedDeadline && (
-                          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
                             </svg>
@@ -896,16 +896,16 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       </div>
                     )}
                   </div>
-                  <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">↵</span>
+                  <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400">↵</span>
                 </Command.Item>
               )}
               
               {/* Hint when input is empty */}
               {!inputValue && (
-                <div className="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
-                  Type task name, use <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">#</span> for tags
+                <div className="px-3 py-4 text-sm text-zinc-600 dark:text-zinc-400 text-center">
+                  Type task name, use <span className="font-mono bg-zinc-100 dark:bg-zinc-800 px-1 rounded">#</span> for tags
                   <br />
-                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">
                     Schedule: "tomorrow", "mon" | Deadline: <span className="font-mono">d/mon</span>, <span className="font-mono">d/23jun</span>
                   </span>
                 </div>
@@ -916,10 +916,10 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
           {mode === 'schedule' && (
             <>
               {selectedTask && (
-                <div className="px-3 py-2 mb-2 text-sm text-gray-600 dark:text-gray-300 border-b border-gray-100 dark:border-gray-700">
+                <div className="px-3 py-2 mb-2 text-sm text-zinc-600 dark:text-zinc-300 border-b border-zinc-100 dark:border-zinc-800">
                   Scheduling: <span className="font-medium">{selectedTask.title}</span>
                   {selectedTask.scheduledDate && (
-                    <span className="ml-2 text-gray-400 dark:text-gray-500">
+                    <span className="ml-2 text-zinc-600 dark:text-zinc-400">
                       (currently: {format(selectedTask.scheduledDate, 'MMM d')})
                     </span>
                   )}
@@ -940,41 +940,41 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       }
                     }
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   {suggestion.icon === 'sun' && (
-                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
                     </svg>
                   )}
                   {suggestion.icon === 'calendar' && (
-                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   )}
                   {suggestion.icon === 'week' && (
-                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   )}
                   {suggestion.icon === 'clear' && (
-                    <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   )}
                   {suggestion.icon === 'someday' && (
-                    <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                   )}
                   <span className="flex-1">{suggestion.label}</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">{suggestion.description}</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">{suggestion.description}</span>
                 </Command.Item>
               ))}
               
               {/* Show "no results" hint when query doesn't match */}
               {inputValue && getDateSuggestions(inputValue).length === 0 && (
-                <div className="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                <div className="px-3 py-4 text-sm text-zinc-600 dark:text-zinc-400 text-center">
                   No matching dates. Try "today", "tomorrow", or a day name like "mon"
                 </div>
               )}
@@ -983,7 +983,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 <div className="px-3 py-2">
                   <input
                     type="date"
-                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
                     min={format(new Date(), 'yyyy-MM-dd')}
                     onChange={(e) => {
                       if (e.target.value && selectedTaskId) {
@@ -1003,13 +1003,13 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                     onSelect={() => handleSelect(() => {
                       if (selectedTaskId) setRecurrence(selectedTaskId, null);
                     })}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                   >
-                    <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     <span className="flex-1">No Repeat</span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">Remove recurrence</span>
+                    <span className="text-xs text-zinc-600 dark:text-zinc-400">Remove recurrence</span>
                   </Command.Item>
                 )}
                 <Command.Item
@@ -1017,78 +1017,78 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                   onSelect={() => handleSelect(() => {
                     if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'daily', interval: 1 });
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
-                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <span className="flex-1">Daily</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">Every day</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">Every day</span>
                 </Command.Item>
                 <Command.Item
                   value="weekdays"
                   onSelect={() => handleSelect(() => {
                     if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'weekly', interval: 1, weekdays: [1, 2, 3, 4, 5] });
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
-                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <span className="flex-1">Weekdays</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">Mon-Fri</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">Mon-Fri</span>
                 </Command.Item>
                 <Command.Item
                   value="weekly"
                   onSelect={() => handleSelect(() => {
                     if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'weekly', interval: 1 });
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
-                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <span className="flex-1">Weekly</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">Every week</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">Every week</span>
                 </Command.Item>
                 <Command.Item
                   value="biweekly"
                   onSelect={() => handleSelect(() => {
                     if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'weekly', interval: 2 });
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
-                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <span className="flex-1">Biweekly</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">Every 2 weeks</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">Every 2 weeks</span>
                 </Command.Item>
                 <Command.Item
                   value="monthly"
                   onSelect={() => handleSelect(() => {
                     if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'monthly', interval: 1 });
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
-                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <span className="flex-1">Monthly</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">Every month</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">Every month</span>
                 </Command.Item>
                 <Command.Item
                   value="yearly"
                   onSelect={() => handleSelect(() => {
                     if (selectedTaskId) setRecurrence(selectedTaskId, { type: 'yearly', interval: 1 });
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
-                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <span className="flex-1">Yearly</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">Every year</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">Every year</span>
                 </Command.Item>
               </Command.Group>
             </>
@@ -1097,10 +1097,10 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
           {mode === 'deadline' && (
             <>
               {selectedTask && (
-                <div className="px-3 py-2 mb-2 text-sm text-gray-600 dark:text-gray-300 border-b border-gray-100 dark:border-gray-700">
+                <div className="px-3 py-2 mb-2 text-sm text-zinc-600 dark:text-zinc-300 border-b border-zinc-100 dark:border-zinc-800">
                   Setting deadline for: <span className="font-medium">{selectedTask.title}</span>
                   {selectedTask.deadline && (
-                    <span className="ml-2 text-gray-400 dark:text-gray-500">
+                    <span className="ml-2 text-zinc-600 dark:text-zinc-400">
                       (currently due: {format(selectedTask.deadline, 'MMM d')})
                     </span>
                   )}
@@ -1117,33 +1117,33 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       setDeadline(selectedTaskId, suggestion.date);
                     }
                   })}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-gray-100 dark:data-[selected=true]:bg-gray-700"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
                 >
                   {suggestion.icon === 'sun' && (
-                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
                     </svg>
                   )}
                   {(suggestion.icon === 'calendar' || suggestion.icon === 'week') && (
-                    <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
                     </svg>
                   )}
                   {suggestion.icon === 'clear' && (
-                    <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   )}
                   <span className="flex-1">
                     {suggestion.icon === 'clear' ? 'No Deadline' : `Due ${suggestion.label}`}
                   </span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">{suggestion.description}</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">{suggestion.description}</span>
                 </Command.Item>
               ))}
               
               {/* Show "no results" hint when query doesn't match */}
               {inputValue && getDateSuggestions(inputValue).filter(s => !s.isSomeday).length === 0 && (
-                <div className="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                <div className="px-3 py-4 text-sm text-zinc-600 dark:text-zinc-400 text-center">
                   No matching dates. Try "today", "tomorrow", or a day name like "mon"
                 </div>
               )}
@@ -1152,7 +1152,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                 <div className="px-3 py-2">
                   <input
                     type="date"
-                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500"
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
                     min={format(new Date(), 'yyyy-MM-dd')}
                     onChange={(e) => {
                       if (e.target.value && selectedTaskId) {
@@ -1168,7 +1168,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
           )}
         </Command.List>
         
-        <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-400 dark:text-gray-500 flex gap-4">
+        <div className="px-4 py-2 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 flex gap-4">
           <span>↑↓ navigate</span>
           <span>↵ select</span>
           <span>esc close</span>

@@ -97,7 +97,7 @@ export function FoodForm({ onFoodCreated }: FoodFormProps) {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
           Food Name *
         </label>
         <input
@@ -106,15 +106,15 @@ export function FoodForm({ onFoodCreated }: FoodFormProps) {
           value={form.name}
           onChange={handleChange}
           placeholder="e.g., Chicken Breast"
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+          className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
         />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {inputFields.map(({ name, label, unit, placeholder, step = '0.1' }) => (
           <div key={name}>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {label} <span className="text-gray-400 dark:text-gray-500">({unit})</span>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+              {label} <span className="text-zinc-600 dark:text-zinc-400">({unit})</span>
             </label>
             <input
               type="number"
@@ -124,7 +124,7 @@ export function FoodForm({ onFoodCreated }: FoodFormProps) {
               placeholder={placeholder}
               min="0"
               step={step}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+              className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
             />
           </div>
         ))}

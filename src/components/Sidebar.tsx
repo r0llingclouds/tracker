@@ -16,31 +16,31 @@ function XpProgressBar() {
   
   return (
     <>
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
               Lv.{userProgress.level}
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-zinc-600 dark:text-zinc-400">
               {userProgress.totalXp} XP
             </span>
           </div>
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="text-xs text-zinc-600 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
             title="View XP History"
           >
             {showHistory ? 'Hide' : 'History'}
           </button>
         </div>
-        <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="relative h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
           <div
             className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-300"
             style={{ width: `${Math.min(progress * 100, 100)}%` }}
           />
         </div>
-        <div className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-right">
+        <div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 text-right">
           {current} / {required} to next level
         </div>
         
@@ -48,7 +48,7 @@ function XpProgressBar() {
           <div className="mt-3 max-h-48 overflow-y-auto">
             <div className="space-y-1">
               {userProgress.xpHistory.length === 0 ? (
-                <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-2">
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 text-center py-2">
                   No XP earned yet. Complete tasks to gain XP!
                 </p>
               ) : (
@@ -115,8 +115,8 @@ function NavItem({ label, shortcut, count, active, onClick, color, indent, dropp
         isOver && droppableId
           ? 'bg-blue-100 dark:bg-blue-900/40 ring-2 ring-blue-400 dark:ring-blue-500'
           : active 
-            ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100' 
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+            ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50' 
+            : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
       }`}
     >
       {color && (
@@ -127,10 +127,10 @@ function NavItem({ label, shortcut, count, active, onClick, color, indent, dropp
       )}
       <span className="flex-1 truncate">{label}</span>
       {count !== undefined && count > 0 && (
-        <span className="text-xs text-gray-400 dark:text-gray-500">{count}</span>
+        <span className="text-xs text-zinc-600 dark:text-zinc-400">{count}</span>
       )}
       {shortcut && (
-        <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{shortcut}</span>
+        <span className="text-xs text-zinc-600 dark:text-zinc-400 font-mono">{shortcut}</span>
       )}
     </button>
   );
@@ -143,7 +143,7 @@ function ActiveTimerItem({ task }: { task: Task }) {
     <div className="flex items-center gap-2 px-3 py-1.5 text-sm">
       <span>⏱️</span>
       <span className="font-mono text-blue-600 dark:text-blue-400">{formattedTime}</span>
-      <span className="flex-1 truncate text-gray-700 dark:text-gray-300">{task.title}</span>
+      <span className="flex-1 truncate text-zinc-700 dark:text-zinc-300">{task.title}</span>
     </div>
   );
 }
@@ -211,12 +211,12 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
   const ungroupedProjects = projectsByArea.get(null) || [];
 
   return (
-    <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-screen">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+    <aside className="w-64 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 flex flex-col h-screen">
+      <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
         <select
           value={appMode}
           onChange={(e) => setAppMode(e.target.value as AppMode)}
-          className="text-xl font-bold bg-transparent border-none outline-none cursor-pointer text-gray-900 dark:text-gray-100 w-full appearance-none pr-6 bg-no-repeat bg-right"
+          className="text-xl font-bold bg-transparent border-none outline-none cursor-pointer text-zinc-900 dark:text-zinc-50 w-full appearance-none pr-6 bg-no-repeat bg-right"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
             backgroundSize: '1.25rem'
@@ -228,7 +228,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
           <option value="workout">Workout</option>
         </select>
         {appMode === 'tasks' && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Press any key to search</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">Press any key to search</p>
         )}
       </div>
       
@@ -237,8 +237,8 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
           <XpProgressBar />
           
           {activeTimers.length > 0 && (
-            <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="px-0 py-1 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            <div className="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800">
+              <h2 className="px-0 py-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
                 Active Timers
               </h2>
               {activeTimers.map(task => (
@@ -283,7 +283,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
             {/* Areas with their projects */}
             {areas.length > 0 && (
               <div className="pt-4">
-                <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                <h2 className="px-3 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
                   Areas
                 </h2>
                 {areas.map(area => {
@@ -341,7 +341,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
             {/* Ungrouped projects (no area) */}
             {ungroupedProjects.length > 0 && (
               <div className="pt-4">
-                <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                <h2 className="px-3 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
                   Projects
                 </h2>
                 {ungroupedProjects.map(project => (
@@ -365,7 +365,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
             
             {tags.length > 0 && (
               <div className="pt-4">
-                <h2 className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                <h2 className="px-3 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
                   Tags
                 </h2>
                 {tags.map(tag => (
@@ -382,8 +382,8 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
             )}
           </nav>
           
-          <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-            <div className="text-xs text-gray-400 dark:text-gray-500 space-y-1">
+          <div className="p-3 border-t border-zinc-200 dark:border-zinc-800">
+            <div className="text-xs text-zinc-600 dark:text-zinc-400 space-y-1">
               <div><kbd className="font-mono">space+n</kbd> new task</div>
               <div><kbd className="font-mono">space</kbd> task actions</div>
               <div><kbd className="font-mono">⌘k</kbd> command palette</div>
@@ -393,19 +393,19 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
         </>
       ) : appMode === 'habits' ? (
         <div className="flex-1 p-3">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Track your daily habits with a GitHub-style heatmap visualization.
           </p>
         </div>
       ) : appMode === 'food' ? (
         <div className="flex-1 p-3">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Track your daily nutrition, water intake, and intermittent fasting.
           </p>
         </div>
       ) : (
         <div className="flex-1 p-3">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Track your kettlebell swings and push ups.
           </p>
         </div>

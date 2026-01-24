@@ -45,12 +45,12 @@ export function FastingTracker({ dailyData, onUpdate }: FastingTrackerProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-2 border-cyan-100 dark:border-cyan-800">
+    <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-lg p-6 border-2 border-cyan-100 dark:border-cyan-800">
       <div className="flex items-center gap-2 mb-4">
         <svg className="w-6 h-6 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Intermittent Fasting</h2>
+        <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-50">Intermittent Fasting</h2>
       </div>
 
       {/* Fasting Done Checkbox */}
@@ -62,7 +62,7 @@ export function FastingTracker({ dailyData, onUpdate }: FastingTrackerProps) {
             onChange={handleFastingToggle}
             className="sr-only peer"
           />
-          <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 rounded-md peer-checked:bg-cyan-500 peer-checked:border-cyan-500 transition-colors flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-zinc-300 dark:border-zinc-700 rounded-md peer-checked:bg-cyan-500 peer-checked:border-cyan-500 transition-colors flex items-center justify-center">
             {fastingDone && (
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -70,34 +70,34 @@ export function FastingTracker({ dailyData, onUpdate }: FastingTrackerProps) {
             )}
           </div>
         </div>
-        <span className="text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+        <span className="text-zinc-700 dark:text-zinc-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
           Did intermittent fasting today
         </span>
       </label>
 
       {/* Eating Window */}
-      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Eating Window</p>
+      <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-4">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3">Eating Window</p>
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Start</label>
+            <label className="block text-xs text-zinc-600 dark:text-zinc-400 mb-1">Start</label>
             <select
               value={eatingStart}
               onChange={handleStartChange}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             >
               {[...Array(24)].map((_, i) => (
                 <option key={i} value={i}>{formatHour(i)}</option>
               ))}
             </select>
           </div>
-          <div className="text-gray-400 dark:text-gray-500 pt-5">to</div>
+          <div className="text-zinc-600 dark:text-zinc-400 pt-5">to</div>
           <div className="flex-1">
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">End</label>
+            <label className="block text-xs text-zinc-600 dark:text-zinc-400 mb-1">End</label>
             <select
               value={eatingEnd}
               onChange={handleEndChange}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             >
               {[...Array(24)].map((_, i) => (
                 <option key={i} value={i}>{formatHour(i)}</option>
@@ -105,7 +105,7 @@ export function FastingTracker({ dailyData, onUpdate }: FastingTrackerProps) {
             </select>
           </div>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+        <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-2 text-center">
           {eatingEnd > eatingStart 
             ? `${eatingEnd - eatingStart}h eating window`
             : eatingEnd < eatingStart 

@@ -7,11 +7,11 @@ interface DailySummaryProps {
 export function DailySummary({ summary }: DailySummaryProps) {
   if (!summary) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 animate-pulse">
-        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+      <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-lg p-6 animate-pulse">
+        <div className="h-6 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3 mb-4"></div>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+            <div key={i} className="h-16 bg-zinc-200 dark:bg-zinc-800 rounded-xl"></div>
           ))}
         </div>
       </div>
@@ -77,10 +77,10 @@ export function DailySummary({ summary }: DailySummaryProps) {
   });
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+    <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-lg p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Daily Summary</h2>
-        <span className="text-sm text-gray-500 dark:text-gray-400">{today}</span>
+        <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-50">Daily Summary</h2>
+        <span className="text-sm text-zinc-600 dark:text-zinc-400">{today}</span>
       </div>
       
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
@@ -103,7 +103,7 @@ export function DailySummary({ summary }: DailySummaryProps) {
       </div>
 
       {summary.total_entries > 0 && (
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+        <p className="text-center text-sm text-zinc-600 dark:text-zinc-400 mt-4">
           {summary.total_entries} {summary.total_entries === 1 ? 'entry' : 'entries'} logged today
         </p>
       )}

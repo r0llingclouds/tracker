@@ -187,12 +187,12 @@ export function SmartTaskInput({
           setTimeout(() => setShowDropdown(false), 150);
         }}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 ${className}`}
+        className={`w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500 ${className}`}
       />
 
       {/* Autocomplete Dropdown */}
       {showDropdown && (suggestions.length > 0 || canCreateTag) && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg overflow-hidden">
           {suggestions.map((suggestion, index) => (
             <button
               key={`${suggestion.type}-${suggestion.value}`}
@@ -200,12 +200,12 @@ export function SmartTaskInput({
               onClick={() => handleSelectSuggestion(index)}
               className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm ${
                 index === selectedIndex
-                  ? 'bg-gray-100 dark:bg-gray-700'
-                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  ? 'bg-zinc-100 dark:bg-zinc-800'
+                  : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
               }`}
             >
               {suggestion.type === 'tag' && (
-                <span className="text-gray-400 dark:text-gray-500">#</span>
+                <span className="text-zinc-600 dark:text-zinc-400">#</span>
               )}
               {suggestion.type === 'project' && (
                 <span
@@ -214,11 +214,11 @@ export function SmartTaskInput({
                 />
               )}
               {suggestion.type === 'area' && (
-                <span className="text-gray-400 dark:text-gray-500">@</span>
+                <span className="text-zinc-600 dark:text-zinc-400">@</span>
               )}
-              <span className="text-gray-900 dark:text-gray-100">{suggestion.value}</span>
+              <span className="text-zinc-900 dark:text-zinc-50">{suggestion.value}</span>
               {index === selectedIndex && (
-                <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">Tab</span>
+                <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400">Tab</span>
               )}
             </button>
           ))}
@@ -228,12 +228,12 @@ export function SmartTaskInput({
               onClick={() => handleSelectSuggestion(suggestions.length)}
               className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm ${
                 selectedIndex === suggestions.length
-                  ? 'bg-gray-100 dark:bg-gray-700'
-                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  ? 'bg-zinc-100 dark:bg-zinc-800'
+                  : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
               }`}
             >
               <span className="text-lg">+</span>
-              <span className="text-gray-900 dark:text-gray-100">Create tag "#{tagTyping.query}"</span>
+              <span className="text-zinc-900 dark:text-zinc-50">Create tag "#{tagTyping.query}"</span>
             </button>
           )}
         </div>
@@ -243,7 +243,7 @@ export function SmartTaskInput({
       {showPreview && value && !tagTyping.isTyping && !locationTyping.isTyping && (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {resolvedProject && (
-            <span className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
+            <span className="inline-flex items-center gap-1 text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-1 rounded">
               <span
                 className="w-2 h-2 rounded-full"
                 style={{ backgroundColor: resolvedProject.color }}
@@ -252,20 +252,20 @@ export function SmartTaskInput({
             </span>
           )}
           {resolvedArea && (
-            <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded">
+            <span className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-1 rounded">
               @{resolvedArea.name}
             </span>
           )}
           {parsed.tags.map(tag => (
             <span
               key={tag}
-              className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded"
+              className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-1 rounded"
             >
               #{tag}
             </span>
           ))}
           {parsed.scheduledDate && (
-            <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <span className="inline-flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -273,7 +273,7 @@ export function SmartTaskInput({
             </span>
           )}
           {parsed.deadline && (
-            <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <span className="inline-flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
               </svg>
