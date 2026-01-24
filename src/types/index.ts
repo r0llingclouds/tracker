@@ -49,6 +49,7 @@ export interface Project {
   name: string;
   color: string;
   areaId: string | null; // null = no area
+  boss: boolean; // Boss projects give 2x XP
 }
 
 export type View = 'inbox' | 'today' | 'upcoming' | 'someday' | 'project' | 'tag' | 'area';

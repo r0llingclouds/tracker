@@ -156,6 +156,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
     updateProject,
     deleteProject,
     setProjectArea,
+    toggleProjectBoss,
     tags, 
     tasks 
   } = useTaskStore();
@@ -304,7 +305,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                         <div
                           key={project.id}
                           onDoubleClick={() => {
-                            const action = prompt('Type "rename", "delete", or "move":');
+                            const action = prompt('Type "rename", "delete", "move", or "boss":');
                             if (action?.toLowerCase() === 'rename') {
                               const newName = prompt('New name:', project.name);
                               if (newName && newName !== project.name) {
@@ -327,11 +328,13 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                                   alert(`Area "${areaName}" not found.`);
                                 }
                               }
+                            } else if (action?.toLowerCase() === 'boss') {
+                              toggleProjectBoss(project.id);
                             }
                           }}
                         >
                           <NavItem
-                            label={project.name}
+                            label={`${project.boss ? '👑 ' : ''}${project.name}`}
                             shortcut=""
                             count={getProjectCount(project.id)}
                             active={currentView === 'project' && currentProjectId === project.id}
@@ -357,7 +360,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                   <div
                     key={project.id}
                     onDoubleClick={() => {
-                      const action = prompt('Type "rename", "delete", or "move":');
+                      const action = prompt('Type "rename", "delete", "move", or "boss":');
                       if (action?.toLowerCase() === 'rename') {
                         const newName = prompt('New name:', project.name);
                         if (newName && newName !== project.name) {
@@ -380,11 +383,13 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                             alert(`Area "${areaName}" not found.`);
                           }
                         }
+                      } else if (action?.toLowerCase() === 'boss') {
+                        toggleProjectBoss(project.id);
                       }
                     }}
                   >
                     <NavItem
-                      label={project.name}
+                      label={`${project.boss ? '👑 ' : ''}${project.name}`}
                       shortcut=""
                       count={getProjectCount(project.id)}
                       active={currentView === 'project' && currentProjectId === project.id}

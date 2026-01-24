@@ -48,8 +48,8 @@ function getDecayMultiplier(task: Task): number {
   return Math.max(0.25, Math.min(1, decay));
 }
 
-// Get effective XP for a task based on its tags and decay
-function getEffectiveXp(task: Task): number {
+// Get effective XP for a task based on its tags, decay, and boss project status
+function getEffectiveXp(task: Task, projects?: Project[]): number {
   // 0 XP for overdue tasks (past scheduled date) or past deadline
   if (!task.completed) {
     const today = startOfDay(new Date());
@@ -69,7 +69,15 @@ function getEffectiveXp(task: Task): number {
   
   // Apply decay multiplier
   const decayMultiplier = getDecayMultiplier(task);
-  return Math.round(baseXp * decayMultiplier);
+  
+  // Apply boss project multiplier (2x XP for boss projects)
+  let bossMultiplier = 1;
+  if (task.projectId && projects) {
+    const project = projects.find(p => p.id === task.projectId);
+    if (project?.boss) bossMultiplier = 2;
+  }
+  
+  return Math.round(baseXp * decayMultiplier * bossMultiplier);
 }
 
 // Helper to calculate next occurrence for recurring tasks
@@ -174,6 +182,7 @@ interface TaskStore {
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   setProjectArea: (projectId: string, areaId: string | null) => void;
+  toggleProjectBoss: (projectId: string) => void;
   
   // Area actions
   addArea: (name: string) => void;
@@ -274,10 +283,11 @@ export const useTaskStore = create<TaskStore>()(
           return task;
         });
         
-        // Ensure projects have areaId field
+        // Ensure projects have areaId and boss fields
         const projects = (data.projects || []).map((p: Project) => ({
           ...p,
           areaId: p.areaId ?? null,
+          boss: p.boss ?? false,
         }));
         
         // Load userProgress with migration for existing data
@@ -332,7 +342,6 @@ export const useTaskStore = create<TaskStore>()(
       // Normalize tags and add any new ones to the global tags list
       const normalizedTags = taskTags.map(t => t.toLowerCase().trim());
       const currentTags = get().tags;
-      const newGlobalTags = normalizedTags.filter(t => !currentTags.includes(t));
       
       // Determine areaId: use passed areaId, or if in area view and no project, use current area
       const state = get();
@@ -341,19 +350,37 @@ export const useTaskStore = create<TaskStore>()(
         taskAreaId = state.currentAreaId;
       }
       
+      // Determine the actual project ID
+      const actualProjectId = projectId ?? (state.currentView === 'project' ? state.currentProjectId : null);
+      
+      // Check if the project is a boss project and auto-add boss tag
+      const finalTags = [...normalizedTags];
+      let newGlobalTags = normalizedTags.filter(t => !currentTags.includes(t));
+      
+      if (actualProjectId) {
+        const project = state.projects.find(p => p.id === actualProjectId);
+        if (project?.boss && !finalTags.includes('boss')) {
+          finalTags.push('boss');
+          // Ensure 'boss' is in global tags
+          if (!currentTags.includes('boss') && !newGlobalTags.includes('boss')) {
+            newGlobalTags.push('boss');
+          }
+        }
+      }
+      
       // Determine XP based on difficulty tags: hard=15, mid=10, default=5
       let taskXp = 5;
-      if (normalizedTags.includes('hard')) taskXp = 15;
-      else if (normalizedTags.includes('mid')) taskXp = 10;
+      if (finalTags.includes('hard')) taskXp = 15;
+      else if (finalTags.includes('mid')) taskXp = 10;
       
       const newTask: Task = {
         id: generateId(),
         title,
         completed: false,
         completedAt: null,
-        projectId: projectId ?? (state.currentView === 'project' ? state.currentProjectId : null),
+        projectId: actualProjectId,
         areaId: taskAreaId,
-        tags: normalizedTags,
+        tags: finalTags,
         createdAt: new Date(),
         scheduledDate,
         deadline,
@@ -407,7 +434,7 @@ export const useTaskStore = create<TaskStore>()(
       if (!task) return;
       
       const isCompleting = !task.completed;
-      const taskXp = getEffectiveXp(task); // XP based on tags: hard=15, mid=10, default=5
+      const taskXp = getEffectiveXp(task, get().projects); // XP based on tags and boss project status
       
       // Handle recurring tasks: when completing, create a new instance
       if (isCompleting && task.recurrence) {
@@ -457,11 +484,39 @@ export const useTaskStore = create<TaskStore>()(
     },
     
     moveTask: (id, projectId) => {
-      set(state => ({
-        tasks: state.tasks.map(task =>
-          task.id === id ? { ...task, projectId, areaId: null } : task
-        ),
-      }));
+      set(state => {
+        const task = state.tasks.find(t => t.id === id);
+        if (!task) return state;
+        
+        // Check if destination project is a boss project
+        const destProject = projectId ? state.projects.find(p => p.id === projectId) : null;
+        const isDestBoss = destProject?.boss ?? false;
+        
+        // Check if source project was a boss project
+        const srcProject = task.projectId ? state.projects.find(p => p.id === task.projectId) : null;
+        const wasSrcBoss = srcProject?.boss ?? false;
+        
+        // Determine new tags: add or remove 'boss' tag based on destination
+        let newTags = task.tags;
+        if (isDestBoss && !task.tags.includes('boss')) {
+          newTags = [...task.tags, 'boss'];
+        } else if (!isDestBoss && wasSrcBoss && task.tags.includes('boss')) {
+          newTags = task.tags.filter(t => t !== 'boss');
+        }
+        
+        // Ensure 'boss' exists in global tags if needed
+        let globalTags = state.tags;
+        if (isDestBoss && !state.tags.includes('boss')) {
+          globalTags = [...state.tags, 'boss'];
+        }
+        
+        return {
+          tasks: state.tasks.map(t =>
+            t.id === id ? { ...t, projectId, areaId: null, tags: newTags } : t
+          ),
+          tags: globalTags,
+        };
+      });
     },
     
     setTaskArea: (taskId, areaId) => {
@@ -591,6 +646,7 @@ export const useTaskStore = create<TaskStore>()(
         name,
         color: color ?? PROJECT_COLORS[get().projects.length % PROJECT_COLORS.length],
         areaId: effectiveAreaId,
+        boss: false,
       };
       set(state => ({ projects: [...state.projects, newProject] }));
     },
@@ -622,6 +678,46 @@ export const useTaskStore = create<TaskStore>()(
           project.id === projectId ? { ...project, areaId } : project
         ),
       }));
+    },
+    
+    toggleProjectBoss: (projectId) => {
+      set(state => {
+        const project = state.projects.find(p => p.id === projectId);
+        if (!project) return state;
+        
+        const newBossStatus = !project.boss;
+        
+        // Ensure 'boss' tag exists in global tags if enabling boss mode
+        let newTags = state.tags;
+        if (newBossStatus && !state.tags.includes('boss')) {
+          newTags = [...state.tags, 'boss'];
+        }
+        
+        // Update all tasks in this project: add or remove 'boss' tag
+        const updatedTasks = state.tasks.map(task => {
+          if (task.projectId !== projectId) return task;
+          
+          if (newBossStatus) {
+            // Add 'boss' tag if not present
+            return task.tags.includes('boss') 
+              ? task 
+              : { ...task, tags: [...task.tags, 'boss'] };
+          } else {
+            // Remove 'boss' tag
+            return task.tags.includes('boss')
+              ? { ...task, tags: task.tags.filter(t => t !== 'boss') }
+              : task;
+          }
+        });
+        
+        return {
+          projects: state.projects.map(p =>
+            p.id === projectId ? { ...p, boss: newBossStatus } : p
+          ),
+          tasks: updatedTasks,
+          tags: newTags,
+        };
+      });
     },
     
     // Area actions
@@ -892,6 +988,8 @@ export const useTaskStore = create<TaskStore>()(
       const task = get().tasks.find(t => t.id === taskId);
       if (!task) return null;
       
+      const projects = get().projects;
+      
       // Check for overdue/past deadline first
       const today = startOfDay(new Date());
       const isOverdue = !task.completed && task.scheduledDate && startOfDay(new Date(task.scheduledDate)) < today;
@@ -909,21 +1007,28 @@ export const useTaskStore = create<TaskStore>()(
         daysUntilDecay = Math.max(0, DECAY_GRACE_PERIOD - daysSinceCreation);
       }
       
-      // Calculate base XP (before decay)
+      // Calculate base XP (before decay and boss multiplier)
       let baseXp = 5;
       if (task.tags.includes('hard')) baseXp = 15;
       else if (task.tags.includes('mid')) baseXp = 10;
       else baseXp = task.xp ?? 5;
       
-      // Effective XP: 0 if overdue/past deadline, otherwise apply decay
-      const effectiveXp = (isOverdue || isPastDeadline) ? 0 : Math.round(baseXp * multiplier);
+      // Check for boss project multiplier
+      let bossMultiplier = 1;
+      if (task.projectId) {
+        const project = projects.find(p => p.id === task.projectId);
+        if (project?.boss) bossMultiplier = 2;
+      }
+      
+      // Effective XP: 0 if overdue/past deadline, otherwise apply decay and boss multiplier
+      const effectiveXp = (isOverdue || isPastDeadline) ? 0 : Math.round(baseXp * multiplier * bossMultiplier);
       
       return {
         isDecaying: isDecaying || isOverdue || isPastDeadline,
         multiplier: (isOverdue || isPastDeadline) ? 0 : multiplier,
         daysUntilDecay,
         effectiveXp,
-        baseXp,
+        baseXp: baseXp * bossMultiplier, // Include boss multiplier in displayed base XP
       };
     },
     
