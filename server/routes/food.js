@@ -9,9 +9,10 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Data file paths (use env variable if set, otherwise default to server/data/)
-const DATA_DIR = process.env.FOOD_DATA_DIR 
-  || path.join(__dirname, '..', 'data');
+// Data file paths (use TRACKER_DATA_DIR/food/ or default to server/data/food/)
+const DATA_DIR = process.env.TRACKER_DATA_DIR 
+  ? path.join(process.env.TRACKER_DATA_DIR, 'food')
+  : path.join(__dirname, '..', 'data', 'food');
 const FOODS_FILE = path.join(DATA_DIR, 'foods.json');
 const LOGS_FILE = path.join(DATA_DIR, 'food-logs.json');
 const DAILY_FILE = path.join(DATA_DIR, 'daily.json');

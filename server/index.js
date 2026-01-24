@@ -16,10 +16,21 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3001;
 
-// Ensure data directory exists
-const DATA_DIR = path.join(__dirname, 'data');
+// Base data directory - use TRACKER_DATA_DIR from env or default to server/data/
+const DATA_DIR = process.env.TRACKER_DATA_DIR || path.join(__dirname, 'data');
+
+// Tracker subdirectories
+const TRACKER_SUBDIRS = ['food', 'habits', 'tasks', 'workout'];
+
+// Ensure data directory and all subdirectories exist
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+for (const subdir of TRACKER_SUBDIRS) {
+  const subdirPath = path.join(DATA_DIR, subdir);
+  if (!fs.existsSync(subdirPath)) {
+    fs.mkdirSync(subdirPath, { recursive: true });
+  }
 }
 
 // Middleware

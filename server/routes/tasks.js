@@ -8,9 +8,11 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Data file path (use env variable if set, otherwise default to server/data/)
-const DATA_FILE = process.env.TASKS_DATA_FILE 
-  || path.join(__dirname, '..', 'data', 'tasks.json');
+// Data file path (use TRACKER_DATA_DIR/tasks/ or default to server/data/tasks/)
+const DATA_DIR = process.env.TRACKER_DATA_DIR 
+  ? path.join(process.env.TRACKER_DATA_DIR, 'tasks')
+  : path.join(__dirname, '..', 'data', 'tasks');
+const DATA_FILE = path.join(DATA_DIR, 'tasks.json');
 
 // GET /api/data - Read all task data
 router.get('/data', (req, res) => {

@@ -9,9 +9,10 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Data file paths
-const DATA_DIR = process.env.WORKOUT_DATA_DIR 
-  || path.join(__dirname, '..', 'data');
+// Data file paths (use TRACKER_DATA_DIR/workout/ or default to server/data/workout/)
+const DATA_DIR = process.env.TRACKER_DATA_DIR 
+  ? path.join(process.env.TRACKER_DATA_DIR, 'workout')
+  : path.join(__dirname, '..', 'data', 'workout');
 const KETTLEBELL_FILE = path.join(DATA_DIR, 'kettlebell.json');
 const PUSHUPS_FILE = path.join(DATA_DIR, 'pushups.json');
 const DAILY_FILE = path.join(DATA_DIR, 'workout-daily.json');
