@@ -26,6 +26,7 @@ export interface Task {
   timerStartedAt: Date | null; // timestamp when timer started (null = paused/stopped)
   url: string | null; // extracted URL for the task
   xp: number; // XP awarded on completion, default 5
+  order: number; // manual ordering (lower = higher priority)
 }
 
 // XP Gamification Types

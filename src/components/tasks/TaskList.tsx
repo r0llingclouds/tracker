@@ -1,3 +1,8 @@
+import { useMemo } from 'react';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useTaskStore } from '../../store/taskStore';
 import { TaskItem } from './TaskItem';
 import { TaskDetail } from './TaskDetail';
@@ -22,6 +27,13 @@ export function TaskList() {
 
   const tasks = getVisibleTasks();
   const upcomingData = currentView === 'upcoming' ? getUpcomingTasksWithOverdue() : { overdueTasks: [], pastDeadlineTasks: [], upcomingGroups: [] };
+  
+  // Get task IDs for sortable context
+  const taskIds = useMemo(() => tasks.map(t => t.id), [tasks]);
+  
+  // Check if current view supports drag and drop reordering
+  // Exclude grouped views (upcoming, area) as they have complex groupings
+  const isDragEnabled = !['upcoming', 'area'].includes(currentView);
 
   // Compute area view grouping
   const areaProjects = currentView === 'area' 
@@ -242,6 +254,22 @@ export function TaskList() {
               );
             })}
           </div>
+        ) : isDragEnabled ? (
+          <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {tasks.map(task => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  project={task.projectId ? getProjectById(task.projectId) : undefined}
+                  selected={task.id === selectedTaskId}
+                  onSelect={() => selectTask(task.id)}
+                  onToggle={() => toggleTask(task.id)}
+                  onDoubleClick={() => setEditingTask(task.id)}
+                />
+              ))}
+            </div>
+          </SortableContext>
         ) : (
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {tasks.map(task => (

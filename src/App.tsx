@@ -1,4 +1,18 @@
 import { useState, useCallback, useEffect } from 'react';
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  pointerWithin,
+  rectIntersection,
+} from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent, CollisionDetection } from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { startOfDay, addDays } from 'date-fns';
 import { Sidebar } from './components/Sidebar';
 import { TaskList } from './components/tasks/TaskList';
 import { CommandPalette } from './components/tasks/CommandPalette';
@@ -11,9 +25,97 @@ import { useTaskStore } from './store/taskStore';
 export type AppMode = 'tasks' | 'habits' | 'food' | 'workout';
 
 function App() {
-  const { loadData, isLoading, theme } = useTaskStore();
+  const { loadData, isLoading, theme, reorderTasks, moveTask, setTaskDate, setTaskArea, setSomeday, getTaskById } = useTaskStore();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [appMode, setAppMode] = useState<AppMode>('tasks');
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  
+  // DnD sensors for pointer and keyboard
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before starting drag
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+  
+  // Custom collision detection: prefer droppable areas (sidebar) over sortable items
+  const collisionDetection: CollisionDetection = useCallback((args) => {
+    // First check for pointer intersections with droppables (sidebar items)
+    const pointerCollisions = pointerWithin(args);
+    if (pointerCollisions.length > 0) {
+      // Filter to only drop targets (sidebar items have ids starting with 'drop-')
+      const dropTargets = pointerCollisions.filter(c => 
+        typeof c.id === 'string' && c.id.startsWith('drop-')
+      );
+      if (dropTargets.length > 0) {
+        return dropTargets;
+      }
+    }
+    
+    // Fall back to rect intersection for sortable items
+    const rectCollisions = rectIntersection(args);
+    if (rectCollisions.length > 0) {
+      return rectCollisions;
+    }
+    
+    // Finally try closest center for reordering
+    return closestCenter(args);
+  }, []);
+  
+  // Handle drag start
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveTaskId(event.active.id as string);
+  }, []);
+  
+  // Handle drag end
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveTaskId(null);
+    
+    if (!over) return;
+    
+    const activeId = active.id as string;
+    const overId = over.id as string;
+    
+    // Check if dropped on a sidebar item (drop target)
+    if (overId.startsWith('drop-')) {
+      const today = startOfDay(new Date());
+      const tomorrow = addDays(today, 1);
+      
+      if (overId === 'drop-inbox') {
+        // Move to inbox (clear project and area)
+        moveTask(activeId, null);
+        setTaskArea(activeId, null);
+      } else if (overId === 'drop-today') {
+        // Schedule for today
+        setTaskDate(activeId, today);
+      } else if (overId === 'drop-upcoming') {
+        // Schedule for tomorrow
+        setTaskDate(activeId, tomorrow);
+      } else if (overId === 'drop-someday') {
+        // Mark as someday
+        setSomeday(activeId, true);
+      } else if (overId.startsWith('drop-area-')) {
+        // Move to area
+        const areaId = overId.replace('drop-area-', '');
+        setTaskArea(activeId, areaId);
+      } else if (overId.startsWith('drop-project-')) {
+        // Move to project
+        const projectId = overId.replace('drop-project-', '');
+        moveTask(activeId, projectId);
+      }
+    } else if (activeId !== overId) {
+      // Reordering within list
+      reorderTasks(activeId, overId);
+    }
+  }, [moveTask, setTaskDate, setTaskArea, setSomeday, reorderTasks]);
+  
+  // Get active task for drag overlay
+  const activeTask = activeTaskId ? getTaskById(activeTaskId) : null;
 
   // Load data from API on mount
   useEffect(() => {
@@ -74,20 +176,35 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar appMode={appMode} setAppMode={setAppMode} />
-      {appMode === 'tasks' && <TaskList />}
-      {appMode === 'habits' && <TrackerApp />}
-      {appMode === 'food' && <FoodTracker />}
-      {appMode === 'workout' && <WorkoutTracker />}
-      {appMode === 'tasks' && (
-        <CommandPalette 
-          open={paletteOpen} 
-          onClose={closePalette}
-          mode={paletteMode}
-          initialValue={paletteInitialValue}
-        />
-      )}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={collisionDetection}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+        <Sidebar appMode={appMode} setAppMode={setAppMode} />
+        {appMode === 'tasks' && <TaskList />}
+        {appMode === 'habits' && <TrackerApp />}
+        {appMode === 'food' && <FoodTracker />}
+        {appMode === 'workout' && <WorkoutTracker />}
+        {appMode === 'tasks' && (
+          <CommandPalette 
+            open={paletteOpen} 
+            onClose={closePalette}
+            mode={paletteMode}
+            initialValue={paletteInitialValue}
+          />
+        )}
+        
+        {/* Drag overlay for visual feedback */}
+        <DragOverlay>
+          {activeTask ? (
+            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg px-4 py-3 border border-gray-200 dark:border-gray-600 max-w-md">
+              <p className="text-gray-900 dark:text-gray-100 truncate">{activeTask.title}</p>
+            </div>
+          ) : null}
+        </DragOverlay>
       
       {/* "Space" action mode indicator */}
       {showSpaceHint && (
@@ -118,7 +235,8 @@ function App() {
           <span className="opacity-70">complete</span>
         </div>
       )}
-    </div>
+      </div>
+    </DndContext>
   );
 }
 

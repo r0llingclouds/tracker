@@ -1,4 +1,6 @@
 import { format, isToday, isTomorrow, isPast, startOfDay } from 'date-fns';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { Task, Project, Recurrence } from '../../types';
 import { useTimer } from '../../hooks/useTimer';
 import { useTaskStore } from '../../store/taskStore';
@@ -92,6 +94,23 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
   const hasTime = task.timeSpent > 0 || isRunning;
   const decayInfo = getTaskDecayInfo(task.id);
   
+  // Sortable hook for drag and drop
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1000 : undefined,
+  };
+  
   const handleTimerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isRunning) {
@@ -103,13 +122,17 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
   
   return (
     <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       onClick={onSelect}
       onDoubleClick={onDoubleClick}
-      className={`group flex items-center gap-3 px-4 py-3 cursor-pointer ${
+      className={`group flex items-center gap-3 px-4 py-3 cursor-grab active:cursor-grabbing touch-none ${
         selected 
           ? 'bg-gray-100 dark:bg-gray-700 border-l-2 border-gray-400 dark:border-gray-500' 
           : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-l-2 border-transparent'
-      } ${task.completed ? 'opacity-60' : ''}`}
+      } ${task.completed ? 'opacity-60' : ''} ${isDragging ? 'bg-gray-100 dark:bg-gray-700 shadow-lg' : ''}`}
     >
       <button
         onClick={(e) => {

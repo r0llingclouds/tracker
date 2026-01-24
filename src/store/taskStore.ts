@@ -178,6 +178,9 @@ interface TaskStore {
   stopTimer: (taskId: string) => void;
   resetTimer: (taskId: string) => void;
   
+  // Reorder actions
+  reorderTasks: (activeId: string, overId: string) => void;
+  
   // Project actions
   addProject: (name: string, color?: string, areaId?: string | null) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
@@ -256,8 +259,8 @@ export const useTaskStore = create<TaskStore>()(
         const data = await response.json();
         
         // Convert date strings to Date objects and ensure fields exist
-        // Migrate existing tasks: add xp field with default value of 5
-        const tasks = data.tasks.map((t: Task) => {
+        // Migrate existing tasks: add xp field with default value of 5, order field
+        const tasks = data.tasks.map((t: Task, index: number) => {
           const task = {
             ...t,
             createdAt: new Date(t.createdAt),
@@ -271,6 +274,7 @@ export const useTaskStore = create<TaskStore>()(
             completedAt: t.completedAt ? new Date(t.completedAt) : null,
             url: t.url ?? null,
             xp: t.xp ?? 5, // Default XP for existing tasks
+            order: t.order ?? index, // Default order based on array position
           };
           
           // Auto-add/remove decay tag based on decay state
@@ -377,6 +381,9 @@ export const useTaskStore = create<TaskStore>()(
       if (finalTags.includes('hard')) taskXp = 15;
       else if (finalTags.includes('mid')) taskXp = 10;
       
+      // New tasks get the lowest order (appear at top)
+      const minOrder = Math.min(0, ...state.tasks.map(t => t.order));
+      
       const newTask: Task = {
         id: generateId(),
         title,
@@ -394,6 +401,7 @@ export const useTaskStore = create<TaskStore>()(
         timerStartedAt: null,
         url,
         xp: taskXp,
+        order: minOrder - 1,
       };
       set(state => ({ 
         tasks: [...state.tasks, newTask],
@@ -445,6 +453,7 @@ export const useTaskStore = create<TaskStore>()(
         // Use task's scheduled date or today as base for calculating next occurrence
         const baseDate = task.scheduledDate || startOfDay(new Date());
         const nextDate = getNextOccurrence(baseDate, task.recurrence);
+        // New recurring instance keeps the same order as the original task
         const newTask: Task = {
           ...task,
           id: generateId(),
@@ -454,6 +463,7 @@ export const useTaskStore = create<TaskStore>()(
           createdAt: new Date(),
           timeSpent: 0,
           timerStartedAt: null,
+          order: task.order,
         };
         
         set(state => ({
@@ -637,6 +647,45 @@ export const useTaskStore = create<TaskStore>()(
           task.id === taskId
             ? { ...task, timeSpent: 0, timerStartedAt: null }
             : task
+        ),
+      }));
+    },
+    
+    // Reorder tasks after drag and drop
+    reorderTasks: (activeId, overId) => {
+      if (activeId === overId) return;
+      
+      const visibleTasks = get().getVisibleTasks();
+      const activeIndex = visibleTasks.findIndex(t => t.id === activeId);
+      const overIndex = visibleTasks.findIndex(t => t.id === overId);
+      
+      if (activeIndex === -1 || overIndex === -1) return;
+      
+      // Calculate new order value for the moved task
+      // It should be between the order values of its new neighbors
+      let newOrder: number;
+      
+      if (overIndex === 0) {
+        // Moving to the top: new order is less than the first item
+        newOrder = visibleTasks[0].order - 1;
+      } else if (overIndex === visibleTasks.length - 1) {
+        // Moving to the bottom: new order is greater than the last item
+        newOrder = visibleTasks[visibleTasks.length - 1].order + 1;
+      } else if (activeIndex < overIndex) {
+        // Moving down: place between overIndex and overIndex + 1
+        const before = visibleTasks[overIndex].order;
+        const after = visibleTasks[overIndex + 1]?.order ?? before + 2;
+        newOrder = (before + after) / 2;
+      } else {
+        // Moving up: place between overIndex - 1 and overIndex
+        const before = visibleTasks[overIndex - 1]?.order ?? visibleTasks[overIndex].order - 2;
+        const after = visibleTasks[overIndex].order;
+        newOrder = (before + after) / 2;
+      }
+      
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          task.id === activeId ? { ...task, order: newOrder } : task
         ),
       }));
     },
@@ -852,10 +901,10 @@ setEditingTask: (id) => {
           break;
       }
       
-      // Sort: incomplete first, then by creation date
+      // Sort: incomplete first, then by order (lower = higher priority)
       return tasks.sort((a, b) => {
         if (a.completed !== b.completed) return a.completed ? 1 : -1;
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return a.order - b.order;
       });
     },
     

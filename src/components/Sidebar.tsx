@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { isSameDay, startOfDay } from 'date-fns';
+import { useDroppable } from '@dnd-kit/core';
 import { useTaskStore } from '../store/taskStore';
 import { useTimer } from '../hooks/useTimer';
 import { XpHistory } from './tasks/XpHistory';
@@ -95,18 +96,27 @@ interface NavItemProps {
   onClick: () => void;
   color?: string;
   indent?: boolean;
+  droppableId?: string; // Optional droppable ID for drag-and-drop targets
 }
 
-function NavItem({ label, shortcut, count, active, onClick, color, indent }: NavItemProps) {
+function NavItem({ label, shortcut, count, active, onClick, color, indent, droppableId }: NavItemProps) {
+  const { isOver, setNodeRef } = useDroppable({
+    id: droppableId ?? `nav-${label}`,
+    disabled: !droppableId,
+  });
+  
   return (
     <button
+      ref={droppableId ? setNodeRef : undefined}
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
         indent ? 'pl-6' : ''
       } ${
-        active 
-          ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100' 
-          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+        isOver && droppableId
+          ? 'bg-blue-100 dark:bg-blue-900/40 ring-2 ring-blue-400 dark:ring-blue-500'
+          : active 
+            ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100' 
+            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
       }`}
     >
       {color && (
@@ -243,6 +253,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
               count={inboxCount}
               active={currentView === 'inbox'}
               onClick={() => setView('inbox')}
+              droppableId="drop-inbox"
             />
             <NavItem
               label="Today"
@@ -250,6 +261,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
               count={todayCount}
               active={currentView === 'today'}
               onClick={() => setView('today')}
+              droppableId="drop-today"
             />
             <NavItem
               label="Upcoming"
@@ -257,6 +269,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
               count={upcomingCount}
               active={currentView === 'upcoming'}
               onClick={() => setView('upcoming')}
+              droppableId="drop-upcoming"
             />
             <NavItem
               label="Someday"
@@ -264,6 +277,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
               count={somedayCount}
               active={currentView === 'someday'}
               onClick={() => setView('someday')}
+              droppableId="drop-someday"
             />
             
             {/* Areas with their projects */}
@@ -297,6 +311,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                           count={getAreaCount(area.id)}
                           active={currentView === 'area' && currentAreaId === area.id}
                           onClick={() => setView('area', null, null, area.id)}
+                          droppableId={`drop-area-${area.id}`}
                         />
                       </div>
                       {/* Projects in this area */}
@@ -313,6 +328,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                             onClick={() => setView('project', project.id)}
                             color={project.color}
                             indent
+                            droppableId={`drop-project-${project.id}`}
                           />
                         </div>
                       ))}
@@ -340,6 +356,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                       active={currentView === 'project' && currentProjectId === project.id}
                       onClick={() => setView('project', project.id)}
                       color={project.color}
+                      droppableId={`drop-project-${project.id}`}
                     />
                   </div>
                 ))}
