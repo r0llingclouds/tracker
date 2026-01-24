@@ -9,7 +9,8 @@ interface TaskItemProps {
   task: Task;
   project?: Project;
   selected: boolean;
-  onSelect: () => void;
+  multiSelected?: boolean;  // Part of multi-selection
+  onSelect: (e: React.MouseEvent) => void;
   onToggle: () => void;
   onDoubleClick: () => void;
 }
@@ -85,7 +86,7 @@ function formatRecurrence(recurrence: Recurrence): string {
   return 'Repeating';
 }
 
-export function TaskItem({ task, project, selected, onSelect, onToggle, onDoubleClick }: TaskItemProps) {
+export function TaskItem({ task, project, selected, multiSelected, onSelect, onToggle, onDoubleClick }: TaskItemProps) {
   const scheduledInfo = task.scheduledDate ? formatScheduledDate(task.scheduledDate) : null;
   const deadlineInfo = task.deadline ? formatDeadline(task.deadline) : null;
   const { formattedTime, isRunning } = useTimer(task.timeSpent, task.timerStartedAt);
@@ -120,6 +121,9 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
     }
   };
   
+  // Determine selection state styling
+  const isMultiSelected = multiSelected && !selected;  // Part of multi-selection but not the primary selected
+  
   return (
     <div
       ref={setNodeRef}
@@ -131,6 +135,8 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
       className={`group flex items-center gap-3 px-4 py-3 cursor-grab active:cursor-grabbing touch-none ${
         selected 
           ? 'bg-zinc-100 dark:bg-zinc-800 border-l-2 border-zinc-400 dark:border-zinc-500' 
+          : isMultiSelected
+          ? 'bg-blue-50 dark:bg-blue-950/30 border-l-2 border-blue-400 dark:border-blue-600'
           : 'hover:bg-zinc-50 dark:hover:bg-zinc-900 border-l-2 border-transparent'
       } ${task.completed ? 'opacity-60' : ''} ${isDragging ? 'bg-zinc-100 dark:bg-zinc-800 shadow-lg' : ''}`}
     >

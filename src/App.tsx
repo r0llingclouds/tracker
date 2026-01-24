@@ -135,11 +135,25 @@ function App() {
     }
   }, [theme]);
 
-  const [paletteMode, setPaletteMode] = useState<'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' | 'area'>('search');
+  type PaletteMode = 
+    | 'search' 
+    | 'move' 
+    | 'tag' 
+    | 'newTask' 
+    | 'schedule' 
+    | 'deadline' 
+    | 'area'
+    | 'bulkMove'
+    | 'bulkTag'
+    | 'bulkRemoveTag'
+    | 'bulkSchedule'
+    | 'bulkDeadline';
+
+  const [paletteMode, setPaletteMode] = useState<PaletteMode>('search');
   const [paletteInitialValue, setPaletteInitialValue] = useState('');
   const [showSpaceHint, setShowSpaceHint] = useState(false);
 
-  const openPalette = useCallback((mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' | 'area' = 'search', initialValue?: string) => {
+  const openPalette = useCallback((mode: PaletteMode = 'search', initialValue?: string) => {
     setPaletteMode(mode);
     setPaletteInitialValue(initialValue ?? '');
     setPaletteOpen(true);
@@ -187,6 +201,7 @@ function App() {
           <CommandPalette 
             open={paletteOpen} 
             onClose={closePalette}
+            onModeChange={setPaletteMode}
             mode={paletteMode}
             initialValue={paletteInitialValue}
           />

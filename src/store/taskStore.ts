@@ -3,23 +3,18 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { isSameDay, startOfDay, addDays, addWeeks, addMonths, addYears, getDay } from 'date-fns';
 import type { Task, Project, View, Recurrence, Area, XpEvent, UserProgress } from '../types';
 
-// XP Level Thresholds - progressive scaling
-const LEVEL_THRESHOLDS = [0, 100, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000];
+// XP per level - constant progression
+const XP_PER_LEVEL = 500;
 
 // Calculate level from total XP
 function calculateLevel(totalXp: number): number {
-  for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
-    if (totalXp >= LEVEL_THRESHOLDS[i]) return i + 1;
-  }
-  return 1;
+  return Math.floor(totalXp / XP_PER_LEVEL) + 1;
 }
 
 // Get XP required for a specific level
 function getXpForLevel(level: number): number {
-  if (level <= 0) return 0;
-  if (level <= LEVEL_THRESHOLDS.length) return LEVEL_THRESHOLDS[level - 1];
-  // For levels beyond the array, continue doubling pattern
-  return LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1] * Math.pow(2, level - LEVEL_THRESHOLDS.length);
+  if (level <= 1) return 0;
+  return (level - 1) * XP_PER_LEVEL;
 }
 
 // Grace period before decay starts (in days)
@@ -150,6 +145,8 @@ interface TaskStore {
   currentTagId: string | null;
   currentAreaId: string | null;
   selectedTaskId: string | null;
+  selectedTaskIds: string[];  // Multi-select support
+  lastSelectedTaskId: string | null;  // Anchor for shift-click range selection
   editingTaskId: string | null;
   editingProjectId: string | null;
   isLoading: boolean;
@@ -199,8 +196,25 @@ interface TaskStore {
   selectTask: (id: string | null) => void;
   selectNextTask: () => void;
   selectPrevTask: () => void;
+  extendSelectionDown: () => void;  // Shift+ArrowDown
+  extendSelectionUp: () => void;    // Shift+ArrowUp
   setEditingTask: (id: string | null) => void;
   setEditingProject: (id: string | null) => void;
+  
+  // Multi-select actions
+  toggleTaskSelection: (id: string, shiftKey: boolean, metaKey: boolean, visibleTaskIds: string[]) => void;
+  clearSelection: () => void;
+  selectAllTasks: (taskIds: string[]) => void;
+  
+  // Bulk actions
+  bulkMoveToProject: (projectId: string | null) => void;
+  bulkMoveToArea: (areaId: string | null) => void;
+  bulkAddTag: (tag: string) => void;
+  bulkRemoveTag: (tag: string) => void;
+  bulkSetDeadline: (date: Date | null) => void;
+  bulkSetSchedule: (date: Date | null) => void;
+  bulkSetSomeday: (someday: boolean) => void;
+  bulkDelete: () => void;
   
   // Computed
   getVisibleTasks: () => Task[];
@@ -247,6 +261,8 @@ export const useTaskStore = create<TaskStore>()(
     currentTagId: null,
     currentAreaId: null,
     selectedTaskId: null,
+    selectedTaskIds: [],  // Multi-select support
+    lastSelectedTaskId: null,  // Anchor for shift-click range selection
     editingTaskId: null,
     editingProjectId: null,
     isLoading: true,
@@ -840,6 +856,8 @@ export const useTaskStore = create<TaskStore>()(
         currentTagId: view === 'tag' ? tagId : null,
         currentAreaId: view === 'area' ? areaId : null,
         selectedTaskId: null,
+        selectedTaskIds: [],  // Clear multi-selection on view change
+        lastSelectedTaskId: null,
       });
     },
     
@@ -873,12 +891,367 @@ export const useTaskStore = create<TaskStore>()(
       }
     },
     
+    // Shift+ArrowDown: extend or contract selection downward
+    extendSelectionDown: () => {
+      const visibleTasks = get().getVisibleTasks();
+      const { selectedTaskId, selectedTaskIds, lastSelectedTaskId } = get();
+      
+      if (visibleTasks.length === 0) return;
+      
+      const visibleTaskIds = visibleTasks.map(t => t.id);
+      
+      // The anchor is where shift-selection started (lastSelectedTaskId)
+      // The cursor is the current position (selectedTaskId)
+      const anchorId = lastSelectedTaskId || selectedTaskId;
+      const cursorId = selectedTaskId;
+      
+      const anchorIndex = anchorId ? visibleTaskIds.indexOf(anchorId) : -1;
+      const cursorIndex = cursorId ? visibleTaskIds.indexOf(cursorId) : -1;
+      
+      // If nothing selected, select the first task
+      if (cursorIndex === -1) {
+        const firstId = visibleTaskIds[0];
+        set({ 
+          selectedTaskId: firstId, 
+          selectedTaskIds: [firstId],
+          lastSelectedTaskId: firstId,
+        });
+        return;
+      }
+      
+      // If at the end, do nothing
+      if (cursorIndex >= visibleTasks.length - 1) return;
+      
+      const newCursorIndex = cursorIndex + 1;
+      const newCursorId = visibleTaskIds[newCursorIndex];
+      
+      // Determine if we're expanding or contracting
+      // If cursor is above anchor and moving down -> contracting (deselect current cursor)
+      // If cursor is at or below anchor and moving down -> expanding (add new task)
+      
+      if (anchorIndex !== -1 && cursorIndex < anchorIndex) {
+        // Cursor is above anchor, moving down = contracting
+        // Remove the current cursor from selection
+        const newSelection = selectedTaskIds.filter(id => id !== cursorId);
+        
+        // Ensure anchor stays selected
+        if (!newSelection.includes(anchorId!)) {
+          newSelection.push(anchorId!);
+        }
+        
+        set({
+          selectedTaskId: newCursorId,
+          selectedTaskIds: newSelection.length > 0 ? newSelection : [newCursorId],
+          lastSelectedTaskId: anchorId,
+        });
+      } else {
+        // Cursor is at or below anchor, moving down = expanding
+        // Add the new task to selection
+        const newSelection = new Set(selectedTaskIds);
+        newSelection.add(newCursorId);
+        
+        // Ensure anchor stays selected
+        if (anchorId && !newSelection.has(anchorId)) {
+          newSelection.add(anchorId);
+        }
+        
+        set({
+          selectedTaskId: newCursorId,
+          selectedTaskIds: Array.from(newSelection),
+          lastSelectedTaskId: anchorId || cursorId,
+        });
+      }
+    },
+    
+    // Shift+ArrowUp: extend or contract selection upward
+    extendSelectionUp: () => {
+      const visibleTasks = get().getVisibleTasks();
+      const { selectedTaskId, selectedTaskIds, lastSelectedTaskId } = get();
+      
+      if (visibleTasks.length === 0) return;
+      
+      const visibleTaskIds = visibleTasks.map(t => t.id);
+      
+      // The anchor is where shift-selection started (lastSelectedTaskId)
+      // The cursor is the current position (selectedTaskId)
+      const anchorId = lastSelectedTaskId || selectedTaskId;
+      const cursorId = selectedTaskId;
+      
+      const anchorIndex = anchorId ? visibleTaskIds.indexOf(anchorId) : -1;
+      const cursorIndex = cursorId ? visibleTaskIds.indexOf(cursorId) : -1;
+      
+      // If nothing selected, select the last task
+      if (cursorIndex === -1) {
+        const lastId = visibleTaskIds[visibleTaskIds.length - 1];
+        set({ 
+          selectedTaskId: lastId, 
+          selectedTaskIds: [lastId],
+          lastSelectedTaskId: lastId,
+        });
+        return;
+      }
+      
+      // If at the beginning, do nothing
+      if (cursorIndex <= 0) return;
+      
+      const newCursorIndex = cursorIndex - 1;
+      const newCursorId = visibleTaskIds[newCursorIndex];
+      
+      // Determine if we're expanding or contracting
+      // If cursor is below anchor and moving up -> contracting (deselect current cursor)
+      // If cursor is at or above anchor and moving up -> expanding (add new task)
+      
+      if (anchorIndex !== -1 && cursorIndex > anchorIndex) {
+        // Cursor is below anchor, moving up = contracting
+        // Remove the current cursor from selection
+        const newSelection = selectedTaskIds.filter(id => id !== cursorId);
+        
+        // Ensure anchor stays selected
+        if (!newSelection.includes(anchorId!)) {
+          newSelection.push(anchorId!);
+        }
+        
+        set({
+          selectedTaskId: newCursorId,
+          selectedTaskIds: newSelection.length > 0 ? newSelection : [newCursorId],
+          lastSelectedTaskId: anchorId,
+        });
+      } else {
+        // Cursor is at or above anchor, moving up = expanding
+        // Add the new task to selection
+        const newSelection = new Set(selectedTaskIds);
+        newSelection.add(newCursorId);
+        
+        // Ensure anchor stays selected
+        if (anchorId && !newSelection.has(anchorId)) {
+          newSelection.add(anchorId);
+        }
+        
+        set({
+          selectedTaskId: newCursorId,
+          selectedTaskIds: Array.from(newSelection),
+          lastSelectedTaskId: anchorId || cursorId,
+        });
+      }
+    },
+    
 setEditingTask: (id) => {
       set({ editingTaskId: id });
     },
     
     setEditingProject: (id) => {
       set({ editingProjectId: id });
+    },
+    
+    // Multi-select actions
+    toggleTaskSelection: (id, shiftKey, metaKey, visibleTaskIds) => {
+      set(state => {
+        const currentSelection = new Set(state.selectedTaskIds);
+        
+        if (shiftKey && state.lastSelectedTaskId) {
+          // Shift+Click: select range from lastSelectedTaskId to id
+          const lastIndex = visibleTaskIds.indexOf(state.lastSelectedTaskId);
+          const currentIndex = visibleTaskIds.indexOf(id);
+          
+          if (lastIndex !== -1 && currentIndex !== -1) {
+            const start = Math.min(lastIndex, currentIndex);
+            const end = Math.max(lastIndex, currentIndex);
+            
+            // Add all tasks in range to selection
+            for (let i = start; i <= end; i++) {
+              currentSelection.add(visibleTaskIds[i]);
+            }
+            
+            return {
+              selectedTaskIds: Array.from(currentSelection),
+              selectedTaskId: id,
+              // Keep lastSelectedTaskId as anchor
+            };
+          }
+        }
+        
+        if (metaKey) {
+          // Cmd/Ctrl+Click: toggle individual task in selection
+          if (currentSelection.has(id)) {
+            currentSelection.delete(id);
+          } else {
+            currentSelection.add(id);
+          }
+          
+          return {
+            selectedTaskIds: Array.from(currentSelection),
+            selectedTaskId: currentSelection.size === 1 ? Array.from(currentSelection)[0] : id,
+            lastSelectedTaskId: id,
+          };
+        }
+        
+        // Plain click: clear selection and select only this task
+        return {
+          selectedTaskIds: [id],
+          selectedTaskId: id,
+          lastSelectedTaskId: id,
+        };
+      });
+    },
+    
+    clearSelection: () => {
+      set({ selectedTaskIds: [], lastSelectedTaskId: null });
+    },
+    
+    selectAllTasks: (taskIds) => {
+      set({
+        selectedTaskIds: taskIds,
+        lastSelectedTaskId: taskIds.length > 0 ? taskIds[taskIds.length - 1] : null,
+      });
+    },
+    
+    // Bulk actions
+    bulkMoveToProject: (projectId) => {
+      const { selectedTaskIds, projects } = get();
+      if (selectedTaskIds.length === 0) return;
+      
+      // Check if destination project is a boss project
+      const destProject = projectId ? projects.find(p => p.id === projectId) : null;
+      const isDestBoss = destProject?.boss ?? false;
+      
+      set(state => {
+        let globalTags = state.tags;
+        
+        // Ensure 'boss' exists in global tags if needed
+        if (isDestBoss && !state.tags.includes('boss')) {
+          globalTags = [...state.tags, 'boss'];
+        }
+        
+        const updatedTasks = state.tasks.map(task => {
+          if (!selectedTaskIds.includes(task.id)) return task;
+          
+          // Check if source project was a boss project
+          const srcProject = task.projectId ? state.projects.find(p => p.id === task.projectId) : null;
+          const wasSrcBoss = srcProject?.boss ?? false;
+          
+          // Determine new tags
+          let newTags = task.tags;
+          if (isDestBoss && !task.tags.includes('boss')) {
+            newTags = [...task.tags, 'boss'];
+          } else if (!isDestBoss && wasSrcBoss && task.tags.includes('boss')) {
+            newTags = task.tags.filter(t => t !== 'boss');
+          }
+          
+          return { ...task, projectId, areaId: null, tags: newTags };
+        });
+        
+        return {
+          tasks: updatedTasks,
+          tags: globalTags,
+          selectedTaskIds: [],  // Clear selection after bulk action
+        };
+      });
+    },
+    
+    bulkMoveToArea: (areaId) => {
+      const { selectedTaskIds } = get();
+      if (selectedTaskIds.length === 0) return;
+      
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          selectedTaskIds.includes(task.id)
+            ? { ...task, areaId, projectId: null }
+            : task
+        ),
+        selectedTaskIds: [],  // Clear selection after bulk action
+      }));
+    },
+    
+    bulkAddTag: (tag) => {
+      const { selectedTaskIds } = get();
+      if (selectedTaskIds.length === 0) return;
+      
+      const normalizedTag = tag.toLowerCase().trim();
+      
+      set(state => {
+        const newTags = state.tags.includes(normalizedTag)
+          ? state.tags
+          : [...state.tags, normalizedTag];
+        
+        return {
+          tags: newTags,
+          tasks: state.tasks.map(task =>
+            selectedTaskIds.includes(task.id) && !task.tags.includes(normalizedTag)
+              ? { ...task, tags: [...task.tags, normalizedTag] }
+              : task
+          ),
+          selectedTaskIds: [],  // Clear selection after bulk action
+        };
+      });
+    },
+    
+    bulkRemoveTag: (tag) => {
+      const { selectedTaskIds } = get();
+      if (selectedTaskIds.length === 0) return;
+      
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          selectedTaskIds.includes(task.id)
+            ? { ...task, tags: task.tags.filter(t => t !== tag) }
+            : task
+        ),
+        selectedTaskIds: [],  // Clear selection after bulk action
+      }));
+    },
+    
+    bulkSetDeadline: (date) => {
+      const { selectedTaskIds } = get();
+      if (selectedTaskIds.length === 0) return;
+      
+      set(state => ({
+        tasks: state.tasks.map(task =>
+          selectedTaskIds.includes(task.id)
+            ? { ...task, deadline: date }
+            : task
+        ),
+        selectedTaskIds: [],  // Clear selection after bulk action
+      }));
+    },
+    
+    bulkSetSchedule: (date) => {
+      const { selectedTaskIds } = get();
+      if (selectedTaskIds.length === 0) return;
+      
+      set(state => ({
+        tasks: state.tasks.map(task => {
+          if (!selectedTaskIds.includes(task.id)) return task;
+          // Remove decay tag if scheduling
+          const tags = date ? task.tags.filter(t => t !== 'decay') : task.tags;
+          return { ...task, scheduledDate: date, someday: date ? false : task.someday, tags };
+        }),
+        selectedTaskIds: [],  // Clear selection after bulk action
+      }));
+    },
+    
+    bulkSetSomeday: (someday) => {
+      const { selectedTaskIds } = get();
+      if (selectedTaskIds.length === 0) return;
+      
+      set(state => ({
+        tasks: state.tasks.map(task => {
+          if (!selectedTaskIds.includes(task.id)) return task;
+          // Remove decay tag if marking as someday
+          const tags = someday ? task.tags.filter(t => t !== 'decay') : task.tags;
+          return { ...task, someday, scheduledDate: someday ? null : task.scheduledDate, tags };
+        }),
+        selectedTaskIds: [],  // Clear selection after bulk action
+      }));
+    },
+    
+    bulkDelete: () => {
+      const { selectedTaskIds, selectedTaskId } = get();
+      if (selectedTaskIds.length === 0) return;
+      
+      set(state => ({
+        tasks: state.tasks.filter(task => !selectedTaskIds.includes(task.id)),
+        selectedTaskIds: [],
+        selectedTaskId: selectedTaskIds.includes(selectedTaskId ?? '') ? null : selectedTaskId,
+      }));
     },
 
     // Computed

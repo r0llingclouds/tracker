@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback, useEffect } from 'react';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -12,8 +12,10 @@ export function TaskList() {
     getVisibleTasks, 
     getUpcomingTasksWithOverdue,
     selectedTaskId, 
-    selectTask, 
+    selectedTaskIds,
     toggleTask,
+    toggleTaskSelection,
+    clearSelection,
     getProjectById,
     currentView,
     currentProjectId,
@@ -31,9 +33,54 @@ export function TaskList() {
   // Get task IDs for sortable context
   const taskIds = useMemo(() => tasks.map(t => t.id), [tasks]);
   
+  // Get all visible task IDs (including grouped views) for multi-select range calculation
+  const allVisibleTaskIds = useMemo(() => {
+    if (currentView === 'upcoming') {
+      const ids: string[] = [];
+      upcomingData.overdueTasks.forEach(t => ids.push(t.id));
+      upcomingData.pastDeadlineTasks.forEach(t => ids.push(t.id));
+      upcomingData.upcomingGroups.forEach(g => g.tasks.forEach(t => ids.push(t.id)));
+      return ids;
+    }
+    if (currentView === 'area') {
+      const ids: string[] = [];
+      // Direct tasks first
+      tasks.filter(t => t.projectId === null).forEach(t => ids.push(t.id));
+      // Then tasks by project
+      const areaProjects = projects.filter(p => p.areaId === currentAreaId);
+      areaProjects.forEach(project => {
+        tasks.filter(t => t.projectId === project.id).forEach(t => ids.push(t.id));
+      });
+      return ids;
+    }
+    return taskIds;
+  }, [tasks, taskIds, currentView, upcomingData, projects, currentAreaId]);
+  
   // Check if current view supports drag and drop reordering
   // Exclude grouped views (upcoming, area) as they have complex groupings
   const isDragEnabled = !['upcoming', 'area'].includes(currentView);
+  
+  // Handle task selection with modifier keys
+  const handleTaskSelect = useCallback((taskId: string, e: React.MouseEvent) => {
+    toggleTaskSelection(taskId, e.shiftKey, e.metaKey || e.ctrlKey, allVisibleTaskIds);
+  }, [toggleTaskSelection, allVisibleTaskIds]);
+  
+  // Check if a task is in the multi-selection
+  const isTaskMultiSelected = useCallback((taskId: string) => {
+    return selectedTaskIds.includes(taskId);
+  }, [selectedTaskIds]);
+  
+  // Handle Escape key to clear multi-selection
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedTaskIds.length > 0 && !editingTaskId) {
+        clearSelection();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedTaskIds.length, editingTaskId, clearSelection]);
 
   // Compute area view grouping
   const areaProjects = currentView === 'area' 
@@ -126,7 +173,8 @@ export function TaskList() {
                       task={task}
                       project={task.projectId ? getProjectById(task.projectId) : undefined}
                       selected={task.id === selectedTaskId}
-                      onSelect={() => selectTask(task.id)}
+                      multiSelected={isTaskMultiSelected(task.id)}
+                      onSelect={(e) => handleTaskSelect(task.id, e)}
                       onToggle={() => toggleTask(task.id)}
                       onDoubleClick={() => setEditingTask(task.id)}
                     />
@@ -152,7 +200,8 @@ export function TaskList() {
                       task={task}
                       project={task.projectId ? getProjectById(task.projectId) : undefined}
                       selected={task.id === selectedTaskId}
-                      onSelect={() => selectTask(task.id)}
+                      multiSelected={isTaskMultiSelected(task.id)}
+                      onSelect={(e) => handleTaskSelect(task.id, e)}
                       onToggle={() => toggleTask(task.id)}
                       onDoubleClick={() => setEditingTask(task.id)}
                     />
@@ -187,7 +236,8 @@ export function TaskList() {
                       task={task}
                       project={task.projectId ? getProjectById(task.projectId) : undefined}
                       selected={task.id === selectedTaskId}
-                      onSelect={() => selectTask(task.id)}
+                      multiSelected={isTaskMultiSelected(task.id)}
+                      onSelect={(e) => handleTaskSelect(task.id, e)}
                       onToggle={() => toggleTask(task.id)}
                       onDoubleClick={() => setEditingTask(task.id)}
                     />
@@ -214,7 +264,8 @@ export function TaskList() {
                       key={task.id}
                       task={task}
                       selected={task.id === selectedTaskId}
-                      onSelect={() => selectTask(task.id)}
+                      multiSelected={isTaskMultiSelected(task.id)}
+                      onSelect={(e) => handleTaskSelect(task.id, e)}
                       onToggle={() => toggleTask(task.id)}
                       onDoubleClick={() => setEditingTask(task.id)}
                     />
@@ -244,7 +295,8 @@ export function TaskList() {
                         task={task}
                         project={project}
                         selected={task.id === selectedTaskId}
-                        onSelect={() => selectTask(task.id)}
+                        multiSelected={isTaskMultiSelected(task.id)}
+                        onSelect={(e) => handleTaskSelect(task.id, e)}
                         onToggle={() => toggleTask(task.id)}
                         onDoubleClick={() => setEditingTask(task.id)}
                       />
@@ -263,7 +315,8 @@ export function TaskList() {
                   task={task}
                   project={task.projectId ? getProjectById(task.projectId) : undefined}
                   selected={task.id === selectedTaskId}
-                  onSelect={() => selectTask(task.id)}
+                  multiSelected={isTaskMultiSelected(task.id)}
+                  onSelect={(e) => handleTaskSelect(task.id, e)}
                   onToggle={() => toggleTask(task.id)}
                   onDoubleClick={() => setEditingTask(task.id)}
                 />
@@ -278,7 +331,8 @@ export function TaskList() {
                 task={task}
                 project={task.projectId ? getProjectById(task.projectId) : undefined}
                 selected={task.id === selectedTaskId}
-                onSelect={() => selectTask(task.id)}
+                multiSelected={isTaskMultiSelected(task.id)}
+                onSelect={(e) => handleTaskSelect(task.id, e)}
                 onToggle={() => toggleTask(task.id)}
                 onDoubleClick={() => setEditingTask(task.id)}
               />
@@ -287,15 +341,27 @@ export function TaskList() {
         )}
       </div>
       
-      <footer className="px-6 py-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 flex gap-4">
-        <span><kbd className="font-mono">↑↓</kbd> navigate</span>
-        <span><kbd className="font-mono">space+e</kbd> edit</span>
-        <span><kbd className="font-mono">space+c</kbd> complete</span>
-        <span><kbd className="font-mono">space+s</kbd> schedule</span>
-        <span><kbd className="font-mono">space+d</kbd> deadline</span>
-        <span><kbd className="font-mono">space+m</kbd> move</span>
-        <span><kbd className="font-mono">space+t</kbd> tag</span>
-        <span><kbd className="font-mono">space+x</kbd> delete</span>
+      <footer className="px-6 py-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 flex gap-4 flex-wrap">
+        {selectedTaskIds.length > 1 ? (
+          <>
+            <span className="font-medium text-blue-600 dark:text-blue-400">{selectedTaskIds.length} tasks selected</span>
+            <span><kbd className="font-mono">⇧↑↓</kbd> extend</span>
+            <span><kbd className="font-mono">⌘K</kbd> bulk actions</span>
+            <span><kbd className="font-mono">esc</kbd> clear selection</span>
+          </>
+        ) : (
+          <>
+            <span><kbd className="font-mono">↑↓</kbd> navigate</span>
+            <span><kbd className="font-mono">⇧↑↓</kbd> multi-select</span>
+            <span><kbd className="font-mono">space+e</kbd> edit</span>
+            <span><kbd className="font-mono">space+c</kbd> complete</span>
+            <span><kbd className="font-mono">space+s</kbd> schedule</span>
+            <span><kbd className="font-mono">space+d</kbd> deadline</span>
+            <span><kbd className="font-mono">space+m</kbd> move</span>
+            <span><kbd className="font-mono">space+t</kbd> tag</span>
+            <span><kbd className="font-mono">space+x</kbd> delete</span>
+          </>
+        )}
       </footer>
 
       {/* Task Detail Modal */}

@@ -419,23 +419,49 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                 Scheduled
               </label>
-              <input
-                type="date"
-                value={formatDateForInput(task.scheduledDate)}
-                onChange={handleScheduledDateChange}
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={formatDateForInput(task.scheduledDate)}
+                  onChange={handleScheduledDateChange}
+                  className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
+                />
+                {task.scheduledDate && (
+                  <button
+                    onClick={() => setTaskDate(taskId, null)}
+                    className="px-2 py-2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+                    title="Clear scheduled date"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                 Deadline
               </label>
-              <input
-                type="date"
-                value={formatDateForInput(task.deadline)}
-                onChange={handleDeadlineChange}
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={formatDateForInput(task.deadline)}
+                  onChange={handleDeadlineChange}
+                  className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
+                />
+                {task.deadline && (
+                  <button
+                    onClick={() => setDeadline(taskId, null)}
+                    className="px-2 py-2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+                    title="Clear deadline"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

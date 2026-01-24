@@ -178,14 +178,29 @@ function getDateSuggestions(query: string): DateSuggestion[] {
   return results;
 }
 
+type PaletteMode = 
+  | 'search' 
+  | 'move' 
+  | 'tag' 
+  | 'newTask' 
+  | 'schedule' 
+  | 'deadline' 
+  | 'area'
+  | 'bulkMove'
+  | 'bulkTag'
+  | 'bulkRemoveTag'
+  | 'bulkSchedule'
+  | 'bulkDeadline';
+
 interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
-  mode: 'search' | 'move' | 'tag' | 'newTask' | 'schedule' | 'deadline' | 'area';
+  onModeChange?: (mode: PaletteMode) => void;
+  mode: PaletteMode;
   initialValue?: string;
 }
 
-export function CommandPalette({ open, onClose, mode, initialValue = '' }: CommandPaletteProps) {
+export function CommandPalette({ open, onClose, onModeChange, mode, initialValue = '' }: CommandPaletteProps) {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -195,6 +210,7 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     areas,
     tags,
     selectedTaskId,
+    selectedTaskIds,
     addTask, 
     moveTask,
     setTaskArea,
@@ -211,7 +227,21 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
     setView,
     selectTask,
     getTaskById,
+    // Bulk actions
+    bulkMoveToProject,
+    bulkMoveToArea,
+    bulkAddTag,
+    bulkRemoveTag,
+    bulkSetDeadline,
+    bulkSetSchedule,
+    bulkSetSomeday,
+    bulkDelete,
+    clearSelection,
   } = useTaskStore();
+  
+  // Check if we're in bulk mode (multiple tasks selected)
+  const isBulkMode = selectedTaskIds.length > 1;
+  const bulkCount = selectedTaskIds.length;
 
   useEffect(() => {
     if (open) {
@@ -313,8 +343,20 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
         return 'Set deadline...';
       case 'area':
         return 'Type to create area, or select to delete...';
+      case 'bulkMove':
+        return `Move ${bulkCount} tasks to...`;
+      case 'bulkTag':
+        return `Add tag to ${bulkCount} tasks...`;
+      case 'bulkRemoveTag':
+        return `Remove tag from ${bulkCount} tasks...`;
+      case 'bulkSchedule':
+        return `Schedule ${bulkCount} tasks...`;
+      case 'bulkDeadline':
+        return `Set deadline for ${bulkCount} tasks...`;
       default:
-        return 'Search tasks, projects, or type a command...';
+        return isBulkMode 
+          ? `${bulkCount} tasks selected - choose action...`
+          : 'Search tasks, projects, or type a command...';
     }
   };
   
@@ -412,6 +454,103 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
 
           {mode === 'search' && (
             <>
+              {/* Bulk Actions - show when multiple tasks selected */}
+              {isBulkMode && (
+                <Command.Group heading={`Bulk Actions (${bulkCount} tasks)`}>
+                  <Command.Item
+                    value="bulk move"
+                    onSelect={() => {
+                      setInputValue('');
+                      onModeChange?.('bulkMove');
+                    }}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                  >
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    <span>Move {bulkCount} tasks to...</span>
+                    <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400">project/area</span>
+                  </Command.Item>
+                  <Command.Item
+                    value="bulk add tag"
+                    onSelect={() => {
+                      setInputValue('');
+                      onModeChange?.('bulkTag');
+                    }}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                  >
+                    <span className="text-zinc-600 dark:text-zinc-400">#</span>
+                    <span>Add tag to {bulkCount} tasks</span>
+                  </Command.Item>
+                  <Command.Item
+                    value="bulk remove tag"
+                    onSelect={() => {
+                      setInputValue('');
+                      onModeChange?.('bulkRemoveTag');
+                    }}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                  >
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    <span>Remove tag from {bulkCount} tasks</span>
+                  </Command.Item>
+                  <Command.Item
+                    value="bulk schedule"
+                    onSelect={() => {
+                      setInputValue('');
+                      onModeChange?.('bulkSchedule');
+                    }}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                  >
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Schedule {bulkCount} tasks</span>
+                  </Command.Item>
+                  <Command.Item
+                    value="bulk deadline"
+                    onSelect={() => {
+                      setInputValue('');
+                      onModeChange?.('bulkDeadline');
+                    }}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                  >
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                    <span>Set deadline for {bulkCount} tasks</span>
+                  </Command.Item>
+                  <Command.Item
+                    value="bulk delete"
+                    onSelect={() => handleSelect(() => {
+                      if (confirm(`Delete ${bulkCount} tasks? This cannot be undone.`)) {
+                        bulkDelete();
+                      }
+                    })}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800 text-red-600 dark:text-red-400"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>Delete {bulkCount} tasks</span>
+                  </Command.Item>
+                  <Command.Item
+                    value="clear selection"
+                    onSelect={() => handleSelect(() => {
+                      clearSelection();
+                    })}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                  >
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Clear selection</span>
+                    <span className="ml-auto text-xs text-zinc-600 dark:text-zinc-400 font-mono">esc</span>
+                  </Command.Item>
+                </Command.Group>
+              )}
+              
               {/* Actions */}
               <Command.Group heading="Actions">
                 <Command.Item
@@ -1158,6 +1297,261 @@ export function CommandPalette({ open, onClose, mode, initialValue = '' }: Comma
                       if (e.target.value && selectedTaskId) {
                         const date = new Date(e.target.value + 'T00:00:00');
                         setDeadline(selectedTaskId, date);
+                        onClose();
+                      }
+                    }}
+                  />
+                </div>
+              </Command.Group>
+            </>
+          )}
+
+          {/* Bulk Move Mode */}
+          {mode === 'bulkMove' && (
+            <>
+              <div className="px-3 py-2 mb-2 text-sm text-blue-600 dark:text-blue-400 border-b border-zinc-100 dark:border-zinc-800">
+                Moving <span className="font-semibold">{bulkCount} tasks</span> to...
+              </div>
+              <Command.Item
+                value="inbox"
+                onSelect={() => handleSelect(() => {
+                  bulkMoveToProject(null);
+                })}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+              >
+                <span className="text-lg">📥</span>
+                <span>Inbox</span>
+              </Command.Item>
+              {projects.map(project => (
+                <Command.Item
+                  key={project.id}
+                  value={project.name}
+                  onSelect={() => handleSelect(() => {
+                    bulkMoveToProject(project.id);
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                >
+                  <span 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: project.color }}
+                  />
+                  <span>{project.name}</span>
+                </Command.Item>
+              ))}
+              {areas.length > 0 && (
+                <Command.Group heading="Areas">
+                  {areas.map(area => (
+                    <Command.Item
+                      key={area.id}
+                      value={`area ${area.name}`}
+                      onSelect={() => handleSelect(() => {
+                        bulkMoveToArea(area.id);
+                      })}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                    >
+                      <span className="text-zinc-600 dark:text-zinc-400">@</span>
+                      <span>{area.name}</span>
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+              )}
+            </>
+          )}
+
+          {/* Bulk Add Tag Mode */}
+          {mode === 'bulkTag' && (
+            <>
+              <div className="px-3 py-2 mb-2 text-sm text-blue-600 dark:text-blue-400 border-b border-zinc-100 dark:border-zinc-800">
+                Adding tag to <span className="font-semibold">{bulkCount} tasks</span>
+              </div>
+              {tags.map(tag => (
+                <Command.Item
+                  key={tag}
+                  value={tag}
+                  onSelect={() => handleSelect(() => {
+                    bulkAddTag(tag);
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                >
+                  <span className="text-zinc-600 dark:text-zinc-400">#</span>
+                  <span>{tag}</span>
+                </Command.Item>
+              ))}
+              {inputValue && !tags.includes(inputValue.toLowerCase()) && (
+                <Command.Item
+                  value={`create tag ${inputValue}`}
+                  onSelect={() => handleSelect(() => {
+                    bulkAddTag(inputValue);
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                >
+                  <span className="text-lg">+</span>
+                  <span>Create and add tag "#{inputValue}"</span>
+                </Command.Item>
+              )}
+            </>
+          )}
+
+          {/* Bulk Remove Tag Mode */}
+          {mode === 'bulkRemoveTag' && (
+            <>
+              <div className="px-3 py-2 mb-2 text-sm text-blue-600 dark:text-blue-400 border-b border-zinc-100 dark:border-zinc-800">
+                Removing tag from <span className="font-semibold">{bulkCount} tasks</span>
+              </div>
+              {/* Show tags that are on at least one selected task */}
+              {tags.filter(tag => {
+                return selectedTaskIds.some(taskId => {
+                  const task = tasks.find(t => t.id === taskId);
+                  return task?.tags.includes(tag);
+                });
+              }).map(tag => {
+                // Count how many selected tasks have this tag
+                const count = selectedTaskIds.filter(taskId => {
+                  const task = tasks.find(t => t.id === taskId);
+                  return task?.tags.includes(tag);
+                }).length;
+                return (
+                  <Command.Item
+                    key={tag}
+                    value={tag}
+                    onSelect={() => handleSelect(() => {
+                      bulkRemoveTag(tag);
+                    })}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                  >
+                    <span className="text-zinc-600 dark:text-zinc-400">#</span>
+                    <span className="flex-1">{tag}</span>
+                    <span className="text-xs text-zinc-600 dark:text-zinc-400">on {count} task{count > 1 ? 's' : ''}</span>
+                  </Command.Item>
+                );
+              })}
+              {tags.filter(tag => selectedTaskIds.some(taskId => tasks.find(t => t.id === taskId)?.tags.includes(tag))).length === 0 && (
+                <div className="px-3 py-4 text-sm text-zinc-600 dark:text-zinc-400 text-center">
+                  No common tags found on selected tasks
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Bulk Schedule Mode */}
+          {mode === 'bulkSchedule' && (
+            <>
+              <div className="px-3 py-2 mb-2 text-sm text-blue-600 dark:text-blue-400 border-b border-zinc-100 dark:border-zinc-800">
+                Scheduling <span className="font-semibold">{bulkCount} tasks</span>
+              </div>
+              
+              {/* Date suggestions */}
+              {getDateSuggestions(inputValue).map(suggestion => (
+                <Command.Item
+                  key={suggestion.id}
+                  value={`${suggestion.label} ${suggestion.description}`}
+                  onSelect={() => handleSelect(() => {
+                    if (suggestion.isSomeday) {
+                      bulkSetSomeday(true);
+                    } else {
+                      bulkSetSchedule(suggestion.date);
+                    }
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                >
+                  {suggestion.icon === 'sun' && (
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'calendar' && (
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'week' && (
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'clear' && (
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'someday' && (
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  )}
+                  <span className="flex-1">{suggestion.label}</span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">{suggestion.description}</span>
+                </Command.Item>
+              ))}
+              
+              <Command.Group heading="Pick a Date">
+                <div className="px-3 py-2">
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
+                    min={format(new Date(), 'yyyy-MM-dd')}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const date = new Date(e.target.value + 'T00:00:00');
+                        bulkSetSchedule(date);
+                        onClose();
+                      }
+                    }}
+                  />
+                </div>
+              </Command.Group>
+            </>
+          )}
+
+          {/* Bulk Deadline Mode */}
+          {mode === 'bulkDeadline' && (
+            <>
+              <div className="px-3 py-2 mb-2 text-sm text-blue-600 dark:text-blue-400 border-b border-zinc-100 dark:border-zinc-800">
+                Setting deadline for <span className="font-semibold">{bulkCount} tasks</span>
+              </div>
+              
+              {/* Date suggestions (excluding someday) */}
+              {getDateSuggestions(inputValue).filter(s => !s.isSomeday).map(suggestion => (
+                <Command.Item
+                  key={suggestion.id}
+                  value={`${suggestion.label} ${suggestion.description}`}
+                  onSelect={() => handleSelect(() => {
+                    bulkSetDeadline(suggestion.date);
+                  })}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer data-[selected=true]:bg-zinc-100 dark:data-[selected=true]:bg-zinc-800"
+                >
+                  {suggestion.icon === 'sun' && (
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                  )}
+                  {(suggestion.icon === 'calendar' || suggestion.icon === 'week') && (
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                  )}
+                  {suggestion.icon === 'clear' && (
+                    <svg className="w-4 h-4 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                  <span className="flex-1">
+                    {suggestion.icon === 'clear' ? 'No Deadline' : `Due ${suggestion.label}`}
+                  </span>
+                  <span className="text-xs text-zinc-600 dark:text-zinc-400">{suggestion.description}</span>
+                </Command.Item>
+              ))}
+              
+              <Command.Group heading="Pick a Deadline">
+                <div className="px-3 py-2">
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-500"
+                    min={format(new Date(), 'yyyy-MM-dd')}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const date = new Date(e.target.value + 'T00:00:00');
+                        bulkSetDeadline(date);
                         onClose();
                       }
                     }}
