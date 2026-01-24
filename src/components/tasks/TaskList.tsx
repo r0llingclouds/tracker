@@ -21,7 +21,7 @@ export function TaskList() {
   } = useTaskStore();
 
   const tasks = getVisibleTasks();
-  const upcomingData = currentView === 'upcoming' ? getUpcomingTasksWithOverdue() : { overdueTasks: [], upcomingGroups: [] };
+  const upcomingData = currentView === 'upcoming' ? getUpcomingTasksWithOverdue() : { overdueTasks: [], pastDeadlineTasks: [], upcomingGroups: [] };
 
   // Compute area view grouping
   const areaProjects = currentView === 'area' 
@@ -57,13 +57,17 @@ export function TaskList() {
   const getViewSubtitle = () => {
     if (currentView === 'upcoming') {
       const overdueCount = upcomingData.overdueTasks.length;
+      const pastDeadlineCount = upcomingData.pastDeadlineTasks.length;
       const upcomingCount = upcomingData.upcomingGroups.reduce((sum, g) => sum + g.tasks.length, 0);
-      const totalTasks = overdueCount + upcomingCount;
+      const totalTasks = overdueCount + pastDeadlineCount + upcomingCount;
       if (totalTasks === 0) return 'No scheduled tasks';
-      if (overdueCount > 0) {
-        return `${overdueCount} overdue, ${upcomingCount} upcoming`;
-      }
-      return `${totalTasks} task${totalTasks === 1 ? '' : 's'} scheduled`;
+      
+      const parts: string[] = [];
+      if (overdueCount > 0) parts.push(`${overdueCount} overdue`);
+      if (pastDeadlineCount > 0) parts.push(`${pastDeadlineCount} past deadline`);
+      if (upcomingCount > 0) parts.push(`${upcomingCount} upcoming`);
+      
+      return parts.join(', ');
     }
     const incomplete = tasks.filter(t => !t.completed).length;
     const total = tasks.length;
@@ -72,7 +76,7 @@ export function TaskList() {
   };
 
   const isEmpty = currentView === 'upcoming' 
-    ? (upcomingData.overdueTasks.length === 0 && upcomingData.upcomingGroups.length === 0)
+    ? (upcomingData.overdueTasks.length === 0 && upcomingData.pastDeadlineTasks.length === 0 && upcomingData.upcomingGroups.length === 0)
     : tasks.length === 0;
 
   return (
@@ -105,6 +109,32 @@ export function TaskList() {
                 </div>
                 <div className="divide-y divide-gray-100 dark:divide-gray-800">
                   {upcomingData.overdueTasks.map(task => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      project={task.projectId ? getProjectById(task.projectId) : undefined}
+                      selected={task.id === selectedTaskId}
+                      onSelect={() => selectTask(task.id)}
+                      onToggle={() => toggleTask(task.id)}
+                      onDoubleClick={() => setEditingTask(task.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Past Deadline section */}
+            {upcomingData.pastDeadlineTasks.length > 0 && (
+              <div className="mb-2">
+                <div className="sticky top-0 bg-gray-100 dark:bg-gray-800 px-6 py-2 border-b border-gray-300 dark:border-gray-600 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                  </svg>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">Past Deadline</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{upcomingData.pastDeadlineTasks.length}</span>
+                </div>
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {upcomingData.pastDeadlineTasks.map(task => (
                     <TaskItem
                       key={task.id}
                       task={task}

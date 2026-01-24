@@ -50,6 +50,17 @@ function getDecayMultiplier(task: Task): number {
 
 // Get effective XP for a task based on its tags and decay
 function getEffectiveXp(task: Task): number {
+  // 0 XP for overdue tasks (past scheduled date) or past deadline
+  if (!task.completed) {
+    const today = startOfDay(new Date());
+    if (task.scheduledDate && startOfDay(new Date(task.scheduledDate)) < today) {
+      return 0;
+    }
+    if (task.deadline && startOfDay(new Date(task.deadline)) < today) {
+      return 0;
+    }
+  }
+  
   // Determine base XP from tags
   let baseXp = 5;
   if (task.tags.includes('hard')) baseXp = 15;
@@ -111,6 +122,7 @@ export interface ProjectTaskGroup {
 // Type for upcoming view with overdue section
 export interface UpcomingData {
   overdueTasks: Task[];
+  pastDeadlineTasks: Task[];
   upcomingGroups: ProjectTaskGroup[];
 }
 
@@ -806,6 +818,20 @@ export const useTaskStore = create<TaskStore>()(
         .filter(t => t.scheduledDate && t.scheduledDate < todayStart && !t.completed && !t.someday)
         .sort((a, b) => (a.scheduledDate?.getTime() ?? 0) - (b.scheduledDate?.getTime() ?? 0));
       
+      // Get IDs of overdue tasks to exclude from past deadline (avoid duplication)
+      const overdueTaskIds = new Set(overdueTasks.map(t => t.id));
+      
+      // Get past deadline tasks (deadline < today, not completed, not someday, not already in overdue)
+      const pastDeadlineTasks = state.tasks
+        .filter(t => 
+          t.deadline && 
+          t.deadline < todayStart && 
+          !t.completed && 
+          !t.someday && 
+          !overdueTaskIds.has(t.id)
+        )
+        .sort((a, b) => (a.deadline?.getTime() ?? 0) - (b.deadline?.getTime() ?? 0));
+      
       // Get upcoming tasks (scheduled date >= today, not someday)
       const upcomingTasks = state.tasks.filter(
         t => t.scheduledDate && t.scheduledDate >= todayStart && !t.someday
@@ -853,7 +879,7 @@ export const useTaskStore = create<TaskStore>()(
         }
       }
       
-      return { overdueTasks, upcomingGroups };
+      return { overdueTasks, pastDeadlineTasks, upcomingGroups };
     },
     
     getTaskById: (id) => get().tasks.find(t => t.id === id),
@@ -865,6 +891,11 @@ export const useTaskStore = create<TaskStore>()(
     getTaskDecayInfo: (taskId) => {
       const task = get().tasks.find(t => t.id === taskId);
       if (!task) return null;
+      
+      // Check for overdue/past deadline first
+      const today = startOfDay(new Date());
+      const isOverdue = !task.completed && task.scheduledDate && startOfDay(new Date(task.scheduledDate)) < today;
+      const isPastDeadline = !task.completed && task.deadline && startOfDay(new Date(task.deadline)) < today;
       
       const multiplier = getDecayMultiplier(task);
       const isDecaying = multiplier < 1;
@@ -884,11 +915,14 @@ export const useTaskStore = create<TaskStore>()(
       else if (task.tags.includes('mid')) baseXp = 10;
       else baseXp = task.xp ?? 5;
       
+      // Effective XP: 0 if overdue/past deadline, otherwise apply decay
+      const effectiveXp = (isOverdue || isPastDeadline) ? 0 : Math.round(baseXp * multiplier);
+      
       return {
-        isDecaying,
-        multiplier,
+        isDecaying: isDecaying || isOverdue || isPastDeadline,
+        multiplier: (isOverdue || isPastDeadline) ? 0 : multiplier,
         daysUntilDecay,
-        effectiveXp: Math.round(baseXp * multiplier),
+        effectiveXp,
         baseXp,
       };
     },
