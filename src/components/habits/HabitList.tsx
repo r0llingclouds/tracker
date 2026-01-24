@@ -111,15 +111,15 @@ function SortableHabitRow({
       ref={setNodeRef}
       style={style}
       className={[
-        "flex flex-col gap-3 rounded-xl border border-gray-200 p-3 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between",
-        isDragging ? "bg-gray-50 shadow-sm dark:bg-gray-900" : "",
+        "flex flex-col gap-3 rounded-xl border border-zinc-200 p-3 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between",
+        isDragging ? "bg-zinc-50 shadow-sm dark:bg-black" : "",
       ].join(" ")}
     >
       <div className="flex min-w-0 flex-1 items-start gap-2">
         {showHandle ? (
           <button
             type="button"
-            className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 active:cursor-grabbing dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+            className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 active:cursor-grabbing dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
             aria-label={`Reorder "${habit.name}"`}
             title="Drag to reorder"
             {...attributes}
@@ -131,14 +131,14 @@ function SortableHabitRow({
 
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-center gap-2">
-            <div className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{habit.name}</div>
+            <div className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-50">{habit.name}</div>
             {habit.kind === "count" && typeof habit.target === "number" ? (
-              <div className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+              <div className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                 target {habit.target}
               </div>
             ) : null}
           </div>
-          <div className="text-xs text-gray-600 dark:text-gray-400">
+          <div className="text-xs text-zinc-600 dark:text-zinc-400">
             {habit.kind === "checkbox" ? (isDone ? "Done" : "Not done yet") : "Count"}
           </div>
         </div>
@@ -158,8 +158,8 @@ function SortableHabitRow({
             <span
               className={[
                 "relative inline-flex h-7 w-12 items-center rounded-full border transition-colors",
-                "border-gray-200 bg-gray-100 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-gray-400",
-                "dark:border-gray-700 dark:bg-gray-800 dark:peer-focus-visible:outline-gray-600",
+                "border-zinc-200 bg-zinc-100 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-zinc-400",
+                "dark:border-zinc-800 dark:bg-zinc-900 dark:peer-focus-visible:outline-zinc-600",
                 "peer-checked:border-green-600 peer-checked:bg-green-600 dark:peer-checked:border-green-600 dark:peer-checked:bg-green-600",
                 "after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform",
                 "after:translate-x-0 peer-checked:after:translate-x-5",
@@ -172,7 +172,7 @@ function SortableHabitRow({
             <input
               className={[
                 isKettlebellSwings ? "w-16 px-2 tabular-nums" : "w-28 px-3",
-                "rounded-xl border border-gray-200 bg-white py-1.5 text-sm outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-gray-600 dark:text-gray-100",
+                "rounded-xl border border-zinc-200 bg-white py-1.5 text-sm outline-none focus:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:focus:border-zinc-600 dark:text-zinc-50",
               ].join(" ")}
               value={String(value)}
               inputMode="numeric"
@@ -199,12 +199,12 @@ function SortableHabitRow({
                     setDoc(setHabitWeightKg(doc, habit.id, Number.isFinite(n) && n > 0 ? n : undefined));
                   }}
                 />
-                <div className="text-xs text-gray-600 dark:text-gray-300">kg</div>
+                <div className="text-xs text-zinc-600 dark:text-zinc-300">kg</div>
               </div>
             ) : (
               <button
                 type="button"
-                className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-100"
+                className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-50"
                 onClick={() => setDoc(setDayValue(doc, today, habit.id, value + 10))}
               >
                 +10
@@ -212,7 +212,7 @@ function SortableHabitRow({
             )}
             <button
               type="button"
-              className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-100"
+              className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-50"
               onClick={() => setDoc(setDayValue(doc, today, habit.id, 0))}
             >
               Clear
@@ -222,7 +222,7 @@ function SortableHabitRow({
 
         <button
           type="button"
-          className="rounded-full px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="rounded-full px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
           onClick={() => {
             if (confirm(`Archive habit "${habit.name}"?`)) setDoc(archiveHabit(doc, habit.id));
           }}
@@ -242,7 +242,7 @@ export function HabitList({ doc, setDoc, today, ordering = false }: Props) {
 
   if (habits.length === 0) {
     return (
-      <div className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="text-sm text-zinc-600 dark:text-zinc-400">
         No active habits yet. Add one above.
       </div>
     );
@@ -266,7 +266,7 @@ export function HabitList({ doc, setDoc, today, ordering = false }: Props) {
   if (ordering) {
     return (
       <div className="flex flex-col gap-3">
-        <div className="text-xs text-gray-600 dark:text-gray-400">Drag the handles to reorder.</div>
+        <div className="text-xs text-zinc-600 dark:text-zinc-400">Drag the handles to reorder.</div>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={habitIds} strategy={verticalListSortingStrategy}>
             <div className="flex flex-col gap-3">

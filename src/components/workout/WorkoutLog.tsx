@@ -17,8 +17,8 @@ export function WorkoutLog({
 
   if (!hasEntries) {
     return (
-      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-        <svg className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="text-center py-8 text-zinc-600 dark:text-zinc-400">
+        <svg className="w-12 h-12 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
         <p>No workouts logged today</p>
@@ -55,26 +55,26 @@ export function WorkoutLog({
                 >
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="font-semibold text-gray-800 dark:text-gray-100">
+                      <span className="font-semibold text-zinc-800 dark:text-zinc-50">
                         {entry.weight}kg × {entry.reps} reps
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         entry.singleHanded 
                           ? 'bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200' 
-                          : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300'
+                          : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
                       }`}>
                         {entry.singleHanded ? '1H' : '2H'}
                       </span>
                       <span className="text-sm text-amber-700 dark:text-amber-300">
                         {volume.toLocaleString()} kg
                       </span>
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                      <span className="text-xs text-zinc-600 dark:text-zinc-400">
                         {formatTime(entry.created_at)}
                       </span>
                     </div>
                     <button
                       onClick={() => onDeleteKettlebell(entry.id)}
-                      className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1"
+                      className="text-zinc-600 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1"
                       title="Delete entry"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,16 +106,16 @@ export function WorkoutLog({
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-gray-800 dark:text-gray-100">
+                    <span className="font-semibold text-zinc-800 dark:text-zinc-50">
                       {entry.reps} reps
                     </span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                    <span className="text-xs text-zinc-600 dark:text-zinc-400">
                       {formatTime(entry.created_at)}
                     </span>
                   </div>
                   <button
                     onClick={() => onDeletePushUp(entry.id)}
-                    className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1"
+                    className="text-zinc-600 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1"
                     title="Delete entry"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

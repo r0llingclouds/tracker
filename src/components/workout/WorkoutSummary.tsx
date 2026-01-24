@@ -76,10 +76,10 @@ export function WorkoutSummary({ summary }: WorkoutSummaryProps) {
   const totalEntries = summary.kettlebell_entries + summary.pushup_entries;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+    <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-lg p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Workout Summary</h2>
-        <span className="text-sm text-gray-500 dark:text-gray-400">{today}</span>
+        <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-50">Workout Summary</h2>
+        <span className="text-sm text-zinc-600 dark:text-zinc-400">{today}</span>
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -102,7 +102,7 @@ export function WorkoutSummary({ summary }: WorkoutSummaryProps) {
       </div>
 
       {totalEntries > 0 && (
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+        <p className="text-center text-sm text-zinc-600 dark:text-zinc-400 mt-4">
           {totalEntries} {totalEntries === 1 ? 'set' : 'sets'} logged today
         </p>
       )}

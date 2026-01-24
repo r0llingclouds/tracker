@@ -106,11 +106,11 @@ export function Heatmap({ doc }: Props) {
   return (
     <section
       ref={containerRef}
-      className="relative rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+      className="relative rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950"
     >
       <div className="mb-4 flex flex-col gap-1">
-        <div className="text-sm font-medium text-gray-900 dark:text-gray-50">Heatmap</div>
-        <div className="text-xs text-gray-600 dark:text-gray-400">
+        <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">Heatmap</div>
+        <div className="text-xs text-zinc-600 dark:text-zinc-400">
           Overall daily score across active habits (last 52 weeks).
         </div>
       </div>
@@ -121,7 +121,7 @@ export function Heatmap({ doc }: Props) {
             {WEEKDAY_LABELS.map((w) => (
               <div
                 key={w.label}
-                className="absolute left-0 text-[10px] text-gray-500 dark:text-gray-400"
+                className="absolute left-0 text-[10px] text-zinc-600 dark:text-zinc-400"
                 style={{ top: `${w.row * 14}px` }}
               >
                 {w.label}
@@ -133,7 +133,7 @@ export function Heatmap({ doc }: Props) {
         <div className="min-w-max">
           <div className="mb-2 flex gap-1">
             {monthLabels.map((label, idx) => (
-              <div key={idx} className="w-3 text-[10px] text-gray-500 dark:text-gray-400">
+              <div key={idx} className="w-3 text-[10px] text-zinc-600 dark:text-zinc-400">
                 {label}
               </div>
             ))}
@@ -229,14 +229,14 @@ export function Heatmap({ doc }: Props) {
           }}
         >
           <div className="mb-2 font-medium">{hover.title}</div>
-          <div className="flex flex-col gap-1 text-gray-600 dark:text-gray-300">
+          <div className="flex flex-col gap-1 text-zinc-600 dark:text-zinc-300">
             {hover.detailLines.slice(0, 8).map((l) => (
               <div key={l} className="truncate">
                 {l}
               </div>
             ))}
             {hover.detailLines.length > 8 ? (
-              <div className="text-gray-500 dark:text-gray-400">…</div>
+              <div className="text-zinc-600 dark:text-zinc-400">…</div>
             ) : null}
           </div>
         </div>

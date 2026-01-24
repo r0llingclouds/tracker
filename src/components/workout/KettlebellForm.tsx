@@ -80,8 +80,8 @@ export function KettlebellForm({ onEntryCreated }: KettlebellFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Weight <span className="text-gray-400 dark:text-gray-500">(kg)</span>
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+            Weight <span className="text-zinc-600 dark:text-zinc-400">(kg)</span>
           </label>
           <input
             type="number"
@@ -91,12 +91,12 @@ export function KettlebellForm({ onEntryCreated }: KettlebellFormProps) {
             placeholder="16"
             min="1"
             step="0.5"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+            className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
             Reps
           </label>
           <input
@@ -106,7 +106,7 @@ export function KettlebellForm({ onEntryCreated }: KettlebellFormProps) {
             onChange={handleChange}
             placeholder="10"
             min="1"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+            className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
           />
         </div>
       </div>
@@ -120,12 +120,12 @@ export function KettlebellForm({ onEntryCreated }: KettlebellFormProps) {
             onChange={handleChange}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 dark:peer-focus:ring-amber-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
-          <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 dark:peer-focus:ring-amber-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-700 peer-checked:bg-amber-500"></div>
+          <span className="ml-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Single-handed
           </span>
         </label>
-        <span className="text-sm text-gray-500 dark:text-gray-400">
+        <span className="text-sm text-zinc-600 dark:text-zinc-400">
           ({form.singleHanded ? 'One arm at a time' : 'Both hands on kettlebell'})
         </span>
       </div>

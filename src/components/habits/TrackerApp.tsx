@@ -40,12 +40,12 @@ export function TrackerApp() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+    <div className="flex-1 overflow-y-auto bg-zinc-50 dark:bg-black">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6">
         <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">Habit Tracker</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Habit Tracker</h1>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Simple daily tracking with a GitHub-style calendar heatmap.
             </p>
           </div>

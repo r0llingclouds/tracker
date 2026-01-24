@@ -147,11 +147,11 @@ export function WorkoutHeatmap({ data, title, subtitle, unit, colorScheme, thres
   return (
     <section
       ref={containerRef}
-      className="relative rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+      className="relative rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950"
     >
       <div className="mb-4 flex flex-col gap-1">
-        <div className="text-sm font-medium text-gray-900 dark:text-gray-50">{title}</div>
-        <div className="text-xs text-gray-600 dark:text-gray-400">{subtitle}</div>
+        <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{title}</div>
+        <div className="text-xs text-zinc-600 dark:text-zinc-400">{subtitle}</div>
       </div>
 
       <div className="flex gap-3 overflow-x-auto pb-1">
@@ -160,7 +160,7 @@ export function WorkoutHeatmap({ data, title, subtitle, unit, colorScheme, thres
             {WEEKDAY_LABELS.map((w) => (
               <div
                 key={w.label}
-                className="absolute left-0 text-[10px] text-gray-500 dark:text-gray-400"
+                className="absolute left-0 text-[10px] text-zinc-600 dark:text-zinc-400"
                 style={{ top: `${w.row * 14}px` }}
               >
                 {w.label}
@@ -172,7 +172,7 @@ export function WorkoutHeatmap({ data, title, subtitle, unit, colorScheme, thres
         <div className="min-w-max">
           <div className="mb-2 flex gap-1">
             {monthLabels.map((label, idx) => (
-              <div key={idx} className="w-3 text-[10px] text-gray-500 dark:text-gray-400">
+              <div key={idx} className="w-3 text-[10px] text-zinc-600 dark:text-zinc-400">
                 {label}
               </div>
             ))}
@@ -232,7 +232,7 @@ export function WorkoutHeatmap({ data, title, subtitle, unit, colorScheme, thres
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex items-center justify-end gap-2 text-xs text-gray-500 dark:text-gray-400">
+      <div className="mt-4 flex items-center justify-end gap-2 text-xs text-zinc-600 dark:text-zinc-400">
         <span>Less</span>
         {[0, 1, 2, 3, 4].map((level) => (
           <div
@@ -248,14 +248,14 @@ export function WorkoutHeatmap({ data, title, subtitle, unit, colorScheme, thres
 
       {hover ? (
         <div
-          className="pointer-events-none absolute z-10 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs shadow-lg dark:border-gray-700 dark:bg-gray-800"
+          className="pointer-events-none absolute z-10 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs shadow-lg dark:border-zinc-800 dark:bg-zinc-950"
           style={{
             left: Math.min(hover.x + 12, containerWidth - 150),
             top: Math.max(hover.y - 12, 12),
           }}
         >
-          <div className="font-medium text-gray-900 dark:text-gray-100">{hover.date}</div>
-          <div className="text-gray-600 dark:text-gray-300">
+          <div className="font-medium text-zinc-900 dark:text-zinc-50">{hover.date}</div>
+          <div className="text-zinc-600 dark:text-zinc-300">
             {formatValue(hover.value)} {unit}
           </div>
         </div>

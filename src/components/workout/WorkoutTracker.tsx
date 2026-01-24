@@ -125,11 +125,11 @@ export function WorkoutTracker() {
 
   return (
     <main className="flex-1 overflow-y-auto">
-      <div className="min-h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-black dark:to-zinc-950">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <header className="text-center mb-8">
             <h1 className="text-4xl font-bold text-amber-800 dark:text-amber-400 mb-2">Workout Tracker</h1>
-            <p className="text-gray-600 dark:text-gray-400">Track your kettlebell swings and push ups</p>
+            <p className="text-zinc-600 dark:text-zinc-400">Track your kettlebell swings and push ups</p>
           </header>
 
           <div className="grid gap-6">
@@ -161,14 +161,14 @@ export function WorkoutTracker() {
             </div>
 
             {/* Kettlebell Form */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
                   <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Kettlebell Swings</h2>
+                <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-50">Kettlebell Swings</h2>
               </div>
               <div className="space-y-4">
                 <WorkoutTimer 
@@ -181,14 +181,14 @@ export function WorkoutTracker() {
             </div>
 
             {/* Push Up Form */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+            <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
                   <svg className="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Push Ups</h2>
+                <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-50">Push Ups</h2>
               </div>
               <div className="space-y-4">
                 <WorkoutTimer 
@@ -201,8 +201,8 @@ export function WorkoutTracker() {
             </div>
 
             {/* Today's Log */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Today's Workout</h2>
+            <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-lg p-6">
+              <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-50 mb-4">Today's Workout</h2>
               <WorkoutLog 
                 kettlebellEntries={kettlebellEntries}
                 pushUpEntries={pushUpEntries}

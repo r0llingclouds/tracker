@@ -27,7 +27,7 @@ export function ExportImportControls({ onExport, onImport, onReset }: Props) {
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-100"
+          className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 dark:text-zinc-50"
           onClick={() => {
             setError(null);
             const json = onExport();
@@ -40,7 +40,7 @@ export function ExportImportControls({ onExport, onImport, onReset }: Props) {
 
         <button
           type="button"
-          className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-100"
+          className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 dark:text-zinc-50"
           onClick={() => {
             setError(null);
             fileInputRef.current?.click();
@@ -51,7 +51,7 @@ export function ExportImportControls({ onExport, onImport, onReset }: Props) {
 
         <button
           type="button"
-          className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-100"
+          className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 dark:text-zinc-50"
           onClick={() => {
             setError(null);
             if (confirm("Reset all data in this browser? (You can export first.)")) onReset();

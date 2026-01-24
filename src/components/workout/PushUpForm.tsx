@@ -62,7 +62,7 @@ export function PushUpForm({ onEntryCreated }: PushUpFormProps) {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
           Reps
         </label>
         <input
@@ -72,7 +72,7 @@ export function PushUpForm({ onEntryCreated }: PushUpFormProps) {
           onChange={handleChange}
           placeholder="10"
           min="1"
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-colors"
+          className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-colors"
         />
       </div>
 
