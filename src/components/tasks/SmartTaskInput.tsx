@@ -168,7 +168,8 @@ export function SmartTaskInput({
       if (showDropdown) {
         setShowDropdown(false);
       } else {
-        onCancel?.();
+        // Blur the input to exit the text box
+        inputRef.current?.blur();
       }
     }
   };

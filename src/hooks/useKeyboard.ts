@@ -29,20 +29,27 @@ export function useKeyboardShortcuts({
     stopTimer,
     getTaskById,
     setEditingTask,
+    editingTaskId,
+    editingProjectId,
   } = useTaskStore();
+
+  // Check if any edit modal is open
+  const isEditModalOpen = !!editingTaskId || !!editingProjectId;
 
   // Track if we're waiting for a second key (for prefix commands)
   const waitingForSpaceCommand = useRef(false);
 
-  // Command palette - Cmd+K
+  // Command palette - Cmd+K (disabled when edit modal is open)
   useHotkeys('meta+k, ctrl+k', (e) => {
     e.preventDefault();
+    // Don't open palette when task/project edit modal is open
+    if (isEditModalOpen) return;
     if (paletteOpen) {
       closePalette();
     } else {
       openPalette('search');
     }
-  }, { enableOnFormTags: true });
+  }, { enableOnFormTags: true }, [isEditModalOpen, paletteOpen]);
 
   // Escape to close palette
   useHotkeys('escape', () => {
@@ -157,10 +164,10 @@ export function useKeyboardShortcuts({
           break;
           
         case 'enter':
-          // Enter still completes task directly (not a letter, won't conflict with search)
+          // Enter opens the edit modal for the selected task
           if (selectedTaskId) {
             e.preventDefault();
-            toggleTask(selectedTaskId);
+            setEditingTask(selectedTaskId);
           }
           break;
           

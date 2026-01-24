@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { format } from 'date-fns';
 import { useTaskStore } from '../../store/taskStore';
 import { useTimer } from '../../hooks/useTimer';
@@ -53,6 +53,25 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
     }
   }, [task]);
 
+  // Handle Enter/Escape to close modal when not in an input
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isInInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable;
+      
+      if (!isInInput && (e.key === 'Enter' || e.key === 'Escape')) {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, onClose]);
+
   if (!open || !task) return null;
 
   // Handle smart input submission - applies all parsed values
@@ -98,7 +117,10 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
 
     // Reset the smart input to just the clean title
     setSmartInputValue(newTitle);
-  }, [task, taskId, projects, areas, updateTask, addTagToTask, moveTask, setTaskArea, setTaskDate, setDeadline]);
+
+    // Close the modal after applying changes
+    onClose();
+  }, [task, taskId, projects, areas, updateTask, addTagToTask, moveTask, setTaskArea, setTaskDate, setDeadline, onClose]);
 
   const handleUrlBlur = () => {
     const trimmedUrl = url.trim();
@@ -114,7 +136,9 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
       (e.target as HTMLInputElement).blur();
     }
     if (e.key === 'Escape') {
+      e.preventDefault();
       setUrl(task.url || '');
+      (e.target as HTMLInputElement).blur();
     }
   };
 
@@ -152,6 +176,11 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddTag();
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setNewTag('');
+      (e.target as HTMLInputElement).blur();
     }
   };
 
