@@ -871,11 +871,15 @@ export const useTaskStore = create<TaskStore>()(
       
       if (visibleTasks.length === 0) return;
       
-      if (currentIndex === -1 || currentIndex === visibleTasks.length - 1) {
-        set({ selectedTaskId: visibleTasks[0].id });
-      } else {
-        set({ selectedTaskId: visibleTasks[currentIndex + 1].id });
-      }
+      const newId = (currentIndex === -1 || currentIndex === visibleTasks.length - 1)
+        ? visibleTasks[0].id
+        : visibleTasks[currentIndex + 1].id;
+      
+      set({ 
+        selectedTaskId: newId,
+        selectedTaskIds: [newId],
+        lastSelectedTaskId: newId,
+      });
     },
     
     selectPrevTask: () => {
@@ -884,11 +888,15 @@ export const useTaskStore = create<TaskStore>()(
       
       if (visibleTasks.length === 0) return;
       
-      if (currentIndex === -1 || currentIndex === 0) {
-        set({ selectedTaskId: visibleTasks[visibleTasks.length - 1].id });
-      } else {
-        set({ selectedTaskId: visibleTasks[currentIndex - 1].id });
-      }
+      const newId = (currentIndex === -1 || currentIndex === 0)
+        ? visibleTasks[visibleTasks.length - 1].id
+        : visibleTasks[currentIndex - 1].id;
+      
+      set({ 
+        selectedTaskId: newId,
+        selectedTaskIds: [newId],
+        lastSelectedTaskId: newId,
+      });
     },
     
     // Shift+ArrowDown: extend or contract selection downward
