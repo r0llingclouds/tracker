@@ -29,6 +29,7 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
     startTimer,
     stopTimer,
     resetTimer,
+    getTaskDecayInfo,
   } = useTaskStore();
 
   const task = tasks.find(t => t.id === taskId);
@@ -377,6 +378,36 @@ export function TaskDetail({ taskId, open, onClose }: TaskDetailProps) {
                 }}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500"
               />
+              {(() => {
+                const decayInfo = getTaskDecayInfo(taskId);
+                if (!decayInfo) return null;
+                
+                if (decayInfo.isDecaying) {
+                  return (
+                    <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                      <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                        </svg>
+                        <span className="font-medium">Decaying: {Math.round(decayInfo.multiplier * 100)}%</span>
+                      </div>
+                      <div className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+                        Effective XP: <span className="font-bold">{decayInfo.effectiveXp}</span> (was {decayInfo.baseXp})
+                      </div>
+                      <div className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+                        Schedule this task or mark as Someday to stop decay.
+                      </div>
+                    </div>
+                  );
+                } else if (decayInfo.daysUntilDecay !== null && decayInfo.daysUntilDecay <= 7) {
+                  return (
+                    <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Decay starts in {decayInfo.daysUntilDecay} day{decayInfo.daysUntilDecay !== 1 ? 's' : ''} if not scheduled.
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
             <div className="flex items-end">
               <label className="flex items-center gap-2 px-3 py-2 cursor-pointer">

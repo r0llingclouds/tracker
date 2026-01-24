@@ -87,9 +87,10 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
   const scheduledInfo = task.scheduledDate ? formatScheduledDate(task.scheduledDate) : null;
   const deadlineInfo = task.deadline ? formatDeadline(task.deadline) : null;
   const { formattedTime, isRunning } = useTimer(task.timeSpent, task.timerStartedAt);
-  const { startTimer, stopTimer } = useTaskStore();
+  const { startTimer, stopTimer, getTaskDecayInfo } = useTaskStore();
   
   const hasTime = task.timeSpent > 0 || isRunning;
+  const decayInfo = getTaskDecayInfo(task.id);
   
   const handleTimerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -211,6 +212,34 @@ export function TaskItem({ task, project, selected, onSelect, onToggle, onDouble
                 </span>
               ))}
             </div>
+          )}
+          
+          {/* XP indicator with decay */}
+          {decayInfo && !task.completed && (
+            <span 
+              className={`flex items-center gap-1 text-xs font-medium ${
+                decayInfo.isDecaying
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-purple-600 dark:text-purple-400'
+              }`}
+              title={decayInfo.isDecaying 
+                ? `Decaying: ${Math.round(decayInfo.multiplier * 100)}% of ${decayInfo.baseXp} XP`
+                : decayInfo.daysUntilDecay !== null 
+                  ? `${decayInfo.baseXp} XP - Decay starts in ${decayInfo.daysUntilDecay} days`
+                  : `${decayInfo.baseXp} XP`
+              }
+            >
+              {decayInfo.isDecaying ? (
+                <>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                  </svg>
+                  {decayInfo.effectiveXp} XP
+                </>
+              ) : (
+                <>{decayInfo.baseXp} XP</>
+              )}
+            </span>
           )}
           
           {hasTime && (

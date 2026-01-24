@@ -22,11 +22,43 @@ function getXpForLevel(level: number): number {
   return LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1] * Math.pow(2, level - LEVEL_THRESHOLDS.length);
 }
 
-// Get effective XP for a task based on its tags
+// Grace period before decay starts (in days)
+const DECAY_GRACE_PERIOD = 14;
+
+// Calculate decay multiplier for a task (1.0 = full XP, 0.25 = minimum)
+function getDecayMultiplier(task: Task): number {
+  // No decay for completed, someday, or scheduled tasks
+  if (task.completed || task.someday || task.scheduledDate) return 1;
+  
+  const now = new Date();
+  const createdAt = new Date(task.createdAt);
+  const daysSinceCreation = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+  
+  // Grace period: no decay for first 14 days
+  if (daysSinceCreation <= DECAY_GRACE_PERIOD) return 1;
+  
+  // Days into decay period
+  const decayDays = daysSinceCreation - DECAY_GRACE_PERIOD;
+  
+  // Exponential decay: starts at 100%, approaches 25% minimum
+  // Formula: 0.25 + 0.75 * e^(-0.046 * days)
+  // This gives: Day 0=100%, Day 3=~85%, Day 7=~60%, Day 14=~40%, Day 30=~25%
+  const decay = 0.25 + 0.75 * Math.exp(-0.046 * decayDays);
+  
+  return Math.max(0.25, Math.min(1, decay));
+}
+
+// Get effective XP for a task based on its tags and decay
 function getEffectiveXp(task: Task): number {
-  if (task.tags.includes('hard')) return 15;
-  if (task.tags.includes('mid')) return 10;
-  return task.xp ?? 5;
+  // Determine base XP from tags
+  let baseXp = 5;
+  if (task.tags.includes('hard')) baseXp = 15;
+  else if (task.tags.includes('mid')) baseXp = 10;
+  else baseXp = task.xp ?? 5;
+  
+  // Apply decay multiplier
+  const decayMultiplier = getDecayMultiplier(task);
+  return Math.round(baseXp * decayMultiplier);
 }
 
 // Helper to calculate next occurrence for recurring tasks
@@ -150,6 +182,13 @@ interface TaskStore {
   getTaskById: (id: string) => Task | undefined;
   getProjectById: (id: string) => Project | undefined;
   getAreaById: (id: string) => Area | undefined;
+  getTaskDecayInfo: (taskId: string) => { 
+    isDecaying: boolean; 
+    multiplier: number; 
+    daysUntilDecay: number | null;
+    effectiveXp: number;
+    baseXp: number;
+  } | null;
   
   // Theme
   setTheme: (theme: Theme) => void;
@@ -194,20 +233,34 @@ export const useTaskStore = create<TaskStore>()(
         
         // Convert date strings to Date objects and ensure fields exist
         // Migrate existing tasks: add xp field with default value of 5
-        const tasks = data.tasks.map((t: Task) => ({
-          ...t,
-          createdAt: new Date(t.createdAt),
-          scheduledDate: t.scheduledDate ? new Date(t.scheduledDate) : null,
-          deadline: t.deadline ? new Date(t.deadline) : null,
-          someday: t.someday ?? false,
-          recurrence: t.recurrence ?? null,
-          areaId: t.areaId ?? null,
-          timeSpent: t.timeSpent ?? 0,
-          timerStartedAt: t.timerStartedAt ? new Date(t.timerStartedAt) : null,
-          completedAt: t.completedAt ? new Date(t.completedAt) : null,
-          url: t.url ?? null,
-          xp: t.xp ?? 5, // Default XP for existing tasks
-        }));
+        const tasks = data.tasks.map((t: Task) => {
+          const task = {
+            ...t,
+            createdAt: new Date(t.createdAt),
+            scheduledDate: t.scheduledDate ? new Date(t.scheduledDate) : null,
+            deadline: t.deadline ? new Date(t.deadline) : null,
+            someday: t.someday ?? false,
+            recurrence: t.recurrence ?? null,
+            areaId: t.areaId ?? null,
+            timeSpent: t.timeSpent ?? 0,
+            timerStartedAt: t.timerStartedAt ? new Date(t.timerStartedAt) : null,
+            completedAt: t.completedAt ? new Date(t.completedAt) : null,
+            url: t.url ?? null,
+            xp: t.xp ?? 5, // Default XP for existing tasks
+          };
+          
+          // Auto-add/remove decay tag based on decay state
+          const isDecaying = getDecayMultiplier(task) < 1;
+          const hasDecayTag = task.tags.includes('decay');
+          
+          if (isDecaying && !hasDecayTag) {
+            task.tags = [...task.tags, 'decay'];
+          } else if (!isDecaying && hasDecayTag) {
+            task.tags = task.tags.filter((tag: string) => tag !== 'decay');
+          }
+          
+          return task;
+        });
         
         // Ensure projects have areaId field
         const projects = (data.projects || []).map((p: Project) => ({
@@ -227,11 +280,18 @@ export const useTaskStore = create<TaskStore>()(
         // Recalculate level to ensure consistency
         userProgress.level = calculateLevel(userProgress.totalXp);
         
+        // Ensure 'decay' tag exists in global tags if any task is decaying
+        let globalTags = data.tags || [];
+        const hasDecayingTasks = tasks.some((t: Task) => t.tags.includes('decay'));
+        if (hasDecayingTasks && !globalTags.includes('decay')) {
+          globalTags = [...globalTags, 'decay'];
+        }
+        
         set({ 
           tasks, 
           projects,
           areas: data.areas || [],
-          tags: data.tags,
+          tags: globalTags,
           userProgress,
           isLoading: false 
         });
@@ -404,9 +464,12 @@ export const useTaskStore = create<TaskStore>()(
     
     setTaskDate: (taskId, date) => {
       set(state => ({
-        tasks: state.tasks.map(task =>
-          task.id === taskId ? { ...task, scheduledDate: date, someday: date ? false : task.someday } : task
-        ),
+        tasks: state.tasks.map(task => {
+          if (task.id !== taskId) return task;
+          // Remove decay tag if scheduling (stops decay)
+          const tags = date ? task.tags.filter(t => t !== 'decay') : task.tags;
+          return { ...task, scheduledDate: date, someday: date ? false : task.someday, tags };
+        }),
       }));
     },
     
@@ -420,9 +483,12 @@ export const useTaskStore = create<TaskStore>()(
     
     setSomeday: (taskId, someday) => {
       set(state => ({
-        tasks: state.tasks.map(task =>
-          task.id === taskId ? { ...task, someday, scheduledDate: someday ? null : task.scheduledDate } : task
-        ),
+        tasks: state.tasks.map(task => {
+          if (task.id !== taskId) return task;
+          // Remove decay tag if marking as someday (stops decay)
+          const tags = someday ? task.tags.filter(t => t !== 'decay') : task.tags;
+          return { ...task, someday, scheduledDate: someday ? null : task.scheduledDate, tags };
+        }),
       }));
     },
     
@@ -795,6 +861,37 @@ export const useTaskStore = create<TaskStore>()(
     getProjectById: (id) => get().projects.find(p => p.id === id),
     
     getAreaById: (id) => get().areas.find(a => a.id === id),
+    
+    getTaskDecayInfo: (taskId) => {
+      const task = get().tasks.find(t => t.id === taskId);
+      if (!task) return null;
+      
+      const multiplier = getDecayMultiplier(task);
+      const isDecaying = multiplier < 1;
+      
+      // Calculate days until decay starts (if not decaying yet)
+      let daysUntilDecay: number | null = null;
+      if (!isDecaying && !task.completed && !task.someday && !task.scheduledDate) {
+        const now = new Date();
+        const createdAt = new Date(task.createdAt);
+        const daysSinceCreation = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+        daysUntilDecay = Math.max(0, DECAY_GRACE_PERIOD - daysSinceCreation);
+      }
+      
+      // Calculate base XP (before decay)
+      let baseXp = 5;
+      if (task.tags.includes('hard')) baseXp = 15;
+      else if (task.tags.includes('mid')) baseXp = 10;
+      else baseXp = task.xp ?? 5;
+      
+      return {
+        isDecaying,
+        multiplier,
+        daysUntilDecay,
+        effectiveXp: Math.round(baseXp * multiplier),
+        baseXp,
+      };
+    },
     
     // Theme actions
     setTheme: (theme) => {
