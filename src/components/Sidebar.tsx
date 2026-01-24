@@ -3,6 +3,7 @@ import { isSameDay, startOfDay } from 'date-fns';
 import { useTaskStore } from '../store/taskStore';
 import { useTimer } from '../hooks/useTimer';
 import { XpHistory } from './tasks/XpHistory';
+import { ProjectDetail } from './tasks/ProjectDetail';
 import type { AppMode } from '../App';
 import type { Task } from '../types';
 
@@ -153,10 +154,8 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
     areas,
     updateArea,
     deleteArea,
-    updateProject,
-    deleteProject,
-    setProjectArea,
-    toggleProjectBoss,
+    editingProjectId,
+    setEditingProject,
     tags, 
     tasks 
   } = useTaskStore();
@@ -304,34 +303,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                       {areaProjects.map(project => (
                         <div
                           key={project.id}
-                          onDoubleClick={() => {
-                            const action = prompt('Type "rename", "delete", "move", or "boss":');
-                            if (action?.toLowerCase() === 'rename') {
-                              const newName = prompt('New name:', project.name);
-                              if (newName && newName !== project.name) {
-                                updateProject(project.id, { name: newName });
-                              }
-                            } else if (action?.toLowerCase() === 'delete') {
-                              if (confirm(`Delete project "${project.name}"? Tasks will be moved to Inbox.`)) {
-                                deleteProject(project.id);
-                              }
-                            } else if (action?.toLowerCase() === 'move') {
-                              const areaNames = areas.map(a => a.name).join(', ');
-                              const areaName = prompt(`Move to area (${areaNames || 'no areas'}), or type "none" to remove from area:`);
-                              if (areaName?.toLowerCase() === 'none') {
-                                setProjectArea(project.id, null);
-                              } else if (areaName) {
-                                const targetArea = areas.find(a => a.name.toLowerCase() === areaName.toLowerCase());
-                                if (targetArea) {
-                                  setProjectArea(project.id, targetArea.id);
-                                } else {
-                                  alert(`Area "${areaName}" not found.`);
-                                }
-                              }
-                            } else if (action?.toLowerCase() === 'boss') {
-                              toggleProjectBoss(project.id);
-                            }
-                          }}
+                          onDoubleClick={() => setEditingProject(project.id)}
                         >
                           <NavItem
                             label={`${project.boss ? '👑 ' : ''}${project.name}`}
@@ -359,34 +331,7 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
                 {ungroupedProjects.map(project => (
                   <div
                     key={project.id}
-                    onDoubleClick={() => {
-                      const action = prompt('Type "rename", "delete", "move", or "boss":');
-                      if (action?.toLowerCase() === 'rename') {
-                        const newName = prompt('New name:', project.name);
-                        if (newName && newName !== project.name) {
-                          updateProject(project.id, { name: newName });
-                        }
-                      } else if (action?.toLowerCase() === 'delete') {
-                        if (confirm(`Delete project "${project.name}"? Tasks will be moved to Inbox.`)) {
-                          deleteProject(project.id);
-                        }
-                      } else if (action?.toLowerCase() === 'move') {
-                        const areaNames = areas.map(a => a.name).join(', ');
-                        const areaName = prompt(`Move to area (${areaNames || 'no areas'}), or type "none" to remove from area:`);
-                        if (areaName?.toLowerCase() === 'none') {
-                          setProjectArea(project.id, null);
-                        } else if (areaName) {
-                          const targetArea = areas.find(a => a.name.toLowerCase() === areaName.toLowerCase());
-                          if (targetArea) {
-                            setProjectArea(project.id, targetArea.id);
-                          } else {
-                            alert(`Area "${areaName}" not found.`);
-                          }
-                        }
-                      } else if (action?.toLowerCase() === 'boss') {
-                        toggleProjectBoss(project.id);
-                      }
-                    }}
+                    onDoubleClick={() => setEditingProject(project.id)}
                   >
                     <NavItem
                       label={`${project.boss ? '👑 ' : ''}${project.name}`}
@@ -447,6 +392,15 @@ export function Sidebar({ appMode, setAppMode }: SidebarProps) {
             Track your kettlebell swings and push ups.
           </p>
         </div>
+      )}
+      
+      {/* Project Detail Modal */}
+      {editingProjectId && (
+        <ProjectDetail
+          projectId={editingProjectId}
+          open={!!editingProjectId}
+          onClose={() => setEditingProject(null)}
+        />
       )}
     </aside>
   );
