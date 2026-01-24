@@ -6,15 +6,37 @@ A full-stack personal productivity application combining **task management**, **
 
 ### Tasks Tracker
 
-A powerful task management system inspired by Things 3 with keyboard-first design.
+A powerful task management system inspired by Things 3 with keyboard-first design and RPG-style progression.
 
 - **Organization**: Projects, areas, and tags for flexible task categorization
-- **Smart Views**: Inbox, Today, Upcoming, and Someday lists
+- **Smart Views**: Inbox, Today, Upcoming (with overdue/past-deadline sections), and Someday lists
 - **Command Palette**: Quick actions via `Cmd/Ctrl+K` with natural language date parsing
-- **Recurring Tasks**: Daily, weekly (with specific weekdays), monthly, and yearly recurrence
+- **Recurring Tasks**: Daily, weekly (with specific weekdays), biweekly, monthly, and yearly recurrence
 - **Time Tracking**: Built-in per-task timer with start/pause/reset controls
 - **Keyboard Shortcuts**: Vim-inspired space leader commands for rapid task management
 - **Natural Language**: Create tasks with dates like "tomorrow", "next monday", or "21 jun"
+- **Smart Autocomplete**: Type `#` for tag suggestions, `@` for project/area suggestions
+- **URL Detection**: Automatically extracts URLs from task input
+
+#### XP System
+
+Earn experience points for completing tasks and level up over time:
+
+- **Base XP Values**: 5 (default), 10 (`#mid` tag), 15 (`#hard` tag), or custom 1-100
+- **Level Progression**: 11 levels with thresholds at 0, 100, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000+
+- **XP Decay**: Tasks lose XP value after a 14-day grace period (exponential decay from 100% to 25% over ~30 days)
+- **XP History**: Complete history of all XP events with filtering by date, type, and search
+- **Statistics**: Track total earned, revoked, net XP, and tasks completed
+- **Auto-tagging**: Tasks automatically get a `#decay` tag when decay begins
+
+#### Boss Projects
+
+Mark important projects as "boss" for enhanced rewards:
+
+- **2x XP Multiplier**: All tasks in boss projects earn double XP
+- **Boss Cards**: Customize with image upload (drag & drop) and description/backstory
+- **Auto-tagging**: Tasks in boss projects automatically get the `#boss` tag
+- **Visual Indicator**: Crown icon marks boss projects in the sidebar
 
 ### Habits Tracker
 
@@ -22,10 +44,14 @@ Daily habit tracking with visual feedback through a GitHub-style contribution he
 
 - **Habit Types**: Checkbox (done/not done) and count-based (with optional targets)
 - **Heatmap Visualization**: 52-week calendar view with 5-level color intensity
+- **Interactive Tooltips**: Hover over any day to see detailed per-habit breakdown
 - **Scoring System**: Daily progress calculated as percentage (0-100%)
 - **Drag-and-Drop**: Reorder habits by dragging
+- **Archiving**: Soft-delete habits (hidden but data preserved for history)
 - **Export/Import**: Backup and restore your data as JSON
 - **Special Presets**: Built-in support for kettlebell swings with weight tracking
+- **Dual Storage**: Saves to both localStorage and server API for reliability
+- **Auto-refresh**: Automatically updates at midnight for the new day
 
 ### Food Tracker
 
@@ -33,9 +59,14 @@ Comprehensive nutrition logging with AI-powered assistance.
 
 - **Nutritional Tracking**: Calories, protein, carbs, fats, sodium, caffeine, and total grams
 - **AI Food Parser**: Paste nutritional text and let Claude extract the values automatically
+  - Handles European number formats (comma decimals)
+  - Smart salt-to-sodium conversion (1g salt ≈ 400mg sodium)
 - **Meal Lookup**: Describe meals in natural language, search online via Perplexity API
-- **Water Intake**: Visual water drop tracker with quick-add buttons
-- **Intermittent Fasting**: Track fasting completion with customizable eating windows
+- **Food Search**: Real-time search with keyboard navigation (arrow keys, Enter, Escape)
+- **Servings Calculator**: Adjustable servings with live nutrition preview
+- **Copy to Clipboard**: Quickly copy food nutritional info
+- **Water Intake**: Visual water drop tracker with quick-add buttons (+250mL, +500mL, -250mL)
+- **Intermittent Fasting**: Track fasting completion with customizable eating windows (default: 1 PM - 8 PM)
 - **Daily Summaries**: Aggregated nutrition totals with color-coded cards
 
 ### Workout Tracker
@@ -120,18 +151,22 @@ npm run build
 | `Escape` | Close palette/modal |
 | `Arrow Up/Down` | Navigate tasks |
 | `Enter` | Complete selected task |
+| Type anywhere | Opens search palette with typed character |
 
 ### Space Leader Commands (when task is selected)
+
+Pressing `Space` shows a hint overlay with available commands.
 
 | Shortcut | Action |
 |----------|--------|
 | `Space + n` | New task |
 | `Space + c` | Complete task |
-| `Space + d` | Delete task |
+| `Space + d` | Set deadline |
+| `Space + x` | Delete task |
+| `Space + e` | Edit task (opens detail modal) |
 | `Space + m` | Move task to project |
 | `Space + t` | Add/remove tags |
 | `Space + s` | Schedule task |
-| `Space + e` | Set deadline |
 | `Space + p` | Play/pause timer |
 
 ### Command Palette Navigation
@@ -157,8 +192,10 @@ When creating or scheduling tasks, use natural language dates:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/data` | Get all tasks, projects, areas |
+| GET | `/api/data` | Get all tasks, projects, areas, tags, userProgress |
 | POST | `/api/data` | Save all tasks data |
+| POST | `/api/upload-image` | Upload boss card image (base64) |
+| DELETE | `/api/delete-image/:projectId` | Delete boss card image |
 
 ### Food
 
@@ -219,7 +256,9 @@ Data is stored as JSON files in `server/data/`:
 
 ```
 server/data/
-├── tasks.json         # Tasks, projects, areas
+├── tasks/
+│   └── tasks.json     # Tasks, projects, areas, tags, XP history
+├── images/            # Boss card images (uploaded via drag & drop)
 ├── foods.json         # Food database
 ├── food-logs.json     # Daily food logs
 ├── daily.json         # Fasting and water data
