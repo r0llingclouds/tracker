@@ -7,7 +7,6 @@ import 'dotenv/config';
 import cron from 'node-cron';
 
 // Route modules
-import tasksRouter from './routes/tasks.js';
 import foodRouter from './routes/food.js';
 import workoutsRouter from './routes/workouts.js';
 
@@ -28,7 +27,7 @@ const BACKUP_DIR = process.env.BACKUP_DIR || null;
 const BACKUP_HOUR = parseInt(process.env.BACKUP_HOUR, 10) || 2; // Default: 2:00 AM
 
 // Tracker subdirectories
-const TRACKER_SUBDIRS = ['food', 'habits', 'tasks', 'workout', 'images'];
+const TRACKER_SUBDIRS = ['food', 'habits', 'workout', 'images'];
 
 // Ensure data directory and all subdirectories exist
 if (!fs.existsSync(DATA_DIR)) {
@@ -49,7 +48,6 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Increase limit for image uploads
 
 // Mount routes
-app.use('/api', tasksRouter);
 app.use('/api', foodRouter);
 app.use('/api', workoutsRouter);
 

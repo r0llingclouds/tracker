@@ -21,7 +21,7 @@ export function formatTime(ms: number): string {
 }
 
 /**
- * Calculate the current elapsed time for a task
+ * Calculate the current elapsed time
  * @param timeSpent - Accumulated time in milliseconds
  * @param timerStartedAt - Timestamp when timer was started (null if paused)
  * @returns Current total elapsed time in milliseconds

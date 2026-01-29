@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const MAX_BACKUPS = 5;
-const TRACKER_SUBDIRS = ['food', 'habits', 'tasks', 'workout', 'images'];
+const TRACKER_SUBDIRS = ['food', 'habits', 'workout', 'images'];
 
 /**
  * Generate a timestamp string for backup folder names

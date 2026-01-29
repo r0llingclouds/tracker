@@ -1,42 +1,8 @@
 # Gamified Tracker
 
-A full-stack personal productivity application combining **task management**, **habit tracking**, **nutrition logging**, and **workout tracking** in one unified interface. Built with React, TypeScript, and Express.js, featuring keyboard-driven workflows, AI-powered food parsing, and visual gamification through heatmaps and scoring systems.
+A full-stack personal productivity application combining **habit tracking**, **nutrition logging**, and **workout tracking** in one unified interface. Built with React, TypeScript, and Express.js, featuring AI-powered food parsing and visual gamification through heatmaps and scoring systems.
 
 ## Features
-
-### Tasks Tracker
-
-A powerful task management system inspired by Things 3 with keyboard-first design and RPG-style progression.
-
-- **Organization**: Projects, areas, and tags for flexible task categorization
-- **Smart Views**: Inbox, Today, Upcoming (with overdue/past-deadline sections), and Someday lists
-- **Command Palette**: Quick actions via `Cmd/Ctrl+K` with natural language date parsing
-- **Recurring Tasks**: Daily, weekly (with specific weekdays), biweekly, monthly, and yearly recurrence
-- **Time Tracking**: Built-in per-task timer with start/pause/reset controls
-- **Keyboard Shortcuts**: Vim-inspired space leader commands for rapid task management
-- **Natural Language**: Create tasks with dates like "tomorrow", "next monday", or "21 jun"
-- **Smart Autocomplete**: Type `#` for tag suggestions, `@` for project/area suggestions
-- **URL Detection**: Automatically extracts URLs from task input
-
-#### XP System
-
-Earn experience points for completing tasks and level up over time:
-
-- **Base XP Values**: 5 (default), 10 (`#mid` tag), 15 (`#hard` tag), or custom 1-100
-- **Level Progression**: 11 levels with thresholds at 0, 100, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000+
-- **XP Decay**: Tasks lose XP value after a 14-day grace period (exponential decay from 100% to 25% over ~30 days)
-- **XP History**: Complete history of all XP events with filtering by date, type, and search
-- **Statistics**: Track total earned, revoked, net XP, and tasks completed
-- **Auto-tagging**: Tasks automatically get a `#decay` tag when decay begins
-
-#### Boss Projects
-
-Mark important projects as "boss" for enhanced rewards:
-
-- **2x XP Multiplier**: All tasks in boss projects earn double XP
-- **Boss Cards**: Customize with image upload (drag & drop) and description/backstory
-- **Auto-tagging**: Tasks in boss projects automatically get the `#boss` tag
-- **Visual Indicator**: Crown icon marks boss projects in the sidebar
 
 ### Habits Tracker
 
@@ -87,8 +53,7 @@ Track kettlebell swings and push-ups with timers and visual progress heatmaps.
 |-------|------------|
 | Frontend | React 19, TypeScript, Vite 7 |
 | Styling | Tailwind CSS 4 |
-| State | Zustand |
-| UI Components | @dnd-kit (drag & drop), cmdk (command palette) |
+| UI Components | @dnd-kit (drag & drop) |
 | Backend | Express.js 4, Node.js |
 | Storage | File-based JSON (no database required) |
 | AI | Anthropic Claude (food parsing), Perplexity API (meal lookup) |
@@ -142,60 +107,11 @@ npm run build
 
 ## Keyboard Shortcuts
 
-### Global
-
 | Shortcut | Action |
 |----------|--------|
-| `Cmd/Ctrl+K` | Open command palette |
 | `Cmd/Ctrl+Shift+L` | Toggle dark mode |
-| `Escape` | Close palette/modal |
-| `Arrow Up/Down` | Navigate tasks |
-| `Enter` | Complete selected task |
-| Type anywhere | Opens search palette with typed character |
-
-### Space Leader Commands (when task is selected)
-
-Pressing `Space` shows a hint overlay with available commands.
-
-| Shortcut | Action |
-|----------|--------|
-| `Space + n` | New task |
-| `Space + c` | Complete task |
-| `Space + d` | Set deadline |
-| `Space + x` | Delete task |
-| `Space + e` | Edit task (opens detail modal) |
-| `Space + m` | Move task to project |
-| `Space + t` | Add/remove tags |
-| `Space + s` | Schedule task |
-| `Space + p` | Play/pause timer |
-
-### Command Palette Navigation
-
-| Command | Action |
-|---------|--------|
-| `gi` | Go to Inbox |
-| `gt` | Go to Today |
-| `gu` | Go to Upcoming |
-| `gs` | Go to Someday |
-
-### Natural Language in Command Palette
-
-When creating or scheduling tasks, use natural language dates:
-- `today`, `tomorrow`, `tom`
-- `monday`, `mon`, `next week`
-- `21 jun`, `jun 21`, `21/6`
-- Deadlines: prefix with `d/` (e.g., `d/monday`, `d/21jun`)
 
 ## API Endpoints
-
-### Tasks
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/data` | Get all tasks, projects, areas, tags, userProgress |
-| POST | `/api/data` | Save all tasks data |
-| POST | `/api/upload-image` | Upload boss card image (base64) |
-| DELETE | `/api/delete-image/:projectId` | Delete boss card image |
 
 ### Food
 
@@ -256,28 +172,26 @@ Data is stored as JSON files in `server/data/`:
 
 ```
 server/data/
-├── tasks/
-│   └── tasks.json     # Tasks, projects, areas, tags, XP history
-├── images/            # Boss card images (uploaded via drag & drop)
-├── foods.json         # Food database
-├── food-logs.json     # Daily food logs
-├── daily.json         # Fasting and water data
-├── habits.json        # Habits and daily entries
-├── kettlebell.json    # Kettlebell swing entries
-├── pushups.json       # Push-up entries
-└── workout-daily.json # Workout timer data
+├── food/
+│   ├── foods.json       # Food database
+│   ├── food-logs.json   # Daily food logs
+│   └── daily.json       # Fasting and water data
+├── habits/
+│   └── habits.json      # Habits and daily entries
+├── workout/
+│   ├── kettlebell.json    # Kettlebell swing entries
+│   ├── pushups.json       # Push-up entries
+│   └── workout-daily.json # Workout timer data
+└── images/              # Uploaded images
 ```
 
 ### Cloud Sync (Optional)
 
-To sync data across devices, configure custom paths in `server/.env`:
+To sync data across devices, configure a custom data directory in `server/.env`:
 
 ```bash
 # Store in iCloud Drive
-TASKS_DATA_FILE=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/tasks.json
-HABITS_DATA_FILE=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/habits.json
-FOOD_DATA_DIR=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/food/
-WORKOUT_DATA_DIR=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/workout/
+TRACKER_DATA_DIR=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker/
 ```
 
 ## Project Structure
@@ -286,20 +200,16 @@ WORKOUT_DATA_DIR=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker
 gamified-tracker/
 ├── src/
 │   ├── components/
-│   │   ├── tasks/         # Task management UI
 │   │   ├── habits/        # Habit tracking UI
 │   │   ├── food/          # Food tracking UI
 │   │   ├── workout/       # Workout tracking UI
 │   │   └── Sidebar.tsx    # Navigation sidebar
-│   ├── store/
-│   │   └── taskStore.ts   # Zustand store for tasks
 │   ├── hooks/             # Custom React hooks
 │   ├── lib/habits/        # Habits logic and storage
 │   ├── types/             # TypeScript types
 │   └── App.tsx            # Main app component
 ├── server/
 │   ├── routes/
-│   │   ├── tasks.js       # Tasks API
 │   │   ├── food.js        # Food & nutrition API
 │   │   └── workouts.js    # Workout tracking API
 │   ├── utils/             # Server utilities
