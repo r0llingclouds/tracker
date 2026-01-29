@@ -9,6 +9,7 @@ export interface Food {
   sodium: number;
   caffeine: number;
   total_grams: number | null;
+  is_supplement: boolean;
   created_at: string;
 }
 
@@ -27,6 +28,7 @@ export interface FoodLog {
   sodium: number;
   caffeine: number;
   total_grams: number | null;
+  is_supplement: boolean;
 }
 
 // Daily tracking data (fasting, water)
@@ -59,6 +61,7 @@ export interface FoodFormData {
   sodium: number;
   caffeine: number;
   total_grams: number | null;
+  is_supplement: boolean;
 }
 
 // Parsed food data from AI
@@ -71,6 +74,7 @@ export interface ParsedFood {
   sodium: number;
   caffeine: number;
   total_grams?: number | null;
+  is_supplement?: boolean;
 }
 
 // Meal lookup response

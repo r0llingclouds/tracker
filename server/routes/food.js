@@ -58,7 +58,7 @@ router.get('/foods/:id', (req, res) => {
 // POST /api/foods - Create new food
 router.post('/foods', (req, res) => {
   try {
-    const { name, kcal = 0, protein = 0, carbs = 0, fats = 0, sodium = 0, caffeine = 0, total_grams = null } = req.body;
+    const { name, kcal = 0, protein = 0, carbs = 0, fats = 0, sodium = 0, caffeine = 0, total_grams = null, is_supplement = false } = req.body;
     
     if (!name || !name.trim()) {
       return res.status(400).json({ error: 'Food name is required' });
@@ -83,6 +83,7 @@ router.post('/foods', (req, res) => {
       sodium: Number(sodium) || 0,
       caffeine: Number(caffeine) || 0,
       total_grams: Number(total_grams) || null,
+      is_supplement: Boolean(is_supplement),
       created_at: new Date().toISOString()
     };
     
@@ -301,7 +302,7 @@ Return ONLY the JSON object, nothing else.`
 // PUT /api/foods/:id - Update food
 router.put('/foods/:id', (req, res) => {
   try {
-    const { name, kcal, protein, carbs, fats, sodium, caffeine, total_grams } = req.body;
+    const { name, kcal, protein, carbs, fats, sodium, caffeine, total_grams, is_supplement } = req.body;
     const store = readJSON(FOODS_FILE);
     const index = store.items.findIndex(f => f.id === Number(req.params.id));
     
@@ -329,7 +330,8 @@ router.put('/foods/:id', (req, res) => {
       fats: fats !== undefined ? Number(fats) : existing.fats,
       sodium: sodium !== undefined ? Number(sodium) : existing.sodium,
       caffeine: caffeine !== undefined ? Number(caffeine) : existing.caffeine,
-      total_grams: total_grams !== undefined ? (Number(total_grams) || null) : existing.total_grams
+      total_grams: total_grams !== undefined ? (Number(total_grams) || null) : existing.total_grams,
+      is_supplement: is_supplement !== undefined ? Boolean(is_supplement) : (existing.is_supplement || false)
     };
     
     store.items[index] = updated;
@@ -399,7 +401,8 @@ router.get('/logs', (req, res) => {
         fats: food?.fats || 0,
         sodium: food?.sodium || 0,
         caffeine: food?.caffeine || 0,
-        total_grams: food?.total_grams || null
+        total_grams: food?.total_grams || null,
+        is_supplement: food?.is_supplement || false
       };
     });
     
@@ -497,7 +500,8 @@ router.post('/logs', (req, res) => {
       fats: food.fats,
       sodium: food.sodium,
       caffeine: food.caffeine,
-      total_grams: food.total_grams
+      total_grams: food.total_grams,
+      is_supplement: food.is_supplement || false
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -541,7 +545,8 @@ router.put('/logs/:id', (req, res) => {
       fats: food?.fats || 0,
       sodium: food?.sodium || 0,
       caffeine: food?.caffeine || 0,
-      total_grams: food?.total_grams || null
+      total_grams: food?.total_grams || null,
+      is_supplement: food?.is_supplement || false
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -15,6 +15,7 @@ interface FormState {
   sodium: string;
   caffeine: string;
   total_grams: string;
+  is_supplement: boolean;
 }
 
 const initialFormState: FormState = {
@@ -26,6 +27,7 @@ const initialFormState: FormState = {
   sodium: '',
   caffeine: '',
   total_grams: '',
+  is_supplement: false,
 };
 
 export function FoodForm({ onFoodCreated }: FoodFormProps) {
@@ -58,6 +60,7 @@ export function FoodForm({ onFoodCreated }: FoodFormProps) {
         sodium: parseFloat(form.sodium) || 0,
         caffeine: parseFloat(form.caffeine) || 0,
         total_grams: parseFloat(form.total_grams) || null,
+        is_supplement: form.is_supplement,
       };
 
       const newFood = await createFood(foodData);
@@ -109,6 +112,16 @@ export function FoodForm({ onFoodCreated }: FoodFormProps) {
           className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
         />
       </div>
+
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={form.is_supplement}
+          onChange={(e) => setForm(prev => ({ ...prev, is_supplement: e.target.checked }))}
+          className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-emerald-600 focus:ring-emerald-500 dark:bg-zinc-800"
+        />
+        <span className="text-sm text-zinc-700 dark:text-zinc-300">This is a supplement</span>
+      </label>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {inputFields.map(({ name, label, unit, placeholder, step = '0.1' }) => (

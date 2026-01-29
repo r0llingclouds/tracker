@@ -1,10 +1,10 @@
-# Gamified Tracker
+# Tracker
 
 A full-stack personal productivity application combining **habit tracking**, **nutrition logging**, and **workout tracking** in one unified interface. Built with React, TypeScript, and Express.js, featuring AI-powered food parsing and visual gamification through heatmaps and scoring systems.
 
 ## Features
 
-### Habits Tracker
+### Habits
 
 Daily habit tracking with visual feedback through a GitHub-style contribution heatmap.
 
@@ -19,7 +19,7 @@ Daily habit tracking with visual feedback through a GitHub-style contribution he
 - **Dual Storage**: Saves to both localStorage and server API for reliability
 - **Auto-refresh**: Automatically updates at midnight for the new day
 
-### Food Tracker
+### Food
 
 Comprehensive nutrition logging with AI-powered assistance.
 
@@ -35,7 +35,7 @@ Comprehensive nutrition logging with AI-powered assistance.
 - **Intermittent Fasting**: Track fasting completion with customizable eating windows (default: 1 PM - 8 PM)
 - **Daily Summaries**: Aggregated nutrition totals with color-coded cards
 
-### Workout Tracker
+### Workouts
 
 Track kettlebell swings and push-ups with timers and visual progress heatmaps.
 
@@ -69,8 +69,8 @@ Track kettlebell swings and push-ups with timers and visual progress heatmaps.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/gamified-tracker.git
-   cd gamified-tracker
+   git clone https://github.com/yourusername/tracker.git
+   cd tracker
    ```
 
 2. Install dependencies:
@@ -197,7 +197,7 @@ TRACKER_DATA_DIR=/Users/you/Library/Mobile Documents/com~apple~CloudDocs/tracker
 ## Project Structure
 
 ```
-gamified-tracker/
+tracker/
 ├── src/
 │   ├── components/
 │   │   ├── habits/        # Habit tracking UI

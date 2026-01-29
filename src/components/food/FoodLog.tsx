@@ -42,6 +42,11 @@ export function FoodLog({ logs, onDelete, onEdit }: FoodLogProps) {
                       x{log.servings}
                     </span>
                   )}
+                  {log.is_supplement && (
+                    <span className="text-xs bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2 py-0.5 rounded-full">
+                      Supplement
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
                   {formatTime(log.logged_at)}

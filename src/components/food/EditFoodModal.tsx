@@ -17,6 +17,7 @@ interface FormState {
   fats: string;
   sodium: string;
   caffeine: string;
+  is_supplement: boolean;
 }
 
 export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: EditFoodModalProps) {
@@ -28,6 +29,7 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
     fats: '',
     sodium: '',
     caffeine: '',
+    is_supplement: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,6 +46,7 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
         fats: food.fats?.toString() || '',
         sodium: food.sodium?.toString() || '',
         caffeine: food.caffeine?.toString() || '',
+        is_supplement: food.is_supplement || false,
       });
     }
   }, [food]);
@@ -73,6 +76,7 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
         sodium: parseFloat(form.sodium) || 0,
         caffeine: parseFloat(form.caffeine) || 0,
         total_grams: null,
+        is_supplement: form.is_supplement,
       };
 
       const updated = await updateFood(food.id, foodData);
@@ -154,6 +158,16 @@ export function EditFoodModal({ food, onClose, onFoodUpdated, onFoodDeleted }: E
                 className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
               />
             </div>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.is_supplement}
+                onChange={(e) => setForm(prev => ({ ...prev, is_supplement: e.target.checked }))}
+                className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-emerald-600 focus:ring-emerald-500 dark:bg-zinc-800"
+              />
+              <span className="text-sm text-zinc-700 dark:text-zinc-300">This is a supplement</span>
+            </label>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {inputFields.map(({ name, label, unit, placeholder }) => (

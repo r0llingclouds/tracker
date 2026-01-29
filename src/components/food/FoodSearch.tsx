@@ -154,7 +154,14 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
                   index === selectedIndex ? 'bg-emerald-50 dark:bg-zinc-800' : ''
                 }`}
               >
-                <div className="font-medium text-zinc-800 dark:text-zinc-50">{food.name}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-zinc-800 dark:text-zinc-50">{food.name}</span>
+                  {food.is_supplement && (
+                    <span className="text-xs bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2 py-0.5 rounded-full">
+                      Supplement
+                    </span>
+                  )}
+                </div>
                 <div className="text-sm text-zinc-600 dark:text-zinc-400 flex flex-wrap gap-2 mt-1">
                   <span>{formatNutrient(food.kcal, ' kcal')}</span>
                   <span className="text-zinc-300 dark:text-zinc-600">|</span>
@@ -172,7 +179,14 @@ export function FoodSearch({ onSelect, onEditFood, refreshKey }: FoodSearchProps
         <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-lg p-4 space-y-3">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="font-semibold text-zinc-800 dark:text-zinc-50">{selectedFood.name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-zinc-800 dark:text-zinc-50">{selectedFood.name}</h3>
+                {selectedFood.is_supplement && (
+                  <span className="text-xs bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2 py-0.5 rounded-full">
+                    Supplement
+                  </span>
+                )}
+              </div>
               <div className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 grid grid-cols-3 gap-x-4 gap-y-1">
                 <span>Calories: {selectedFood.kcal} kcal</span>
                 <span>Protein: {selectedFood.protein}g</span>
